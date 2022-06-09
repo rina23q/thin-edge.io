@@ -1,7 +1,6 @@
 name: hosted-post-merge_version_update
 on:
   workflow_dispatch:
-    branches: [main]
 
 env:
   CARGO_TERM_COLOR: always

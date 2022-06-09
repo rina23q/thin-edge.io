@@ -1,13 +1,9 @@
 name: build-workflow
 
 on:
-  workflow_run:
-    workflows: ["commit-workflow"]
-    branches: [main]
-    types:
-      - completed
+  push:
+    branches: [main, 'release-*', experiment]
   workflow_dispatch:
-    branches: [main]
 
 env:
   CARGO_TERM_COLOR: always

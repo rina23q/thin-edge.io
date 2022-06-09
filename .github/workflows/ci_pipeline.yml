@@ -15,7 +15,6 @@ on:
   push:
     branches: [main, 'release-*']
   workflow_dispatch:
-    branches: [main, 'release-*']
 
 env:
   CARGO_TERM_COLOR: always
