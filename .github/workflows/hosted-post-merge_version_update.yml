@@ -27,11 +27,11 @@ jobs:
       - name: Enable cache
         uses: Swatinem/rust-cache@v1
 
-      - name: Install cargo-release
-        uses: actions-rs/cargo@v1
-        with:
-          command: install
-          args: --version 0.16.2 cargo-release
+#      - name: Install cargo-release
+#        uses: actions-rs/cargo@v1
+#        with:
+#          command: install
+#          args: --version 0.16.2 cargo-release
 
       - name: Increment version and tag
         uses: actions-rs/cargo@v1
