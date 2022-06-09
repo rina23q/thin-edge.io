@@ -30,13 +30,13 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: install
-          args: cargo-release
+          args: cargo-release --version 0.21.0
 
       - name: Increment version and tag
         uses: actions-rs/cargo@v1
         with:
           command: release
-          args: patch --skip-publish --skip-push --skip-tag -vv --no-dev-version --no-confirm
+          args: patch --no-publish --no-push --no-tag -vv --no-dev-version --no-confirm
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v3
