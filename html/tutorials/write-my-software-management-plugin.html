@@ -1,0 +1,529 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Write my own software management plugin - thin-edge.io docs</title>
+                
+
+        <!-- Custom HTML head -->
+        
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+                <link rel="icon" href="../favicon.svg">
+                        <link rel="shortcut icon" href="../favicon.png">
+                <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+                <link rel="stylesheet" href="../css/print.css" media="print">
+        
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+                <link rel="stylesheet" href="../fonts/fonts.css">
+        
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+            </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item "><a href="../SUMMARY.html"><strong aria-hidden="true">1.</strong> Summary</a></li><li class="chapter-item "><a href="../001_overview.html"><strong aria-hidden="true">2.</strong> Introduction</a></li><li class="chapter-item "><a href="../user_doc.html"><strong aria-hidden="true">3.</strong> User Documentation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../tutorials/tutorials.html"><strong aria-hidden="true">3.1.</strong> Tutorials</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../tutorials/connect-c8y.html"><strong aria-hidden="true">3.1.1.</strong> Connect my device to Cumulocity IoT</a></li><li class="chapter-item "><a href="../tutorials/connect-azure.html"><strong aria-hidden="true">3.1.2.</strong> Connect my device to Azure IoT</a></li><li class="chapter-item "><a href="../tutorials/send-thin-edge-data.html"><strong aria-hidden="true">3.1.3.</strong> Send Thin Edge Json data</a></li><li class="chapter-item "><a href="../tutorials/raise-alarm.html"><strong aria-hidden="true">3.1.4.</strong> Raise alarms</a></li><li class="chapter-item "><a href="../tutorials/send-events.html"><strong aria-hidden="true">3.1.5.</strong> Send events</a></li><li class="chapter-item "><a href="../tutorials/device-monitoring.html"><strong aria-hidden="true">3.1.6.</strong> Monitor my device</a></li><li class="chapter-item "><a href="../tutorials/software-management.html"><strong aria-hidden="true">3.1.7.</strong> Manage my device software</a></li><li class="chapter-item "><a href="../tutorials/write-my-software-management-plugin.html" class="active"><strong aria-hidden="true">3.1.8.</strong> Write my software management plugin</a></li><li class="chapter-item "><a href="../tutorials/supported_operations.html"><strong aria-hidden="true">3.1.9.</strong> Supported Operations Management for Cumulocity IoT</a></li></ol></li><li class="chapter-item "><a href="../howto-guides/howto-guides.html"><strong aria-hidden="true">3.2.</strong> How-to Guides</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../howto-guides/002_installation.html"><strong aria-hidden="true">3.2.1.</strong> Installation</a></li><li class="chapter-item "><a href="../howto-guides/003_registration.html"><strong aria-hidden="true">3.2.2.</strong> How to create a test certificate</a></li><li class="chapter-item "><a href="../howto-guides/004_connect.html"><strong aria-hidden="true">3.2.3.</strong> How to connect a cloud end-point</a></li><li class="chapter-item "><a href="../howto-guides/005_pub_sub.html"><strong aria-hidden="true">3.2.4.</strong> How to send MQTT messages</a></li><li class="chapter-item "><a href="../howto-guides/007_test_connection.html"><strong aria-hidden="true">3.2.5.</strong> How to test the cloud connection?</a></li><li class="chapter-item "><a href="../howto-guides/008_config_local_mqtt_bind_address_and_port.html"><strong aria-hidden="true">3.2.6.</strong> How to configure the local mqtt bind address and port</a></li><li class="chapter-item "><a href="../howto-guides/009_trouble_shooting_monitoring.html"><strong aria-hidden="true">3.2.7.</strong> How to trouble shoot device monitoring</a></li><li class="chapter-item "><a href="../howto-guides/010_add_self_signed_trusted.html"><strong aria-hidden="true">3.2.8.</strong> How to add self-signed certificate root to trusted certificates list?</a></li><li class="chapter-item "><a href="../howto-guides/011_retrieve_jwt_token_from_cumulocity.html"><strong aria-hidden="true">3.2.9.</strong> How to retrieve JWT token from Cumulocity?</a></li><li class="chapter-item "><a href="../howto-guides/012_install_and_enable_software_management.html"><strong aria-hidden="true">3.2.10.</strong> How to install and enable software management?</a></li><li class="chapter-item "><a href="../howto-guides/013_connect_external_device.html"><strong aria-hidden="true">3.2.11.</strong> How to connect an external device?</a></li><li class="chapter-item "><a href="../howto-guides/014_thin_edge_logs.html"><strong aria-hidden="true">3.2.12.</strong> How to access the logs on the device?</a></li><li class="chapter-item "><a href="../howto-guides/015_installation_without_deb_support.html"><strong aria-hidden="true">3.2.13.</strong> How to install thin-edge.io on any Linux OS (no deb support)?</a></li><li class="chapter-item "><a href="../howto-guides/016_restart_device_operation.html"><strong aria-hidden="true">3.2.14.</strong> How to restart your thin-edge.io device</a></li><li class="chapter-item "><a href="../howto-guides/017_apama_software_management_plugin.html"><strong aria-hidden="true">3.2.15.</strong> How to use apama software management plugin</a></li><li class="chapter-item "><a href="../howto-guides/018_change_temp_path.html"><strong aria-hidden="true">3.2.16.</strong> How to change temp path</a></li><li class="chapter-item "><a href="../howto-guides/019_how_to_use_preferred_init_system.html"><strong aria-hidden="true">3.2.17.</strong> How to use thin-edge.io with your preferred init system</a></li><li class="chapter-item "><a href="../howto-guides/020_monitor_tedge_health.html"><strong aria-hidden="true">3.2.18.</strong> How to monitor health of tedge daemons</a></li><li class="chapter-item "><a href="../howto-guides/021_enable_tedge_watchdog_using_systemd.html"><strong aria-hidden="true">3.2.19.</strong> How to enable systemd watchdog monitoring for tedge services?</a></li><li class="chapter-item "><a href="../howto-guides/022_c8y_fragments.html"><strong aria-hidden="true">3.2.20.</strong> How to add custom fragments to Cumulocity</a></li><li class="chapter-item "><a href="../howto-guides/023_c8y_log_plugin.html"><strong aria-hidden="true">3.2.21.</strong> How to retrieve logs with the log plugin</a></li><li class="chapter-item "><a href="../howto-guides/024_smartrest_templates.html"><strong aria-hidden="true">3.2.22.</strong> How to use Cumulocity Custom SmartREST 2.0 Templates with thin-edge.io</a></li><li class="chapter-item "><a href="../howto-guides/025_config_management_plugin.html"><strong aria-hidden="true">3.2.23.</strong> How to manage configuration files with Cumulocity</a></li></ol></li></ol></li><li class="chapter-item expanded "><a href="../dev_doc.html"><strong aria-hidden="true">4.</strong> Developer Documentation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../architecture/architecture.html"><strong aria-hidden="true">4.1.</strong> Architecture</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../architecture/thin-edge-json.html"><strong aria-hidden="true">4.1.1.</strong> Thin Edge Json</a></li><li class="chapter-item "><a href="../architecture/mapper.html"><strong aria-hidden="true">4.1.2.</strong> The Mapper</a></li><li class="chapter-item "><a href="../architecture/software-management.html"><strong aria-hidden="true">4.1.3.</strong> Software Management</a></li><li class="chapter-item "><a href="../architecture/faq.html"><strong aria-hidden="true">4.1.4.</strong> Architecture FAQ</a></li><li class="chapter-item "><a href="../supported-platforms.html"><strong aria-hidden="true">4.1.5.</strong> Platform support</a></li><li class="chapter-item "><a href="../references/init-system-config.html"><strong aria-hidden="true">4.1.6.</strong> Init System configuration</a></li></ol></li><li class="chapter-item expanded "><a href="../tutorials/write-my-software-management-plugin.html" class="active"><strong aria-hidden="true">4.2.</strong> Write my own software management plugin</a></li><li class="chapter-item "><a href="../references/c8y-configuration-management.html"><strong aria-hidden="true">4.3.</strong> Device Configuration Management using Cumulocity</a></li><li class="chapter-item "><a href="../api.html"><strong aria-hidden="true">4.4.</strong> APIs</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../references/bridged-topics.html"><strong aria-hidden="true">4.4.1.</strong> The Bridged Topics</a></li><li class="chapter-item "><a href="../references/plugin-api.html"><strong aria-hidden="true">4.4.2.</strong> The Software Management Plugin API</a></li></ol></li><li class="chapter-item "><a href="../BUILDING.html"><strong aria-hidden="true">4.5.</strong> Building</a></li></ol></li><li class="chapter-item "><a href="../references/references.html"><strong aria-hidden="true">5.</strong> Command Line Reference</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../references/tedge.html"><strong aria-hidden="true">5.1.</strong> The tedge command</a></li><li class="chapter-item "><a href="../references/tedge-config.html"><strong aria-hidden="true">5.2.</strong> The tedge config command</a></li><li class="chapter-item "><a href="../references/tedge-cert.html"><strong aria-hidden="true">5.3.</strong> The tedge cert command</a></li><li class="chapter-item "><a href="../references/tedge-connect.html"><strong aria-hidden="true">5.4.</strong> The tedge connect command</a></li><li class="chapter-item "><a href="../references/tedge-disconnect.html"><strong aria-hidden="true">5.5.</strong> The tedge disconnect command</a></li><li class="chapter-item "><a href="../references/tedge-mqtt.html"><strong aria-hidden="true">5.6.</strong> The tedge mqtt command</a></li></ol></li></ol>            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                                                <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                                            </div>
+
+                    <h1 class="menu-title">thin-edge.io docs</h1>
+
+                    <div class="right-buttons">
+                                                <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                                                                        
+                    </div>
+                </div>
+
+                                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="write-my-software-management-plugin"><a class="header" href="#write-my-software-management-plugin">Write my software management plugin</a></h1>
+<p><strong>thin-edge.io</strong> Software Management natively supports APT (Debian) packages.
+However, there are many package management systems in the world,
+and you may want to have a plugin that is suitable for your device.
+For such a demand, we provide the <a href="./../references/plugin-api.html"><strong>Package Manager Plugin API</strong></a>
+to write a custom Software Management plugin in your preferred programming language.</p>
+<p>In this tutorial, we will look into the <strong>Package Manager Plugin API</strong>,
+and learn how to write your own plugin with a docker plugin shell script example.</p>
+<h2 id="create-a-plugin"><a class="header" href="#create-a-plugin">Create a plugin</a></h2>
+<p>Create a <em>docker</em> file in the directory <em>/etc/tedge/sm-plugins/</em>. 
+A plugin must be an executable file located in that directory.</p>
+<p>Filename: /etc/tedge/sm-plugins/docker</p>
+<pre><code class="language-shell">#!/bin/sh
+
+COMMAND=&quot;$1&quot;
+IMAGE_NAME=&quot;$2&quot;
+
+case &quot;$COMMAND&quot; in
+    list)
+        docker image list --format '{{.Repository}}\t{{.Tag}}' || exit 2
+        ;;
+    install)
+        docker pull $IMAGE_NAME || exit 2
+        ;;
+    remove)
+        docker rmi $IMAGE_NAME || exit 2
+        ;;
+    prepare)
+        ;;
+    finalize)
+        ;;
+    update-list)
+        exit 1
+        ;;
+esac
+exit 0
+</code></pre>
+<blockquote>
+<p><strong>Info</strong>: the filename will be used as a plugin type to report the software list to a cloud.
+If you name it <code>docker.sh</code>, you will see <code>docker.sh</code> as a plugin type in cloud.</p>
+</blockquote>
+<p>If you execute <code>./docker list</code>, you will see this kind of output.</p>
+<pre><code class="language-csv">alpine  3.14
+eclipse-mosquitto   2.0-openssl
+...
+</code></pre>
+<p>The Software Management Agent runs executable plugins with a special argument, like <code>list</code>.
+Let's call the pre-defined argument such as <code>list</code>, <code>install</code>, and <code>remove</code> a <strong>command</strong> here. 
+As you can see from this example, a plugin should be an executable file 
+that accepts the commands and outputs to stdout and stderr.
+Hence, you can implement a plugin in your preferred language.</p>
+<p>Here is the table of the commands that you can use in a plugin.</p>
+<table><thead><tr><th>Command</th><th>Input arguments</th><th>Expected output</th><th>Description</th></tr></thead><tbody>
+<tr><td>list</td><td>-</td><td>lines with tab separated values</td><td>Returns the list of software modules that have been installed with this plugin.</td></tr>
+<tr><td>prepare</td><td>-</td><td>-</td><td>Executes the provided actions before a sequence of install and remove commands.</td></tr>
+<tr><td>finalize</td><td>-</td><td>-</td><td>Executes the provided actions after a sequence of install and remove commands.</td></tr>
+<tr><td>install</td><td>NAME [--version VERSION] [--file FILE]</td><td>-</td><td>Executes the action of installation.</td></tr>
+<tr><td>remove</td><td>NAME [--version VERSION]</td><td>-</td><td>Executes the action of uninstallation.</td></tr>
+<tr><td>update-list</td><td>COMMAND NAME [--version VERSION] [--file FILE]</td><td>-</td><td>Executes the list of <code>install</code> and <code>remove</code> commands.</td></tr>
+</tbody></table>
+<p>The order of the commands invoked by the Software Management Agent is:
+<code>prepare</code> -&gt; <code>update-list</code> or [<code>install</code>, <code>remove</code>] -&gt;<code>finalize</code></p>
+<blockquote>
+<p><strong>info</strong>: There is no guarantee of the order between <code>install</code> and <code>remove</code>.
+If you need a specific order, use <code>update-list</code> command instead.</p>
+</blockquote>
+<p>In the following sections, we will dive into each command and other rules deeply.</p>
+<h2 id="input-output-and-errors"><a class="header" href="#input-output-and-errors">Input, Output, and Errors</a></h2>
+<p>Before we dive into each command, we should clarify the basic rules of plugins.</p>
+<h3 id="input"><a class="header" href="#input">Input</a></h3>
+<p>The command themselves and further required arguments must be given as command-line arguments.
+The only exception is <code>update-list</code>, which requires <strong>stdin</strong> input.</p>
+<h3 id="output"><a class="header" href="#output">Output</a></h3>
+<p>The <strong>stdout</strong> and <strong>stderr</strong> of the process running a plugin command are captured by the Software Management Agent.</p>
+<h3 id="exit-status"><a class="header" href="#exit-status">Exit status</a></h3>
+<p>The exit status of plugins are interpreted by sm-agent as follows:</p>
+<ul>
+<li><strong>0</strong>: success.</li>
+<li><strong>1</strong>: usage. The command arguments cannot be interpreted, and the command has not been launched.</li>
+<li><strong>2</strong>: failure. The command failed and there is no point to retry.</li>
+<li><strong>3</strong>: retry. The command failed but might be successful later (for instance, when the network will be back).</li>
+</ul>
+<h2 id="list"><a class="header" href="#list">List</a></h2>
+<p>The <code>list</code> command is responsible to return the list of the installed software modules.</p>
+<p>Rules:</p>
+<ul>
+<li>This command takes no arguments.</li>
+<li>The list is returned using <a href="https://en.wikipedia.org/wiki/Tab-separated_values">CSV with tabulations as separators</a>,
+including:
+<ul>
+<li><strong>name</strong>: the name of the software module, e.g. <code>mosquitto</code>.
+This name is the name that has been used to install it and that needs to be used to remove it.</li>
+<li><strong>version</strong>: the version currently installed.
+This is a string that can only be interpreted in the context of the plugin.
+&gt;Note: If the version is not present for a module, then list can return only the module name without trailing tabulation.
+Given that your plugin is named <code>docker</code>, then the Software Management Agent calls</li>
+</ul>
+</li>
+</ul>
+<pre><code class="language-shell">sudo /etc/tedge/sm-plugins/docker list
+</code></pre>
+<p>to report the list of software modules installed.</p>
+<blockquote>
+<p><strong>Important</strong>: the Software Management Agent executes a plugin using <code>sudo</code> and as <code>tedge-agent</code> user.</p>
+</blockquote>
+<p><code>docker</code> should output in the CSV with tabulations as separators like</p>
+<pre><code class="language-csv">alpine  3.14
+eclipse-mosquitto   2.0-openssl
+rust    1.51-alpine
+</code></pre>
+<p>with exit code <code>0</code> (successful).</p>
+<p>In most cases, the output of the <code>list</code> command is multi-lines.
+The line separator should be <code>\n</code>.</p>
+<p>A plugin must return a CSV line per software module, using a tabulation <code>\t</code> as separator.
+If there is no version field then only the module name will be returned.
+In the <em>docker</em> file example, the following command outputs CSV structures with tabulations as separator.</p>
+<pre><code class="language-shell">docker image list --format '{{.Repository}}\t{{.Tag}}'
+</code></pre>
+<h2 id="prepare"><a class="header" href="#prepare">Prepare</a></h2>
+<p>The <code>prepare</code> command is invoked by the sm-agent before a sequence of install and remove commands.</p>
+<p>Rules:</p>
+<ul>
+<li>It takes no argument and no output is expected.</li>
+<li>If the <code>prepare</code> command fails,
+then the whole Software Management operation is cancelled.</li>
+</ul>
+<p>For many plugins, this command has nothing specific to do, and can simply return with a <code>0</code> exit status.</p>
+<p>In some plugin types, this <code>prepare</code> command can help you.
+For example, assume that you want to implement a plugin for APT,
+and want to run <code>apt-get update</code> always before calling the <code>install</code> command. 
+In this example, the <code>prepare</code> command is the right place to invoke <code>apt-get update</code>.</p>
+<h2 id="finalize"><a class="header" href="#finalize">Finalize</a></h2>
+<p>The <code>finalize</code> command closes a sequence of install and removes commands started by a prepare command.</p>
+<p>Rules:</p>
+<ul>
+<li>It takes no argument and no output is expected.</li>
+<li>If the <code>finalize</code> command fails, then the whole Software Management operation is reported as failed,
+even if all the atomic actions have been successfully completed.</li>
+</ul>
+<p>Similar to the <code>prepare</code> plugin, you must define the command even if you want nothing in the <code>finalize</code> command.</p>
+<p>The command can be used in several situations. For example, </p>
+<ul>
+<li>remove any unnecessary software module after a sequence of actions.</li>
+<li>commit or roll back the sequence of actions.</li>
+<li>restart any processes using the modules,
+e.g. restart the analytics engines if the modules have changed.</li>
+</ul>
+<h2 id="install"><a class="header" href="#install">Install</a></h2>
+<p>The <code>install</code> command installs a software module, possibly of some expected version.
+A plugin must be executable in the below format.</p>
+<pre><code class="language-shell">$ myplugin install NAME [--module-version VERSION] [--file FILE]
+</code></pre>
+<p>This command takes 1 mandatory argument and has 2 optional flags.</p>
+<ul>
+<li><strong>NAME</strong>: the name of the software module to be installed, e.g. <code>mosquitto</code>. (Mandatory)</li>
+<li><strong>VERSION</strong>: the version to be installed. e.g. <code>1.5.7-1+deb10u1</code>.
+The version can be blank, so it's recommended to define the behaviour if a version is not provided. 
+For example, always installs the &quot;latest&quot; version if a version is not provided. (Optional)</li>
+<li><strong>FILE</strong>: the path to the software to be installed. (Optional)</li>
+</ul>
+<p>The installation phase may fail due to the following reasons.
+An error must be reported if:</p>
+<ul>
+<li>The module name is unknown.</li>
+<li>There is no version for the module that matches the constraint provided by the <code>--module-version</code> option.</li>
+<li>The file content provided by <code>--file</code> option:
+<ul>
+<li>is not in the expected format,</li>
+<li>doesn't correspond to the software module name,</li>
+<li>has a version that doesn't match the constraint provided by the <code>--module-version</code> option (if any).</li>
+</ul>
+</li>
+<li>The module cannot be downloaded.</li>
+<li>The module cannot be installed.</li>
+</ul>
+<p>At the API level, there is no command to distinguish install or upgrade.</p>
+<p>Back to the first <em>docker</em> example, it doesn't address the case with version. 
+Let's expand the example file as below.</p>
+<p>Filename: /etc/tedge/sm-plugins/docker</p>
+<pre><code class="language-shell">#!/bin/sh
+
+COMMAND=&quot;$1&quot;
+IMAGE_NAME=&quot;$2&quot;
+VERSION_FLAG=&quot;$3&quot;
+IMAGE_TAG=&quot;$4&quot;
+
+case &quot;$COMMAND&quot; in
+    list)
+        docker image list --format '{{.Repository}}\t{{.Tag}}' || exit 2
+        ;;
+    install)
+        if [ $# -eq 2 ]; then
+            docker pull $IMAGE_NAME || exit 2
+        elif [ $# -eq 4 ] &amp;&amp; [ $VERSION_FLAG = &quot;--module-version&quot; ]; then
+            docker pull $IMAGE_NAME:$IMAGE_TAG || exit 2
+        else
+            echo &quot;Invalid arguments&quot;
+            exit 1
+        fi
+        ;;
+    remove)
+        if [ $# -eq 2 ]; then
+            docker rmi $IMAGE_NAME || exit 2
+        elif [ $# -eq 4 ] &amp;&amp; [ $VERSION_FLAG = &quot;--module-version&quot; ]; then
+            docker rmi $IMAGE_NAME:$IMAGE_TAG || exit 2
+        else
+            echo &quot;Invalid arguments&quot;
+            exit 1
+        fi
+        ;;
+    prepare)
+        ;;
+    finalize)
+        ;;
+    update-list)
+        exit 1
+        ;;
+esac
+exit 0
+</code></pre>
+<p>Pay attention to the exit statuses.
+In case of invalid arguments, the plugin returns <code>1</code>.
+If a command is executed but fails, the plugin returns <code>2</code>.
+Each exit status is defined <a href="#exit-status">here</a>.</p>
+<p>If the given NAME is <code>mosquitto</code>, and the given VERSION is <code>1.5.7-1+deb10u1</code>,
+the Software Management Agent calls</p>
+<pre><code class="language-shell">sudo /etc/tedge/sm-plugins/docker install mosquitto --module-version 1.5.7-1+deb10u1
+</code></pre>
+<p>Then, the plugin executes</p>
+<pre><code class="language-shell">docker pull mosquitto:1.5.7-1+deb10u1
+</code></pre>
+<h2 id="remove"><a class="header" href="#remove">Remove</a></h2>
+<p>The <code>remove</code> command uninstalls a software module,
+and possibly its dependencies if no other modules are dependent on those.
+A plugin must be executable in the below format.</p>
+<pre><code class="language-shell">$ myplugin remove NAME [--module-version VERSION]
+</code></pre>
+<p>This command takes 1 mandatory argument and 1 optional argument with a flag.</p>
+<ul>
+<li><strong>NAME</strong>: the name of the software module to be removed, e.g. <code>mosquitto</code>. (Mandatory)</li>
+<li><strong>VERSION</strong>: the version to be installed. e.g. <code>1.5.7-1+deb10u1</code>.
+The version can be blank, so it's recommended to define the behaviour if a version is not provided.
+For example, uninstall a software module regardless of its version if a version is not provided. (Optional)</li>
+</ul>
+<p>The uninstallation phase can be failed due to several reasons. An error must be reported if:</p>
+<ul>
+<li>The module name is unknown.</li>
+<li>The module cannot be uninstalled.</li>
+</ul>
+<p>Back to the first <em>docker</em> plugin example,
+if the NAME is <code>mosquitto</code>, and the VERSION is <code>1.5.7-1+deb10u1</code>,
+the Software Management Agent calls</p>
+<pre><code class="language-shell">sudo /etc/tedge/sm-plugins/docker remove mosquitto --module-version 1.5.7-1+deb10u1
+</code></pre>
+<p>Then, the plugin executes</p>
+<pre><code class="language-shell">docker rmi mosquitto:1.5.7-1+deb10u1
+</code></pre>
+<h2 id="update-list"><a class="header" href="#update-list">Update-list</a></h2>
+<p>The <code>update-list</code> command accepts a list of software modules and associated operations as <code>install</code> or <code>remove</code>.
+This basically achieves the same purpose as original commands install and remove,
+but gets passed all software modules to be processed in one command.
+This can be needed when an order of processing software modules is relevant.</p>
+<p>In other words, you can choose a combination of the <code>install</code> or <code>remove</code> commands or this <code>update-list</code> command up to your requirement.
+If you don't want to use <code>update-list</code>, the plugin must return <code>1</code> like the first <em>docker</em> plugin example.</p>
+<pre><code class="language-shell">case &quot;$COMMAND&quot; in
+    ...
+    update-list)
+        exit 1
+        ;;
+esac
+</code></pre>
+<p>Let's expand the first <em>docker</em> plugin example to use <code>update-list</code>.
+First, learn what is the input of <code>update-list</code>.</p>
+<p>The Software Management Agent calls a plugin as below. Note that each argument is tab separated:</p>
+<pre><code class="language-shell">$ sudo /etc/tedge/sm-plugins/docker update-list &lt;&lt;EOF
+  install	name1	version1
+  install	name2		path2
+  remove	name3	version3
+  remove	name4
+EOF
+</code></pre>
+<p>The point is that it doesn't take any command-line argument, 
+but the software action list is sent through <strong>stdin</strong>.</p>
+<p>The behaviour of operations <code>install</code> and <code>remove</code> is the same as for original commands <code>install</code> and <code>remove</code>. 
+The above input is equivalent to the use of original commands (<code>install</code> and <code>remove</code>):</p>
+<pre><code class="language-shell">$ /etc/tedge/sm-plugins/docker install name1 --module-version version1
+$ /etc/tedge/sm-plugins/docker install name2 --file path2
+$ /etc/tedge/sm-plugins/docker remove &quot;name 3&quot; --module-version version3
+$ /etc/tedge/sm-plugins/docker remove name4
+</code></pre>
+<p>To make the <em>docker</em> plugin accept a list of install and remove actions,
+let's change the file as below.
+Note that this example works only in bash.</p>
+<p>Filename: /etc/tedge/sm-plugins/docker</p>
+<pre><code class="language-shell">#!/bin/bash
+
+COMMAND=&quot;$1&quot;
+
+case &quot;$COMMAND&quot; in
+    list)
+        docker image list --format '{{.Repository}}\t{{.Tag}}' || exit 2
+        ;;
+    install)
+        echo docker pull &quot;$2:$3&quot;
+        ;;
+    remove)
+        echo docker rmi &quot;$2:$3&quot;
+        ;;
+    prepare)
+        ;;
+    finalize)
+        ;;
+    update-list)
+        while IFS=$'\t' read -r ACTION MODULE VERSION FILE
+        do
+            bash -c &quot;$0 $ACTION $MODULE $VERSION&quot;
+        done
+        ;;
+esac
+exit 0
+</code></pre>
+<p>You can find that <code>install</code> and <code>remove</code> are replaced by <code>update-list</code>.
+<code>update-list</code> should define the behaviour to read line by line for the case <code>install</code> and <code>remove</code>.</p>
+<p>Also, <code>update-list</code> must be <strong>fail-fast</strong>.
+That example exists immediately if one of the commands fails.</p>
+<h2 id="project-references"><a class="header" href="#project-references">Project references</a></h2>
+<p>You can also refer to:</p>
+<ul>
+<li>the specification of the <a href="https://github.com/thin-edge/thin-edge.io/blob/main/docs/src/references/plugin-api.md">Package Manager Plugin API</a>.</li>
+<li><a href="https://github.com/thin-edge/thin-edge.io/tree/main/plugins/tedge_apt_plugin">the APT plugin</a> written in Rust. </li>
+<li><a href="https://github.com/thin-edge/thin-edge.io/blob/main/sm/plugins/tedge_docker_plugin/tedge_docker_plugin.sh">the example Docker plugin</a> written in POSIX standard shell script.
+This plugin can install/remove docker containers using docker image tags. This plugin is <strong>not</strong> to be used in production without necessary enhancements. It is to be used only as a reference to write your own plugin.</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                                                    <a rel="prev" href="../tutorials/software-management.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+                                                    <a rel="next" href="../tutorials/supported_operations.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                                    <a rel="prev" href="../tutorials/software-management.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+                                    <a rel="next" href="../tutorials/supported_operations.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                            </nav>
+
+        </div>
+
+        
+        
+        
+                <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        
+        
+                <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+        
+    </body>
+</html>

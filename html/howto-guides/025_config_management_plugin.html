@@ -1,0 +1,282 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>How to manage configuration files with Cumulocity - thin-edge.io docs</title>
+                
+
+        <!-- Custom HTML head -->
+        
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+                <link rel="icon" href="../favicon.svg">
+                        <link rel="shortcut icon" href="../favicon.png">
+                <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+                <link rel="stylesheet" href="../css/print.css" media="print">
+        
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+                <link rel="stylesheet" href="../fonts/fonts.css">
+        
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+            </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item "><a href="../SUMMARY.html"><strong aria-hidden="true">1.</strong> Summary</a></li><li class="chapter-item "><a href="../001_overview.html"><strong aria-hidden="true">2.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="../user_doc.html"><strong aria-hidden="true">3.</strong> User Documentation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../tutorials/tutorials.html"><strong aria-hidden="true">3.1.</strong> Tutorials</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../tutorials/connect-c8y.html"><strong aria-hidden="true">3.1.1.</strong> Connect my device to Cumulocity IoT</a></li><li class="chapter-item "><a href="../tutorials/connect-azure.html"><strong aria-hidden="true">3.1.2.</strong> Connect my device to Azure IoT</a></li><li class="chapter-item "><a href="../tutorials/send-thin-edge-data.html"><strong aria-hidden="true">3.1.3.</strong> Send Thin Edge Json data</a></li><li class="chapter-item "><a href="../tutorials/raise-alarm.html"><strong aria-hidden="true">3.1.4.</strong> Raise alarms</a></li><li class="chapter-item "><a href="../tutorials/send-events.html"><strong aria-hidden="true">3.1.5.</strong> Send events</a></li><li class="chapter-item "><a href="../tutorials/device-monitoring.html"><strong aria-hidden="true">3.1.6.</strong> Monitor my device</a></li><li class="chapter-item "><a href="../tutorials/software-management.html"><strong aria-hidden="true">3.1.7.</strong> Manage my device software</a></li><li class="chapter-item "><a href="../tutorials/write-my-software-management-plugin.html"><strong aria-hidden="true">3.1.8.</strong> Write my software management plugin</a></li><li class="chapter-item "><a href="../tutorials/supported_operations.html"><strong aria-hidden="true">3.1.9.</strong> Supported Operations Management for Cumulocity IoT</a></li></ol></li><li class="chapter-item expanded "><a href="../howto-guides/howto-guides.html"><strong aria-hidden="true">3.2.</strong> How-to Guides</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../howto-guides/002_installation.html"><strong aria-hidden="true">3.2.1.</strong> Installation</a></li><li class="chapter-item "><a href="../howto-guides/003_registration.html"><strong aria-hidden="true">3.2.2.</strong> How to create a test certificate</a></li><li class="chapter-item "><a href="../howto-guides/004_connect.html"><strong aria-hidden="true">3.2.3.</strong> How to connect a cloud end-point</a></li><li class="chapter-item "><a href="../howto-guides/005_pub_sub.html"><strong aria-hidden="true">3.2.4.</strong> How to send MQTT messages</a></li><li class="chapter-item "><a href="../howto-guides/007_test_connection.html"><strong aria-hidden="true">3.2.5.</strong> How to test the cloud connection?</a></li><li class="chapter-item "><a href="../howto-guides/008_config_local_mqtt_bind_address_and_port.html"><strong aria-hidden="true">3.2.6.</strong> How to configure the local mqtt bind address and port</a></li><li class="chapter-item "><a href="../howto-guides/009_trouble_shooting_monitoring.html"><strong aria-hidden="true">3.2.7.</strong> How to trouble shoot device monitoring</a></li><li class="chapter-item "><a href="../howto-guides/010_add_self_signed_trusted.html"><strong aria-hidden="true">3.2.8.</strong> How to add self-signed certificate root to trusted certificates list?</a></li><li class="chapter-item "><a href="../howto-guides/011_retrieve_jwt_token_from_cumulocity.html"><strong aria-hidden="true">3.2.9.</strong> How to retrieve JWT token from Cumulocity?</a></li><li class="chapter-item "><a href="../howto-guides/012_install_and_enable_software_management.html"><strong aria-hidden="true">3.2.10.</strong> How to install and enable software management?</a></li><li class="chapter-item "><a href="../howto-guides/013_connect_external_device.html"><strong aria-hidden="true">3.2.11.</strong> How to connect an external device?</a></li><li class="chapter-item "><a href="../howto-guides/014_thin_edge_logs.html"><strong aria-hidden="true">3.2.12.</strong> How to access the logs on the device?</a></li><li class="chapter-item "><a href="../howto-guides/015_installation_without_deb_support.html"><strong aria-hidden="true">3.2.13.</strong> How to install thin-edge.io on any Linux OS (no deb support)?</a></li><li class="chapter-item "><a href="../howto-guides/016_restart_device_operation.html"><strong aria-hidden="true">3.2.14.</strong> How to restart your thin-edge.io device</a></li><li class="chapter-item "><a href="../howto-guides/017_apama_software_management_plugin.html"><strong aria-hidden="true">3.2.15.</strong> How to use apama software management plugin</a></li><li class="chapter-item "><a href="../howto-guides/018_change_temp_path.html"><strong aria-hidden="true">3.2.16.</strong> How to change temp path</a></li><li class="chapter-item "><a href="../howto-guides/019_how_to_use_preferred_init_system.html"><strong aria-hidden="true">3.2.17.</strong> How to use thin-edge.io with your preferred init system</a></li><li class="chapter-item "><a href="../howto-guides/020_monitor_tedge_health.html"><strong aria-hidden="true">3.2.18.</strong> How to monitor health of tedge daemons</a></li><li class="chapter-item "><a href="../howto-guides/021_enable_tedge_watchdog_using_systemd.html"><strong aria-hidden="true">3.2.19.</strong> How to enable systemd watchdog monitoring for tedge services?</a></li><li class="chapter-item "><a href="../howto-guides/022_c8y_fragments.html"><strong aria-hidden="true">3.2.20.</strong> How to add custom fragments to Cumulocity</a></li><li class="chapter-item "><a href="../howto-guides/023_c8y_log_plugin.html"><strong aria-hidden="true">3.2.21.</strong> How to retrieve logs with the log plugin</a></li><li class="chapter-item "><a href="../howto-guides/024_smartrest_templates.html"><strong aria-hidden="true">3.2.22.</strong> How to use Cumulocity Custom SmartREST 2.0 Templates with thin-edge.io</a></li><li class="chapter-item expanded "><a href="../howto-guides/025_config_management_plugin.html" class="active"><strong aria-hidden="true">3.2.23.</strong> How to manage configuration files with Cumulocity</a></li></ol></li></ol></li><li class="chapter-item "><a href="../dev_doc.html"><strong aria-hidden="true">4.</strong> Developer Documentation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../architecture/architecture.html"><strong aria-hidden="true">4.1.</strong> Architecture</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../architecture/thin-edge-json.html"><strong aria-hidden="true">4.1.1.</strong> Thin Edge Json</a></li><li class="chapter-item "><a href="../architecture/mapper.html"><strong aria-hidden="true">4.1.2.</strong> The Mapper</a></li><li class="chapter-item "><a href="../architecture/software-management.html"><strong aria-hidden="true">4.1.3.</strong> Software Management</a></li><li class="chapter-item "><a href="../architecture/faq.html"><strong aria-hidden="true">4.1.4.</strong> Architecture FAQ</a></li><li class="chapter-item "><a href="../supported-platforms.html"><strong aria-hidden="true">4.1.5.</strong> Platform support</a></li><li class="chapter-item "><a href="../references/init-system-config.html"><strong aria-hidden="true">4.1.6.</strong> Init System configuration</a></li></ol></li><li class="chapter-item "><a href="../tutorials/write-my-software-management-plugin.html"><strong aria-hidden="true">4.2.</strong> Write my own software management plugin</a></li><li class="chapter-item "><a href="../references/c8y-configuration-management.html"><strong aria-hidden="true">4.3.</strong> Device Configuration Management using Cumulocity</a></li><li class="chapter-item "><a href="../api.html"><strong aria-hidden="true">4.4.</strong> APIs</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../references/bridged-topics.html"><strong aria-hidden="true">4.4.1.</strong> The Bridged Topics</a></li><li class="chapter-item "><a href="../references/plugin-api.html"><strong aria-hidden="true">4.4.2.</strong> The Software Management Plugin API</a></li></ol></li><li class="chapter-item "><a href="../BUILDING.html"><strong aria-hidden="true">4.5.</strong> Building</a></li></ol></li><li class="chapter-item "><a href="../references/references.html"><strong aria-hidden="true">5.</strong> Command Line Reference</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../references/tedge.html"><strong aria-hidden="true">5.1.</strong> The tedge command</a></li><li class="chapter-item "><a href="../references/tedge-config.html"><strong aria-hidden="true">5.2.</strong> The tedge config command</a></li><li class="chapter-item "><a href="../references/tedge-cert.html"><strong aria-hidden="true">5.3.</strong> The tedge cert command</a></li><li class="chapter-item "><a href="../references/tedge-connect.html"><strong aria-hidden="true">5.4.</strong> The tedge connect command</a></li><li class="chapter-item "><a href="../references/tedge-disconnect.html"><strong aria-hidden="true">5.5.</strong> The tedge disconnect command</a></li><li class="chapter-item "><a href="../references/tedge-mqtt.html"><strong aria-hidden="true">5.6.</strong> The tedge mqtt command</a></li></ol></li></ol>            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                                                <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                                            </div>
+
+                    <h1 class="menu-title">thin-edge.io docs</h1>
+
+                    <div class="right-buttons">
+                                                <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                                                                        
+                    </div>
+                </div>
+
+                                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="how-to-manage-configuration-files-with-cumulocity"><a class="header" href="#how-to-manage-configuration-files-with-cumulocity">How to manage configuration files with Cumulocity</a></h1>
+<p>With <code>thin-edge.io</code>, you can manage config files on a device by using the <a href="https://cumulocity.com/guides/users-guide/device-management/#managing-configurations">Cumulocity configuration management feature</a> as a part of Device Management.</p>
+<p>If you are new to the Cumulocity <strong>Configuration Management</strong> feature,
+we recommend you to read <a href="https://cumulocity.com/guides/users-guide/device-management/#managing-configurations">the Cumulocity user guide</a> along with this how-to guide.</p>
+<h2 id="installation-of-c8y_configuration_plugin"><a class="header" href="#installation-of-c8y_configuration_plugin">Installation of <code>c8y_configuration_plugin</code></a></h2>
+<p>To enable the feature, first you need to install the <code>c8y_configuration_plugin</code> binary on your device.</p>
+<h3 id="using-the-get-thin-edge_iosh-script-on-debian-based-distributions-recommended"><a class="header" href="#using-the-get-thin-edge_iosh-script-on-debian-based-distributions-recommended">Using the <code>get-thin-edge_io.sh</code> script on Debian based distributions (Recommended)</a></h3>
+<p>If your device supports <code>apt</code> as a package manager,
+you can install all <code>thin-edge.io</code> packages including the <code>c8y_configuration_plugin</code> by the <code>get-thin-edge_io.sh</code> script.
+If you have already used the <code>get-thin-edge_io.sh</code> script,
+this package is installed, by default.</p>
+<pre><code class="language-shell">curl -fsSL https://raw.githubusercontent.com/thin-edge/thin-edge.io/main/get-thin-edge_io.sh | sudo sh -s
+</code></pre>
+<h3 id="using-the-c8y_configuration_plugin-debian-package-on-debian-based-distributions"><a class="header" href="#using-the-c8y_configuration_plugin-debian-package-on-debian-based-distributions">Using the <code>c8y_configuration_plugin</code> Debian package on Debian based distributions</a></h3>
+<p>For Debian based distributions, we provide the <code>c8y_configuration_plugin_&lt;version&gt;_&lt;arch&gt;.deb</code> package as a release asset <a href="https://github.com/thin-edge/thin-edge.io/releases">here</a>.</p>
+<p>In case that you didn't use the <code>get-thin-edge_io.sh</code> script, you can download the <code>c8y_configuration_plugin_&lt;version&gt;_&lt;arch&gt;.deb</code>  package on our <a href="https://github.com/thin-edge/thin-edge.io/releases">Releases</a> and install it.</p>
+<pre><code class="language-shell">sudo apt install ./path/to/package/c8y_configuration_plugin_&lt;version&gt;_&lt;arch&gt;.deb
+</code></pre>
+<h3 id="extracting-from-debian-package-on-non-debian-based-distributions"><a class="header" href="#extracting-from-debian-package-on-non-debian-based-distributions">Extracting from debian package on non-Debian based distributions</a></h3>
+<p>Get the <code>c8y_configuration_plugin_&lt;version&gt;_&lt;arch&gt;.deb</code> from our <a href="https://github.com/thin-edge/thin-edge.io/releases">Releases</a>.
+Then, run this command in the directory where the package is stored.</p>
+<pre><code class="language-shell">ar -x ./c8y_configuration_plugin_&lt;version&gt;_&lt;arch&gt;.deb | tar -xf ./data.tar.xz
+</code></pre>
+<p>The binary is extracted in <code>&lt;current directory&gt;/usr/bin</code>.
+For more details, refer to our guide <a href="./015_installation_without_deb_support.html#extracting-binaries-from-deb-packages">Extracting from debian package</a>.</p>
+<h3 id="building-from-sources"><a class="header" href="#building-from-sources">Building from sources</a></h3>
+<p>Follow our guide <a href="./../BUILDING.html">Buiding thin-edge.io</a> and <a href="./015_installation_without_deb_support.html#if-building-from-source">Building from source</a>.</p>
+<pre><code class="language-shell">cargo build --release -p c8y_configuration_plugin
+</code></pre>
+<p>A <code>systemd</code> unit file for <code>c8y_configuration_plugin</code> can be found in the repository at <code>configuration/init/systemd/c8y-configuration-plugin.service</code>
+and should be installed on the target in: <code>/lib/systemd/system/c8y-configuration-plugin.service</code>.</p>
+<pre><code class="language-shell">sudo cp &lt;repository_root&gt;/configuration/init/systemd/c8y-configuration-plugin.service /lib/systemd/system/c8y-configuration-plugin.service
+</code></pre>
+<h2 id="get-started"><a class="header" href="#get-started">Get started</a></h2>
+<p>Before starting anything, make sure <a href="./../tutorials/connect-c8y.html">your device is connected to Cumulocity</a>.</p>
+<p><strong>Step 0</strong>
+Unless you installed <code>c8y_configuration_plugin</code> using the debian package,
+you need one additional step to initialize the plugin. Run this command.</p>
+<pre><code class="language-shell">sudo c8y_configuration_plugin --init
+</code></pre>
+<p><strong>Step 1</strong>
+Open the file <code>/etc/tedge/c8y/c8y-configuration-plugin.toml</code> and add entries for the configuration files that you'd like to manage from Cumulocity cloud in the following format:</p>
+<pre><code class="language-toml">files = [
+    { path = '/etc/tedge/tedge.toml', type = 'tedge.toml'},
+    { path = '/etc/tedge/mosquitto-conf/c8y-bridge.conf', type = 'c8y-bridge.conf' },
+    { path = '/etc/tedge/mosquitto-conf/tedge-mosquitto.conf', type = 'tedge-mosquitto.conf' },
+    { path = '/etc/mosquitto/mosquitto.conf', type = 'mosquitto.conf' },
+    { path = '/etc/tedge/c8y/example.txt', type = 'example', user = 'tedge', group = 'tedge', mode = 0o444 }
+]
+</code></pre>
+<ul>
+<li><code>path</code> is the full path to the configuration file.</li>
+<li><code>type</code> is a unique alias for each file entry which will be used to represent that file in Cumulocity UI.</li>
+<li><code>user</code>, <code>group</code> and <code>mode</code> are UNIX file permission settings to be used to create a configuration file. If not provided, the files will be created with <code>root</code> user. If the file exists already, its ownership will be retained.</li>
+</ul>
+<p>For more details on this configuration file format, refer to the <a href="./../references/c8y-configuration-management.html#configuration">reference guide</a>.</p>
+<blockquote>
+<p>Note: You can also configure the <code>c8y-configuration-plugin.toml</code> from the cloud later.</p>
+</blockquote>
+<p><strong>Step 2</strong>
+Start the configuration plugin process and enable it on boot by <code>systemctl</code> (recommended).</p>
+<pre><code class="language-shell">sudo systemctl start c8y-configuration-plugin.service
+sudo systemctl enable c8y-configuration-plugin.service
+</code></pre>
+<p>Alternatively, you can run the process directly.</p>
+<pre><code>sudo c8y_configuration_plugin
+</code></pre>
+<p><strong>Step 3</strong>
+Navigate to your Cumulocity Device Management and the desired device. Open its <strong>Configuration</strong> tab.
+You can find <code>c8y-configuration-plugin</code> and more are listed as supported configuration types, as declared in the plugin configuration file in step 1.</p>
+<p><img src="./images/c8y-config-plugin-upload.png" alt="Cumulocity Configuration Management Upload" /></p>
+<p>This is the configuration file of <code>c8y_configuration_plugin</code>, where you can add file entries that you want to manage with Cumulocity.</p>
+<h2 id="update-c8y-configuration-plugin-from-cumulocity"><a class="header" href="#update-c8y-configuration-plugin-from-cumulocity">Update <code>c8y-configuration-plugin</code> from Cumulocity</a></h2>
+<p>To update any configuration file, create a local copy of that config file and then upload that file to the <a href="https://cumulocity.com/guides/users-guide/device-management/#to-add-a-configuration-snapshot">Cumulocity configuration repository</a> with the appropriate configuration type.</p>
+<p>The <code>c8y-configuration-plugin.toml</code> file can also be updated from the cloud in a similar manner to add/remove further configuration file entries. The updated TOML file has to be uploaded with the configuration type:  <strong>c8y-configuration-plugin</strong>.</p>
+<p>Then, go back to the <strong>Configuration</strong> tab of your desired device in Cumulocity.</p>
+<p><img src="./images/c8y-config-plugin-download.png" alt="Cumulocity Configuration Management Donwload" /></p>
+<p>Click on the config file entry from the <strong>DEVICE SUPPORTED CONFIGURATIONS</strong> files list.
+You can choose the file that you uploaded from the <strong>AVAILABLE SUPPORTED CONFIGURATIONS</strong> section, and then apply that file to your device by clicking on the <strong>Send configuration to device</strong> button.</p>
+<p>After the operation created gets marked SUCCESSFUL, reload the page.
+Then you can find new supported configuration types as you defined.</p>
+<blockquote>
+<p>Note: All configuration updates are notified over <code>tedge/configuration_change/&lt;config-type&gt;</code> MQTT topic, giving the opportunity to software components installed on the device or a child device to react to these updates.
+For more details, refer to the <a href="./../references/c8y-configuration-management.html#notifications">Notifications section of the specification</a>.</p>
+</blockquote>
+<p>To get to know more about the <code>c8y_configuration_plugin</code>, refer to <a href="./../references/c8y-configuration-management.html">Specifications of Device Configuration Management using Cumulocity</a>.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                                                    <a rel="prev" href="../howto-guides/024_smartrest_templates.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+                                                    <a rel="next" href="../dev_doc.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                                    <a rel="prev" href="../howto-guides/024_smartrest_templates.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+                                    <a rel="next" href="../dev_doc.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                            </nav>
+
+        </div>
+
+        
+        
+        
+                <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        
+        
+                <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+        
+    </body>
+</html>

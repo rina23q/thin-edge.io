@@ -1,0 +1,345 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>The Mapper - thin-edge.io docs</title>
+                
+
+        <!-- Custom HTML head -->
+        
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+                <link rel="icon" href="../favicon.svg">
+                        <link rel="shortcut icon" href="../favicon.png">
+                <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+                <link rel="stylesheet" href="../css/print.css" media="print">
+        
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+                <link rel="stylesheet" href="../fonts/fonts.css">
+        
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+            </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item "><a href="../SUMMARY.html"><strong aria-hidden="true">1.</strong> Summary</a></li><li class="chapter-item "><a href="../001_overview.html"><strong aria-hidden="true">2.</strong> Introduction</a></li><li class="chapter-item "><a href="../user_doc.html"><strong aria-hidden="true">3.</strong> User Documentation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../tutorials/tutorials.html"><strong aria-hidden="true">3.1.</strong> Tutorials</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../tutorials/connect-c8y.html"><strong aria-hidden="true">3.1.1.</strong> Connect my device to Cumulocity IoT</a></li><li class="chapter-item "><a href="../tutorials/connect-azure.html"><strong aria-hidden="true">3.1.2.</strong> Connect my device to Azure IoT</a></li><li class="chapter-item "><a href="../tutorials/send-thin-edge-data.html"><strong aria-hidden="true">3.1.3.</strong> Send Thin Edge Json data</a></li><li class="chapter-item "><a href="../tutorials/raise-alarm.html"><strong aria-hidden="true">3.1.4.</strong> Raise alarms</a></li><li class="chapter-item "><a href="../tutorials/send-events.html"><strong aria-hidden="true">3.1.5.</strong> Send events</a></li><li class="chapter-item "><a href="../tutorials/device-monitoring.html"><strong aria-hidden="true">3.1.6.</strong> Monitor my device</a></li><li class="chapter-item "><a href="../tutorials/software-management.html"><strong aria-hidden="true">3.1.7.</strong> Manage my device software</a></li><li class="chapter-item "><a href="../tutorials/write-my-software-management-plugin.html"><strong aria-hidden="true">3.1.8.</strong> Write my software management plugin</a></li><li class="chapter-item "><a href="../tutorials/supported_operations.html"><strong aria-hidden="true">3.1.9.</strong> Supported Operations Management for Cumulocity IoT</a></li></ol></li><li class="chapter-item "><a href="../howto-guides/howto-guides.html"><strong aria-hidden="true">3.2.</strong> How-to Guides</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../howto-guides/002_installation.html"><strong aria-hidden="true">3.2.1.</strong> Installation</a></li><li class="chapter-item "><a href="../howto-guides/003_registration.html"><strong aria-hidden="true">3.2.2.</strong> How to create a test certificate</a></li><li class="chapter-item "><a href="../howto-guides/004_connect.html"><strong aria-hidden="true">3.2.3.</strong> How to connect a cloud end-point</a></li><li class="chapter-item "><a href="../howto-guides/005_pub_sub.html"><strong aria-hidden="true">3.2.4.</strong> How to send MQTT messages</a></li><li class="chapter-item "><a href="../howto-guides/007_test_connection.html"><strong aria-hidden="true">3.2.5.</strong> How to test the cloud connection?</a></li><li class="chapter-item "><a href="../howto-guides/008_config_local_mqtt_bind_address_and_port.html"><strong aria-hidden="true">3.2.6.</strong> How to configure the local mqtt bind address and port</a></li><li class="chapter-item "><a href="../howto-guides/009_trouble_shooting_monitoring.html"><strong aria-hidden="true">3.2.7.</strong> How to trouble shoot device monitoring</a></li><li class="chapter-item "><a href="../howto-guides/010_add_self_signed_trusted.html"><strong aria-hidden="true">3.2.8.</strong> How to add self-signed certificate root to trusted certificates list?</a></li><li class="chapter-item "><a href="../howto-guides/011_retrieve_jwt_token_from_cumulocity.html"><strong aria-hidden="true">3.2.9.</strong> How to retrieve JWT token from Cumulocity?</a></li><li class="chapter-item "><a href="../howto-guides/012_install_and_enable_software_management.html"><strong aria-hidden="true">3.2.10.</strong> How to install and enable software management?</a></li><li class="chapter-item "><a href="../howto-guides/013_connect_external_device.html"><strong aria-hidden="true">3.2.11.</strong> How to connect an external device?</a></li><li class="chapter-item "><a href="../howto-guides/014_thin_edge_logs.html"><strong aria-hidden="true">3.2.12.</strong> How to access the logs on the device?</a></li><li class="chapter-item "><a href="../howto-guides/015_installation_without_deb_support.html"><strong aria-hidden="true">3.2.13.</strong> How to install thin-edge.io on any Linux OS (no deb support)?</a></li><li class="chapter-item "><a href="../howto-guides/016_restart_device_operation.html"><strong aria-hidden="true">3.2.14.</strong> How to restart your thin-edge.io device</a></li><li class="chapter-item "><a href="../howto-guides/017_apama_software_management_plugin.html"><strong aria-hidden="true">3.2.15.</strong> How to use apama software management plugin</a></li><li class="chapter-item "><a href="../howto-guides/018_change_temp_path.html"><strong aria-hidden="true">3.2.16.</strong> How to change temp path</a></li><li class="chapter-item "><a href="../howto-guides/019_how_to_use_preferred_init_system.html"><strong aria-hidden="true">3.2.17.</strong> How to use thin-edge.io with your preferred init system</a></li><li class="chapter-item "><a href="../howto-guides/020_monitor_tedge_health.html"><strong aria-hidden="true">3.2.18.</strong> How to monitor health of tedge daemons</a></li><li class="chapter-item "><a href="../howto-guides/021_enable_tedge_watchdog_using_systemd.html"><strong aria-hidden="true">3.2.19.</strong> How to enable systemd watchdog monitoring for tedge services?</a></li><li class="chapter-item "><a href="../howto-guides/022_c8y_fragments.html"><strong aria-hidden="true">3.2.20.</strong> How to add custom fragments to Cumulocity</a></li><li class="chapter-item "><a href="../howto-guides/023_c8y_log_plugin.html"><strong aria-hidden="true">3.2.21.</strong> How to retrieve logs with the log plugin</a></li><li class="chapter-item "><a href="../howto-guides/024_smartrest_templates.html"><strong aria-hidden="true">3.2.22.</strong> How to use Cumulocity Custom SmartREST 2.0 Templates with thin-edge.io</a></li><li class="chapter-item "><a href="../howto-guides/025_config_management_plugin.html"><strong aria-hidden="true">3.2.23.</strong> How to manage configuration files with Cumulocity</a></li></ol></li></ol></li><li class="chapter-item expanded "><a href="../dev_doc.html"><strong aria-hidden="true">4.</strong> Developer Documentation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../architecture/architecture.html"><strong aria-hidden="true">4.1.</strong> Architecture</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../architecture/thin-edge-json.html"><strong aria-hidden="true">4.1.1.</strong> Thin Edge Json</a></li><li class="chapter-item expanded "><a href="../architecture/mapper.html" class="active"><strong aria-hidden="true">4.1.2.</strong> The Mapper</a></li><li class="chapter-item "><a href="../architecture/software-management.html"><strong aria-hidden="true">4.1.3.</strong> Software Management</a></li><li class="chapter-item "><a href="../architecture/faq.html"><strong aria-hidden="true">4.1.4.</strong> Architecture FAQ</a></li><li class="chapter-item "><a href="../supported-platforms.html"><strong aria-hidden="true">4.1.5.</strong> Platform support</a></li><li class="chapter-item "><a href="../references/init-system-config.html"><strong aria-hidden="true">4.1.6.</strong> Init System configuration</a></li></ol></li><li class="chapter-item "><a href="../tutorials/write-my-software-management-plugin.html"><strong aria-hidden="true">4.2.</strong> Write my own software management plugin</a></li><li class="chapter-item "><a href="../references/c8y-configuration-management.html"><strong aria-hidden="true">4.3.</strong> Device Configuration Management using Cumulocity</a></li><li class="chapter-item "><a href="../api.html"><strong aria-hidden="true">4.4.</strong> APIs</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../references/bridged-topics.html"><strong aria-hidden="true">4.4.1.</strong> The Bridged Topics</a></li><li class="chapter-item "><a href="../references/plugin-api.html"><strong aria-hidden="true">4.4.2.</strong> The Software Management Plugin API</a></li></ol></li><li class="chapter-item "><a href="../BUILDING.html"><strong aria-hidden="true">4.5.</strong> Building</a></li></ol></li><li class="chapter-item "><a href="../references/references.html"><strong aria-hidden="true">5.</strong> Command Line Reference</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../references/tedge.html"><strong aria-hidden="true">5.1.</strong> The tedge command</a></li><li class="chapter-item "><a href="../references/tedge-config.html"><strong aria-hidden="true">5.2.</strong> The tedge config command</a></li><li class="chapter-item "><a href="../references/tedge-cert.html"><strong aria-hidden="true">5.3.</strong> The tedge cert command</a></li><li class="chapter-item "><a href="../references/tedge-connect.html"><strong aria-hidden="true">5.4.</strong> The tedge connect command</a></li><li class="chapter-item "><a href="../references/tedge-disconnect.html"><strong aria-hidden="true">5.5.</strong> The tedge disconnect command</a></li><li class="chapter-item "><a href="../references/tedge-mqtt.html"><strong aria-hidden="true">5.6.</strong> The tedge mqtt command</a></li></ol></li></ol>            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                                                <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                                            </div>
+
+                    <h1 class="menu-title">thin-edge.io docs</h1>
+
+                    <div class="right-buttons">
+                                                <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                                                                        
+                    </div>
+                </div>
+
+                                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="the-tedge-mapper"><a class="header" href="#the-tedge-mapper">The tedge-mapper</a></h1>
+<p>The tedge-mapper is a key concept to support multiple cloud providers.
+The purpose is to translate
+messages written using the cloud-agnostic <a href="thin-edge-json.html">Thin Edge JSON format</a>,
+into cloud-specific messages.</p>
+<p>The tedge-mapper is composed of multiple cloud-specific mappers, such as Cumulocity mapper and Azure mapper.
+Each mapper is responsible for its dedicated cloud.
+These specific mappers are launched by the respective <code>tedge connect</code> command.
+For instance, <code>tedge connect c8y</code> establishes a bridge to Cumulocity and launches a Cumulocity mapper
+that translates the messages in the background.</p>
+<p>A mapper subscribes to the reserved MQTT topic <code>tedge/measurements</code> with the QoS level 1 (at least once).
+The messages that arrive in the mapper should be formed in the <a href="thin-edge-json.html">Thin Edge JSON</a> format.
+The mapper verifies whether the arrived messages are correctly formatted,
+in case the verification fails, the mapper publishes a corresponded error message
+on the topic <code>tedge/errors</code> with the QoS level 1 (at least once).</p>
+<p>When the mapper receives a correctly formatted message, 
+the message will be translated into a cloud-specific format.</p>
+<h2 id="cumulocity-mapper"><a class="header" href="#cumulocity-mapper">Cumulocity mapper</a></h2>
+<p>The Cumulocity mapper translates <a href="thin-edge-json.html">Thin Edge JSON</a> into Cumulocity's <a href="https://cumulocity.com/guides/device-sdk/mqtt/#json">JSON via MQTT</a>.
+The translated messages are published on the topic <code>c8y/measurement/measurements/create</code> from where they are forwarded to Cumulocity.
+This mapper is launched by the <code>tedge connect c8y</code> command, and stopped by the <code>tedge disconnect c8y</code> command.</p>
+<p>Example in Thin Edge JSON:</p>
+<pre><code class="language-json">{
+  &quot;temperature&quot;: 23
+}
+</code></pre>
+<p>Translated into JSON via MQTT by the Cumulocity mapper:</p>
+<pre><code class="language-json">{
+  &quot;type&quot;: &quot;ThinEdgeMeasurement&quot;,
+  &quot;time&quot;: &quot;2021-04-22T17:05:26.958340390+00:00&quot;,
+  &quot;temperature&quot;: {
+    &quot;temperature&quot;: {
+      &quot;value&quot;: 23
+    }
+  }
+}
+</code></pre>
+<p>You can see the Cumulocity mapper added the three things which are not defined before translation.</p>
+<ol>
+<li><code>type</code> is added.</li>
+<li><code>time</code> is added.</li>
+<li>Another hierarchy level is added, as required by the cumulocity data model.
+String <code>temperature</code> is used as fragment and series.</li>
+</ol>
+<p>(1) The <code>type</code> is a mandatory field in the Cumulocity's JSON via MQTT manner,
+therefore, the Cumulocity mapper always adds <code>ThinEdgeMeasurement</code> as a type.
+This value is not configurable by users.</p>
+<p>(2) <code>time</code> will be added by the mapper <strong>only when it is not specified in a received Thin Edge JSON message</strong>.
+In this case, the mapper uses the device's local timezone. If you want another timezone, specify the time filed in Thin Edge JSON.</p>
+<p>(3) The mapper uses a measurement name (&quot;temperature&quot; in this example)
+as both a fragment type and a fragment series in <a href="https://cumulocity.com/guides/reference/measurements/#examples">Cumulocity's measurements</a>.</p>
+<p>After the mapper publishes a message on the topic <code>c8y/measurement/measurements/create</code>,
+the message will be transferred to the topic <code>measurement/measurements/create</code> by <a href="../references/bridged-topics.html">the MQTT bridge</a>.</p>
+<h3 id="for-child-devices"><a class="header" href="#for-child-devices">For child devices</a></h3>
+<p>The Cumulocity mapper collects measurements not only from the main device but also from child devices.
+These measurements are collected under the <code>tedge/measurements/&lt;child-id&gt;</code> topics and forwarded to Cumulocity to corresponding child devices created under the <code>thin-edge.io</code> parent device.
+(<code>&lt;child-id&gt;</code> is your desired child device ID.)</p>
+<p>The mapper works in the following steps.</p>
+<ol>
+<li>When the mapper receives a Thin Edge JSON message on the <code>tedge/measurements/&lt;child-id&gt;</code> topic,
+the mapper sends a request to create a child device under the <code>thin-edge.io</code> parent device.
+The child device is named after the <code>&lt;child-id&gt;</code> topic name, and the type is <code>thin-edge.io-child</code>.</li>
+<li>Publish corresponded Cumulocity JSON measurements messages over MQTT.</li>
+<li>The child device is created on receipt of the very first measurement for that child device.</li>
+</ol>
+<p>If the incoming Thin Edge JSON message (published on <code>tedge/measurements/child1</code>) is as follows,</p>
+<pre><code class="language-json">{
+  &quot;temperature&quot;: 23
+}
+</code></pre>
+<p>it gets translated into JSON via MQTT by the Cumulocity mapper.</p>
+<pre><code class="language-json">{
+  &quot;type&quot;:&quot;ThinEdgeMeasurement&quot;,
+  &quot;externalSource&quot;:{
+    &quot;externalId&quot;:&quot;child1&quot;,
+    &quot;type&quot;:&quot;c8y_Serial&quot;
+  },
+  &quot;time&quot;:&quot;2013-06-22T17:03:14+02:00&quot;,
+  &quot;temperature&quot;:{
+    &quot;temperature&quot;:{
+      &quot;value&quot;:23
+    }
+  }
+}
+</code></pre>
+<h2 id="azure-iot-hub-mapper"><a class="header" href="#azure-iot-hub-mapper">Azure IoT Hub mapper</a></h2>
+<blockquote>
+<p>Note: Child device measurements are not supported yet on Azure IoT Hub.</p>
+</blockquote>
+<p>The Azure IoT Hub mapper takes messages formatted in the <a href="thin-edge-json.html">Thin Edge JSON</a> as input.
+It validates if the incoming message is correctly formatted Thin Edge JSON, then outputs the message.
+The validated messages are published on the topic <code>az/messages/events/</code> from where they are forwarded to Azure IoT Hub.
+This mapper is launched by the <code>tedge connect az</code> command, and stopped by the <code>tedge disconnect az</code> command.</p>
+<p>The Azure IoT Hub Mapper processes a message in the following ways.</p>
+<ol>
+<li>Validates if it is a correct Thin Edge JSON message or not.</li>
+<li>Validates the incoming message size is below 255 KB.
+<a href="https://docs.microsoft.com/en-us/azure/iot-hub/iot-hub-devguide-d2c-guidance">The size of all device-to-cloud messages must be up to 256 KB</a>.
+The mapper keeps 1 KB as a buffer for the strings added by Azure.</li>
+<li>(default) Adds a current timestamp if a timestamp is not included in an incoming message. To stop this behavior, please refer to the following instruction.</li>
+</ol>
+<p>So, if the input is below,</p>
+<pre><code class="language-json">{
+  &quot;temperature&quot;: 23
+}
+</code></pre>
+<p>the output of the mapper is</p>
+<pre><code class="language-json">{
+  &quot;temperature&quot;: 23,
+  &quot;time&quot;: &quot;2021-06-01T17:24:48.709803664+02:00&quot;
+}
+</code></pre>
+<h3 id="configure-whether-adding-a-timestamp-or-not"><a class="header" href="#configure-whether-adding-a-timestamp-or-not">Configure whether adding a timestamp or not</a></h3>
+<p>However, if you don't want to add a timestamp in the output of Azure IoT Hub Mapper, you can change the behavior by running this:</p>
+<pre><code class="language-shell">sudo tedge config set az.mapper.timestamp false 
+</code></pre>
+<p>After changing the configuration, you need to restart the mapper service by</p>
+<pre><code class="language-shell">sudo systemctl restart tedge-mapper-az.service
+</code></pre>
+<h2 id="error-cases"><a class="header" href="#error-cases">Error cases</a></h2>
+<p>When some error occurs in a mapper process, the mapper publishes a corresponded error message
+on the topic <code>tedge/errors</code> with the QoS level 1 (at least once).</p>
+<p>Here is an example if you publish invalid Thin Edge JSON messages on <code>tedge/measurements</code>:</p>
+<pre><code class="language-shell">$ tedge mqtt pub tedge/measurements '{&quot;temperature&quot;: 23,&quot;pressure&quot;: 220'
+$ tedge mqtt pub tedge/measurements '{&quot;temperature&quot;: 23,&quot;time&quot;: 220}'
+</code></pre>
+<p>Then, you'll receive error messages from the mapper on the topic <code>tedge/errors</code>:</p>
+<pre><code class="language-shell">$ tedge mqtt sub tedge/errors
+[tedge/errors] Invalid JSON: Unexpected end of JSON: {&quot;temperature&quot;:23,&quot;pressure&quot;:220
+[tedge/errors] Not a timestamp: the time value must be an ISO8601 timestamp string in the YYYY-MM-DDThh:mm:ss.sss.±hh:mm format, not a number.
+</code></pre>
+<h2 id="topics-used-by-tedge-mapper"><a class="header" href="#topics-used-by-tedge-mapper">Topics used by tedge-mapper</a></h2>
+<ul>
+<li>
+<p>Incoming topics</p>
+<ul>
+<li><code>tedge/measurements</code></li>
+<li><code>tedge/measurements/&lt;child-id&gt;</code> (for Cumulocity)</li>
+</ul>
+</li>
+<li>
+<p>Outgoing topics</p>
+<ul>
+<li><code>tedge/errors</code> (for errors)</li>
+<li><code>c8y/measurement/measurements/create</code> (for Cumulocity)</li>
+<li><code>az/messages/events/</code> (for Azure IoT Hub)</li>
+</ul>
+</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                                                    <a rel="prev" href="../architecture/thin-edge-json.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+                                                    <a rel="next" href="../architecture/software-management.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                                    <a rel="prev" href="../architecture/thin-edge-json.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+                                    <a rel="next" href="../architecture/software-management.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                            </nav>
+
+        </div>
+
+        
+        
+        
+                <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        
+        
+                <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+        
+    </body>
+</html>
