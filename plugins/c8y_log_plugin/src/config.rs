@@ -11,7 +11,6 @@ pub struct LogPluginConfig {
     pub files: Vec<FileEntry>,
 }
 
-
 #[derive(Deserialize, Debug, Eq, Default, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct FileEntry {
@@ -44,7 +43,7 @@ impl LogPluginConfig {
             Ok(contents) => match toml::from_str(contents.as_str()) {
                 Ok(config) => config,
                 _ => {
-                    warn!("The config file {} is malformed.", path_str);
+                    warn!("The config file {:?} is malformed.", path_str);
                     Self::default()
                 }
             },
