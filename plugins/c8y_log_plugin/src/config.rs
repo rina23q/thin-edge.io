@@ -43,7 +43,7 @@ impl LogPluginConfig {
             Ok(contents) => match toml::from_str(contents.as_str()) {
                 Ok(config) => config,
                 _ => {
-                    warn!("The config file {} is malformed.", path_str);
+                    warn!("The config file {:?} is malformed.", path_str);
                     Self::default()
                 }
             },
