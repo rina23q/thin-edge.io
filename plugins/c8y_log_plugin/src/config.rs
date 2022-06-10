@@ -11,6 +11,7 @@ pub struct LogPluginConfig {
     pub files: Vec<FileEntry>,
 }
 
+
 #[derive(Deserialize, Debug, Eq, Default, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct FileEntry {
