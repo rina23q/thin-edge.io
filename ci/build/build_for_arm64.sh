@@ -8,6 +8,7 @@ set -euo pipefail
 # rustup override set 1.58.1
 
 cargo install cargo-deb --version 1.38.1
+
 cargo deb -p tedge
 cargo deb -p tedge_mapper
 cargo deb -p tedge_apt_plugin
