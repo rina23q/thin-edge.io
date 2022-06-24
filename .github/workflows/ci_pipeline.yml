@@ -74,9 +74,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Enable cache
+        # https://github.com/marketplace/actions/rust-cache
+        uses: Swatinem/rust-cache@v1
+
       - name: Cargo clippy
         run: ./ci/commit-check/cargo-clippy.sh
-#
+
 #  cargo-test:
 #    name: Run cargo test
 #    runs-on: Ubuntu-20.04
