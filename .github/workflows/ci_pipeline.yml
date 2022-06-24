@@ -32,40 +32,40 @@ jobs:
 #      - name: Cargo fmt
 #        run: ./ci/commit-check/cargo-fmt.sh
 #
-#  cargo-clippy-old:
-#    name: Run cargo clippy
-#    runs-on: Ubuntu-20.04
-#
-#    steps:
-#      - name: Checkout
-#        uses: actions/checkout@v2
-#
-#      - name: enable toolchain via github action
-#        uses: actions-rs/toolchain@v1
-#        with:
-#          toolchain: 1.58.1
-#          components: rustfmt, clippy
-#          override: true
-#
-#      - name: Enable cache
-#        # https://github.com/marketplace/actions/rust-cache
-#        uses: Swatinem/rust-cache@v1
-#
-#      - name: Cargo clippy --version
-#        uses: actions-rs/cargo@v1
-#        # https://github.com/marketplace/actions/rust-cargo
-#        with:
-#          toolchain: 1.58.1
-#          command: clippy
-#          args: --version
-#
-#      - name: Cargo clippy
-#        uses: actions-rs/cargo@v1
-#        # https://github.com/marketplace/actions/rust-cargo
-#        with:
-#          toolchain: 1.58.1
-#          command: clippy
-#
+  cargo-clippy-old:
+    name: Run cargo clippy
+    runs-on: Ubuntu-20.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: enable toolchain via github action
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: 1.58.1
+          components: rustfmt, clippy
+          override: true
+
+      - name: Enable cache
+        # https://github.com/marketplace/actions/rust-cache
+        uses: Swatinem/rust-cache@v1
+
+      - name: Cargo clippy --version
+        uses: actions-rs/cargo@v1
+        # https://github.com/marketplace/actions/rust-cargo
+        with:
+          toolchain: 1.58.1
+          command: clippy
+          args: --version
+
+      - name: Cargo clippy
+        uses: actions-rs/cargo@v1
+        # https://github.com/marketplace/actions/rust-cargo
+        with:
+          toolchain: 1.58.1
+          command: clippy
+
   cargo-clippy:
     name: Run cargo clippy
     runs-on: Ubuntu-20.04
