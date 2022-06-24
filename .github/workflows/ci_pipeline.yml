@@ -28,45 +28,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Cargo fmt --version
-        uses: actions-rs/cargo@v1
-        # https://github.com/marketplace/actions/rust-cargo
-        with:
-          command: fmt
-          args: --version
-
-      - name: Cargo fmt
-        uses: actions-rs/cargo@v1
-        # https://github.com/marketplace/actions/rust-cargo
-        with:
-          command: fmt
-          args: -- --check
-
-  cargo-fmt-new:
-    name: Run cargo fmt
-    runs-on: Ubuntu-20.04
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
       - name: Cargo fmt
         run: ./ci/commit-check/cargo-fmt.sh
 
-#  python-black:
-#    name: Python static checks
-#    runs-on: Ubuntu-20.04
-#
-#    steps:
-#      - name: Checkout
-#        uses: actions/checkout@v2
-#
-#      - name: Run black
-#        uses: rickstaa/action-black@v1
-#        with:
-#          black_args: ". --check"
-
-  cargo-clippy:
+  cargo-clippy-old:
     name: Run cargo clippy
     runs-on: Ubuntu-20.04
 
@@ -99,6 +64,17 @@ jobs:
         with:
           toolchain: 1.58.1
           command: clippy
+
+  cargo-clippy:
+    name: Run cargo fmt
+    runs-on: Ubuntu-20.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Cargo fmt
+        run: ./ci/commit-check/cargo-clippy.sh
 
   cargo-test:
     name: Run cargo test
