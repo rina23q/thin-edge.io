@@ -35,8 +35,8 @@ cargo deb -p c8y_log_plugin --no-strip --no-build --target="$ARCH"
 cargo deb -p c8y_configuration_plugin --no-strip --no-build --target="$ARCH"
 
 # Test artifacts
-cargo build --release -p sawtooth_publisher --target="$ARCH"
-cargo build --release -p tedge_dummy_plugin  --target="$ARCH"
+cross build --release -p sawtooth_publisher --target="$ARCH"
+cross build --release -p tedge_dummy_plugin  --target="$ARCH"
 
 arm-linux-gnueabihf-strip target/"$ARCH"/release/sawtooth_publisher || aarch64-linux-gnu-strip target/"$ARCH"/release/sawtooth_publisher
 arm-linux-gnueabihf-strip target/"$ARCH"/release/tedge_dummy_plugin || aarch64-linux-gnu-strip target/"$ARCH"/release/tedge_dummy_plugin
