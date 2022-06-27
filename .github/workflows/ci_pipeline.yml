@@ -49,19 +49,19 @@ jobs:
           name: debian-packages-amd64
           path: target/debian/*.deb
 
-      - name: upload amd64 sawtooth-publisher as zip
-        # https://github.com/marketplace/actions/upload-a-build-artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: sawtooth_publisher_amd64
-          path: target/release/sawtooth_publisher
-
-      - name: upload dummy-plugin as zip
-        # https://github.com/marketplace/actions/upload-a-build-artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: tedge_dummy_plugin_amd64
-          path: target/release/tedge_dummy_plugin
+#      - name: upload amd64 sawtooth-publisher as zip
+#        # https://github.com/marketplace/actions/upload-a-build-artifact
+#        uses: actions/upload-artifact@v2
+#        with:
+#          name: sawtooth_publisher_amd64
+#          path: target/release/sawtooth_publisher
+#
+#      - name: upload dummy-plugin as zip
+#        # https://github.com/marketplace/actions/upload-a-build-artifact
+#        uses: actions/upload-artifact@v2
+#        with:
+#          name: tedge_dummy_plugin_amd64
+#          path: target/release/tedge_dummy_plugin
 
   build_matrix_arm:
     name: Build Debian packages for ${{ matrix.target }}
@@ -134,7 +134,7 @@ jobs:
           name: debian-packages-amd64
           path: debian-package_unpack
 
-      - name: setup test environment
+      - name: install artifacts on amd64
         run: ./ci/install/install_for_amd64.sh debian-package_unpack
 
   cargo-test-features:
@@ -184,8 +184,15 @@ jobs:
 
 #################################################################################
 
-  install-and-use-rpi_m32sd10a:
-    runs-on: [self-hosted, Linux, ARM, offsite_m32sd10a]
+  install-and-use-rpi_matrix:
+    strategy:
+      matrix:
+        rpi: [ m32sd10a, m32sd10b, m32sd10c, m32sd10d ]
+    runs-on:
+      - self-hosted
+      - Linux
+      - ARM
+      - offsite_${{ matrix.rpi }}]
     needs: [build_matrix_arm]
 
     steps:
@@ -279,7 +286,7 @@ jobs:
           C8YPASS: ${{ secrets.SECRET_C8YPASS }}
           C8YUSERNAME: ${{ secrets.SECRET_C8YUSERNAME }}
           C8YTENANT: ${{secrets.SECRET_C8YTENANT}}
-          C8YDEVICE: m32sd10a
+          C8YDEVICE: ${{ matrix.rpi }}
           TEBASEDIR: /home/pi/actions-runner/_work/thin-edge.io/thin-edge.io/
           EXAMPLEDIR: /home/pi/examples
           C8YURL: https://thin-edge-io.eu-latest.cumulocity.com
@@ -291,406 +298,533 @@ jobs:
           C8YPASS: ${{ secrets.SECRET_C8YPASS }}
           C8YUSERNAME: ${{ secrets.SECRET_C8YUSERNAME }}
           C8YTENANT: ${{secrets.SECRET_C8YTENANT}}
-          C8YDEVICE: m32sd10a
+          C8YDEVICE: ${{ matrix.rpi }}
           TEBASEDIR: /home/pi/actions-runner/_work/thin-edge.io/thin-edge.io/
           EXAMPLEDIR: /home/pi/examples
           C8YURL: https://thin-edge-io.eu-latest.cumulocity.com
           IOTHUBNAME: ${{ secrets.IOTHUBNAME }}
 
-# Run tests for Azure
-# Enable this, when we have decided about how many runners we use
+  # Run tests for Azure
+  # Enable this, when we have decided about how many runners we use
+  #
+  #      - name: Run Smoke Test for Azure
+  #        run: ./ci/ci_smoke_test_az.sh
+  #        env:
+  #          SASKEYQUEUE: ${{ secrets.SASKEYQUEUE }}
+  #          SASKEYIOTHUB: ${{ secrets.SASKEYIOTHUB }}
+  #          AZUREENDPOINT: ${{ secrets.AZUREENDPOINT }}
+  #          AZUREEVENTHUB: ${{ secrets.AZUREEVENTHUB }}
+  #          IOTHUBNAME: ${{ secrets.IOTHUBNAME }}
+
+  #################################################################################
 #
-#      - name: Run Smoke Test for Azure
-#        run: ./ci/ci_smoke_test_az.sh
-#        env:
-#          SASKEYQUEUE: ${{ secrets.SASKEYQUEUE }}
-#          SASKEYIOTHUB: ${{ secrets.SASKEYIOTHUB }}
-#          AZUREENDPOINT: ${{ secrets.AZUREENDPOINT }}
-#          AZUREEVENTHUB: ${{ secrets.AZUREEVENTHUB }}
-#          IOTHUBNAME: ${{ secrets.IOTHUBNAME }}
-
-#################################################################################
-
-  install-and-use-rpi_m32sd10b:
-    runs-on: [self-hosted, Linux, ARM, offsite_m32sd10b]
-    needs: [build_matrix_arm]
-
-    steps:
-      - name: checkout
-        uses: actions/checkout@v2
-
-      - uses: actions/download-artifact@v3
-        # https://github.com/marketplace/actions/download-a-build-artifact
-        with:
-          name: debian-packages-armv7-unknown-linux-gnueabihf
-          path: debian-package_unpack
-
-      - name: Workaround Stop collectd mapper
-        run: sudo systemctl stop tedge-mapper-collectd
-        continue-on-error: true
-
-      - name: disconnect c8y
-        run: sudo tedge disconnect c8y
-        # We need to continue when there is no tedge already installed
-        continue-on-error: true
-
-      - name: disconnect az
-        run: sudo tedge disconnect az
-        # We need to continue when there is no tedge already installed
-        continue-on-error: true
-
-      - name: Stop apama
-        run: sudo systemctl stop apama
-        continue-on-error: true
-
-      - name: purge
-        run: sudo dpkg -P c8y_configuration_plugin tedge_agent c8y_log_plugin tedge_mapper tedge_apt_plugin tedge_apama_plugin tedge_watchdog tedge mosquitto-clients mosquitto libmosquitto1 collectd-core collectd
-
-      - name: install mosquitto
-        run: sudo apt-get --assume-yes install mosquitto
-
-      - name: install libmosquitto1
-        run: sudo apt-get --assume-yes install libmosquitto1
-
-      - name: install mosquitto-clients
-        run: sudo apt-get --assume-yes install mosquitto-clients
-
-      - name: install collectd-core
-        run: sudo apt-get --assume-yes install collectd-core collectd
-
-      - name: install tedge package
-        run: sudo dpkg -i ./debian-package_unpack/tedge_0.*_armhf.deb
-
-      - name: install tedge mapper package
-        run: sudo dpkg -i ./debian-package_unpack/tedge_mapper_*_armhf.deb
-
-      - name: install tedge agent package
-        run: sudo dpkg -i ./debian-package_unpack/tedge_agent_*_armhf.deb
-
-      - name: install tedge watchdog package
-        run: sudo dpkg -i ./debian-package_unpack/tedge_watchdog_*_armhf.deb
-
-      - name: install tedge plugin packages
-        run: sudo dpkg -i ./debian-package_unpack/tedge_*_plugin_*_armhf.deb
-
-      - name: install c8y plugin packages
-        run: sudo dpkg -i ./debian-package_unpack/c8y_*_plugin_*_armhf.deb
-
-      - name: run tedge help
-        run: tedge --help
-
-        # replace the default config file with tedge custom config file
-      - name: configure collectd
-        run: sudo cp "/etc/tedge/contrib/collectd/collectd.conf" "/etc/collectd/collectd.conf"
-
-      - uses: actions/download-artifact@v3
-        # https://github.com/marketplace/actions/download-a-build-artifact
-        with:
-          name: sawtooth_publisher_armv7-unknown-linux-gnueabihf
-          path: /home/pi/examples
-
-      - name: chmod publisher
-        run: chmod +x /home/pi/examples/sawtooth_publisher
-
-      - uses: actions/download-artifact@v3
-        # https://github.com/marketplace/actions/download-a-build-artifact
-        with:
-          name: tedge_dummy_plugin_armv7-unknown-linux-gnueabihf
-          path: /home/pi/tedge_dummy_plugin
-
-      - name: chmod dummy_plugin
-        run: chmod +x /home/pi/tedge_dummy_plugin/tedge_dummy_plugin
-
-      - name: Configure Bridge
-        run: ./ci/configure_bridge.sh
-        env:
-          C8YPASS: ${{ secrets.SECRET_C8YPASS }}
-          C8YUSERNAME: ${{ secrets.SECRET_C8YUSERNAME }}
-          C8YTENANT: ${{secrets.SECRET_C8YTENANT}}
-          C8YDEVICE: m32sd10b
-          TEBASEDIR: /home/pi/actions-runner/_work/thin-edge.io/thin-edge.io/
-          EXAMPLEDIR: /home/pi/examples
-          C8YURL: https://thin-edge-io.eu-latest.cumulocity.com
-          IOTHUBNAME: ${{ secrets.IOTHUBNAME }}
-
-      - name: Run smoke test for Cumulocity
-        run: ./ci/ci_smoke_test_c8y.sh
-        env:
-          C8YPASS: ${{ secrets.SECRET_C8YPASS }}
-          C8YUSERNAME: ${{ secrets.SECRET_C8YUSERNAME }}
-          C8YTENANT: ${{secrets.SECRET_C8YTENANT}}
-          C8YDEVICE: m32sd10b
-          TEBASEDIR: /home/pi/actions-runner/_work/thin-edge.io/thin-edge.io/
-          EXAMPLEDIR: /home/pi/examples
-          C8YURL: https://thin-edge-io.eu-latest.cumulocity.com
-          IOTHUBNAME: ${{ secrets.IOTHUBNAME }}
-
-# Run tests for Azure
-# Enable this, when we have decided about how many runners we use
+#  install-and-use-rpi_m32sd10a:
+#    runs-on: [self-hosted, Linux, ARM, offsite_m32sd10a]
+#    needs: [build_matrix_arm]
 #
-#      - name: Run Smoke Test for Azure
-#        run: ./ci/ci_smoke_test_az.sh
-#        env:
-#          SASKEYQUEUE: ${{ secrets.SASKEYQUEUE }}
-#          SASKEYIOTHUB: ${{ secrets.SASKEYIOTHUB }}
-#          AZUREENDPOINT: ${{ secrets.AZUREENDPOINT }}
-#          AZUREEVENTHUB: ${{ secrets.AZUREEVENTHUB }}
-#          IOTHUBNAME: ${{ secrets.IOTHUBNAME }}
-
-#################################################################################
-
-  install-and-use-rpi_m32sd10c:
-    runs-on: [self-hosted, Linux, ARM, offsite_m32sd10c]
-    needs: [build_matrix_arm]
-
-    steps:
-      - name: checkout
-        uses: actions/checkout@v2
-
-      - uses: actions/download-artifact@v3
-        # https://github.com/marketplace/actions/download-a-build-artifact
-        with:
-          name: debian-packages-armv7-unknown-linux-gnueabihf
-          path: debian-package_unpack
-
-      - name: Workaround Stop collectd mapper
-        run: sudo systemctl stop tedge-mapper-collectd
-        continue-on-error: true
-
-      - name: disconnect c8y
-        run: sudo tedge disconnect c8y
-        # We need to continue when there is no tedge already installed
-        continue-on-error: true
-
-      - name: disconnect az
-        run: sudo tedge disconnect az
-        # We need to continue when there is no tedge already installed
-        continue-on-error: true
-
-      - name: Stop apama
-        run: sudo systemctl stop apama
-        continue-on-error: true
-
-      - name: purge
-        run: sudo dpkg -P c8y_configuration_plugin tedge_agent c8y_log_plugin tedge_mapper tedge_apt_plugin tedge_apama_plugin tedge_watchdog tedge mosquitto-clients mosquitto libmosquitto1 collectd-core collectd
-
-      - name: install mosquitto
-        run: sudo apt-get --assume-yes install mosquitto
-
-      - name: install libmosquitto1
-        run: sudo apt-get --assume-yes install libmosquitto1
-
-      - name: install mosquitto-clients
-        run: sudo apt-get --assume-yes install mosquitto-clients
-
-      - name: install collectd-core
-        run: sudo apt-get --assume-yes install collectd-core collectd
-
-      - name: install tedge package
-        run: sudo dpkg -i ./debian-package_unpack/tedge_0.*_armhf.deb
-
-      - name: install tedge mapper package
-        run: sudo dpkg -i ./debian-package_unpack/tedge_mapper_*_armhf.deb
-
-      - name: install tedge agent package
-        run: sudo dpkg -i ./debian-package_unpack/tedge_agent_*_armhf.deb
-
-      - name: install tedge watchdog package
-        run: sudo dpkg -i ./debian-package_unpack/tedge_watchdog_*_armhf.deb
-
-      - name: install tedge plugin packages
-        run: sudo dpkg -i ./debian-package_unpack/tedge_*_plugin_*_armhf.deb
-
-      - name: install c8y plugin packages
-        run: sudo dpkg -i ./debian-package_unpack/c8y_*_plugin_*_armhf.deb
-
-      - name: run tedge help
-        run: tedge --help
-
-        # replace the default config file with tedge custom config file
-      - name: configure collectd
-        run: sudo cp "/etc/tedge/contrib/collectd/collectd.conf" "/etc/collectd/collectd.conf"
-
-      - uses: actions/download-artifact@v3
-        # https://github.com/marketplace/actions/download-a-build-artifact
-        with:
-          name: sawtooth_publisher_armv7-unknown-linux-gnueabihf
-          path: /home/pi/examples
-
-      - name: chmod publisher
-        run: chmod +x /home/pi/examples/sawtooth_publisher
-
-      - uses: actions/download-artifact@v3
-        # https://github.com/marketplace/actions/download-a-build-artifact
-        with:
-          name: tedge_dummy_plugin_armv7-unknown-linux-gnueabihf
-          path: /home/pi/tedge_dummy_plugin
-
-      - name: chmod dummy_plugin
-        run: chmod +x /home/pi/tedge_dummy_plugin/tedge_dummy_plugin
-
-      - name: Configure Bridge
-        run: ./ci/configure_bridge.sh
-        env:
-          C8YPASS: ${{ secrets.SECRET_C8YPASS }}
-          C8YUSERNAME: ${{ secrets.SECRET_C8YUSERNAME }}
-          C8YTENANT: ${{secrets.SECRET_C8YTENANT}}
-          C8YDEVICE: m32sd10c
-          TEBASEDIR: /home/pi/actions-runner/_work/thin-edge.io/thin-edge.io/
-          EXAMPLEDIR: /home/pi/examples
-          C8YURL: https://thin-edge-io.eu-latest.cumulocity.com
-          IOTHUBNAME: ${{ secrets.IOTHUBNAME }}
-
-      - name: Run smoke test for Cumulocity
-        run: ./ci/ci_smoke_test_c8y.sh
-        env:
-          C8YPASS: ${{ secrets.SECRET_C8YPASS }}
-          C8YUSERNAME: ${{ secrets.SECRET_C8YUSERNAME }}
-          C8YTENANT: ${{secrets.SECRET_C8YTENANT}}
-          C8YDEVICE: m32sd10c
-          TEBASEDIR: /home/pi/actions-runner/_work/thin-edge.io/thin-edge.io/
-          EXAMPLEDIR: /home/pi/examples
-          C8YURL: https://thin-edge-io.eu-latest.cumulocity.com
-          IOTHUBNAME: ${{ secrets.IOTHUBNAME }}
-
-# Run tests for Azure
-# Enable this, when we have decided about how many runners we use
+#    steps:
+#      - name: checkout
+#        uses: actions/checkout@v2
 #
-#      - name: Run Smoke Test for Azure
-#        run: ./ci/ci_smoke_test_az.sh
-#        env:
-#          SASKEYQUEUE: ${{ secrets.SASKEYQUEUE }}
-#          SASKEYIOTHUB: ${{ secrets.SASKEYIOTHUB }}
-#          AZUREENDPOINT: ${{ secrets.AZUREENDPOINT }}
-#          AZUREEVENTHUB: ${{ secrets.AZUREEVENTHUB }}
-#          IOTHUBNAME: ${{ secrets.IOTHUBNAME }}
-
-#################################################################################
-
-  install-and-use-rpi_m32sd10d:
-    runs-on: [self-hosted, Linux, ARM, offsite_m32sd10d]
-    needs: [build_matrix_arm]
-
-    steps:
-      - name: checkout
-        uses: actions/checkout@v2
-
-      - uses: actions/download-artifact@v3
-        # https://github.com/marketplace/actions/download-a-build-artifact
-        with:
-          name: debian-packages-armv7-unknown-linux-gnueabihf
-          path: debian-package_unpack
-
-      - name: Workaround Stop collectd mapper
-        run: sudo systemctl stop tedge-mapper-collectd
-        continue-on-error: true
-
-      - name: disconnect c8y
-        run: sudo tedge disconnect c8y
-        # We need to continue when there is no tedge already installed
-        continue-on-error: true
-
-      - name: disconnect az
-        run: sudo tedge disconnect az
-        # We need to continue when there is no tedge already installed
-        continue-on-error: true
-
-      - name: Stop apama
-        run: sudo systemctl stop apama
-        continue-on-error: true
-
-      - name: purge
-        run: sudo dpkg -P c8y_configuration_plugin tedge_agent c8y_log_plugin tedge_mapper tedge_apt_plugin tedge_apama_plugin tedge_watchdog tedge mosquitto-clients mosquitto libmosquitto1 collectd-core collectd
-
-      - name: install mosquitto
-        run: sudo apt-get --assume-yes install mosquitto
-
-      - name: install libmosquitto1
-        run: sudo apt-get --assume-yes install libmosquitto1
-
-      - name: install mosquitto-clients
-        run: sudo apt-get --assume-yes install mosquitto-clients
-
-      - name: install collectd-core
-        run: sudo apt-get --assume-yes install collectd-core collectd
-
-      - name: install tedge package
-        run: sudo dpkg -i ./debian-package_unpack/tedge_0.*_armhf.deb
-
-      - name: install tedge mapper package
-        run: sudo dpkg -i ./debian-package_unpack/tedge_mapper_*_armhf.deb
-
-      - name: install tedge agent package
-        run: sudo dpkg -i ./debian-package_unpack/tedge_agent_*_armhf.deb
-
-      - name: install tedge watchdog package
-        run: sudo dpkg -i ./debian-package_unpack/tedge_watchdog_*_armhf.deb
-
-      - name: install tedge plugin packages
-        run: sudo dpkg -i ./debian-package_unpack/tedge_*_plugin_*_armhf.deb
-
-      - name: install c8y plugin packages
-        run: sudo dpkg -i ./debian-package_unpack/c8y_*_plugin_*_armhf.deb
-
-      - name: run tedge help
-        run: tedge --help
-
-      - name: configure collectd
-        run: sudo cp "/etc/tedge/contrib/collectd/collectd.conf" "/etc/collectd/collectd.conf"
-
-      - uses: actions/download-artifact@v3
-        # https://github.com/marketplace/actions/download-a-build-artifact
-        with:
-          name: sawtooth_publisher_armv7-unknown-linux-gnueabihf
-          path: /home/pi/examples
-
-      - name: chmod publisher
-        run: chmod +x /home/pi/examples/sawtooth_publisher
-
-      - uses: actions/download-artifact@v3
-        # https://github.com/marketplace/actions/download-a-build-artifact
-        with:
-          name: tedge_dummy_plugin_armv7-unknown-linux-gnueabihf
-          path: /home/pi/tedge_dummy_plugin
-
-      - name: chmod dummy_plugin
-        run: chmod +x /home/pi/tedge_dummy_plugin/tedge_dummy_plugin
-
-      - name: Configure Bridge
-        run: ./ci/configure_bridge.sh
-        env:
-          C8YPASS: ${{ secrets.SECRET_C8YPASS }}
-          C8YUSERNAME: ${{ secrets.SECRET_C8YUSERNAME }}
-          C8YTENANT: ${{secrets.SECRET_C8YTENANT}}
-          C8YDEVICE: m32sd10d
-          TEBASEDIR: /home/pi/actions-runner/_work/thin-edge.io/thin-edge.io/
-          EXAMPLEDIR: /home/pi/examples
-          C8YURL: https://thin-edge-io.eu-latest.cumulocity.com
-          IOTHUBNAME: ${{ secrets.IOTHUBNAME }}
-
-      - name: Run smoke test for Cumulocity
-        run: ./ci/ci_smoke_test_c8y.sh
-        env:
-          C8YPASS: ${{ secrets.SECRET_C8YPASS }}
-          C8YUSERNAME: ${{ secrets.SECRET_C8YUSERNAME }}
-          C8YTENANT: ${{secrets.SECRET_C8YTENANT}}
-          C8YDEVICE: m32sd10d
-          TEBASEDIR: /home/pi/actions-runner/_work/thin-edge.io/thin-edge.io/
-          EXAMPLEDIR: /home/pi/examples
-          C8YURL: https://thin-edge-io.eu-latest.cumulocity.com
-          IOTHUBNAME: ${{ secrets.IOTHUBNAME }}
-
-# Run tests for Azure
-# Enable this, when we have decided about how many runners we use
+#      - uses: actions/download-artifact@v3
+#        # https://github.com/marketplace/actions/download-a-build-artifact
+#        with:
+#          name: debian-packages-armv7-unknown-linux-gnueabihf
+#          path: debian-package_unpack
 #
-#      - name: Run Smoke Test for Azure
-#        run: ./ci/ci_smoke_test_az.sh
+#      - name: Workaround Stop collectd mapper
+#        run: sudo systemctl stop tedge-mapper-collectd
+#        continue-on-error: true
+#
+#      - name: disconnect c8y
+#        run: sudo tedge disconnect c8y
+#        # We need to continue when there is no tedge already installed
+#        continue-on-error: true
+#
+#      - name: disconnect az
+#        run: sudo tedge disconnect az
+#        # We need to continue when there is no tedge already installed
+#        continue-on-error: true
+#
+#      - name: Stop apama
+#        run: sudo systemctl stop apama
+#        continue-on-error: true
+#
+#      - name: purge
+#        run: sudo dpkg -P c8y_configuration_plugin tedge_agent c8y_log_plugin tedge_mapper tedge_apt_plugin tedge_apama_plugin tedge_watchdog tedge mosquitto-clients mosquitto libmosquitto1 collectd-core collectd
+#
+#      - name: install mosquitto
+#        run: sudo apt-get --assume-yes install mosquitto
+#
+#      - name: install libmosquitto1
+#        run: sudo apt-get --assume-yes install libmosquitto1
+#
+#      - name: install mosquitto-clients
+#        run: sudo apt-get --assume-yes install mosquitto-clients
+#
+#      - name: install collectd-core
+#        run: sudo apt-get --assume-yes install collectd-core collectd
+#
+#      - name: install tedge package
+#        run: sudo dpkg -i ./debian-package_unpack/tedge_0.*_armhf.deb
+#
+#      - name: install tedge mapper package
+#        run: sudo dpkg -i ./debian-package_unpack/tedge_mapper_*_armhf.deb
+#
+#      - name: install tedge agent package
+#        run: sudo dpkg -i ./debian-package_unpack/tedge_agent_*_armhf.deb
+#
+#      - name: install tedge watchdog package
+#        run: sudo dpkg -i ./debian-package_unpack/tedge_watchdog_*_armhf.deb
+#
+#      - name: install tedge plugin packages
+#        run: sudo dpkg -i ./debian-package_unpack/tedge_*_plugin_*_armhf.deb
+#
+#      - name: install c8y plugin packages
+#        run: sudo dpkg -i ./debian-package_unpack/c8y_*_plugin_*_armhf.deb
+#
+#      - name: run tedge help
+#        run: tedge --help
+#
+#      - name: configure collectd
+#        run: sudo cp "/etc/tedge/contrib/collectd/collectd.conf" "/etc/collectd/collectd.conf"
+#
+#      - uses: actions/download-artifact@v3
+#        # https://github.com/marketplace/actions/download-a-build-artifact
+#        with:
+#          name: sawtooth_publisher_armv7-unknown-linux-gnueabihf
+#          path: /home/pi/examples
+#
+#      - name: chmod publisher
+#        run: chmod +x /home/pi/examples/sawtooth_publisher
+#
+#      - uses: actions/download-artifact@v3
+#        # https://github.com/marketplace/actions/download-a-build-artifact
+#        with:
+#          name: tedge_dummy_plugin_armv7-unknown-linux-gnueabihf
+#          path: /home/pi/tedge_dummy_plugin
+#
+#      - name: chmod dummy_plugin
+#        run: chmod +x /home/pi/tedge_dummy_plugin/tedge_dummy_plugin
+#
+#      - name: Configure Bridge
+#        run: ./ci/configure_bridge.sh
 #        env:
-#          SASKEYQUEUE: ${{ secrets.SASKEYQUEUE }}
-#          SASKEYIOTHUB: ${{ secrets.SASKEYIOTHUB }}
-#          AZUREENDPOINT: ${{ secrets.AZUREENDPOINT }}
-#          AZUREEVENTHUB: ${{ secrets.AZUREEVENTHUB }}
+#          C8YPASS: ${{ secrets.SECRET_C8YPASS }}
+#          C8YUSERNAME: ${{ secrets.SECRET_C8YUSERNAME }}
+#          C8YTENANT: ${{secrets.SECRET_C8YTENANT}}
+#          C8YDEVICE: m32sd10a
+#          TEBASEDIR: /home/pi/actions-runner/_work/thin-edge.io/thin-edge.io/
+#          EXAMPLEDIR: /home/pi/examples
+#          C8YURL: https://thin-edge-io.eu-latest.cumulocity.com
 #          IOTHUBNAME: ${{ secrets.IOTHUBNAME }}
+#
+#      - name: Run smoke test for Cumulocity
+#        run: ./ci/ci_smoke_test_c8y.sh
+#        env:
+#          C8YPASS: ${{ secrets.SECRET_C8YPASS }}
+#          C8YUSERNAME: ${{ secrets.SECRET_C8YUSERNAME }}
+#          C8YTENANT: ${{secrets.SECRET_C8YTENANT}}
+#          C8YDEVICE: m32sd10a
+#          TEBASEDIR: /home/pi/actions-runner/_work/thin-edge.io/thin-edge.io/
+#          EXAMPLEDIR: /home/pi/examples
+#          C8YURL: https://thin-edge-io.eu-latest.cumulocity.com
+#          IOTHUBNAME: ${{ secrets.IOTHUBNAME }}
+#
+## Run tests for Azure
+## Enable this, when we have decided about how many runners we use
+##
+##      - name: Run Smoke Test for Azure
+##        run: ./ci/ci_smoke_test_az.sh
+##        env:
+##          SASKEYQUEUE: ${{ secrets.SASKEYQUEUE }}
+##          SASKEYIOTHUB: ${{ secrets.SASKEYIOTHUB }}
+##          AZUREENDPOINT: ${{ secrets.AZUREENDPOINT }}
+##          AZUREEVENTHUB: ${{ secrets.AZUREEVENTHUB }}
+##          IOTHUBNAME: ${{ secrets.IOTHUBNAME }}
+#
+##################################################################################
+#
+#  install-and-use-rpi_m32sd10b:
+#    runs-on: [self-hosted, Linux, ARM, offsite_m32sd10b]
+#    needs: [build_matrix_arm]
+#
+#    steps:
+#      - name: checkout
+#        uses: actions/checkout@v2
+#
+#      - uses: actions/download-artifact@v3
+#        # https://github.com/marketplace/actions/download-a-build-artifact
+#        with:
+#          name: debian-packages-armv7-unknown-linux-gnueabihf
+#          path: debian-package_unpack
+#
+#      - name: Workaround Stop collectd mapper
+#        run: sudo systemctl stop tedge-mapper-collectd
+#        continue-on-error: true
+#
+#      - name: disconnect c8y
+#        run: sudo tedge disconnect c8y
+#        # We need to continue when there is no tedge already installed
+#        continue-on-error: true
+#
+#      - name: disconnect az
+#        run: sudo tedge disconnect az
+#        # We need to continue when there is no tedge already installed
+#        continue-on-error: true
+#
+#      - name: Stop apama
+#        run: sudo systemctl stop apama
+#        continue-on-error: true
+#
+#      - name: purge
+#        run: sudo dpkg -P c8y_configuration_plugin tedge_agent c8y_log_plugin tedge_mapper tedge_apt_plugin tedge_apama_plugin tedge_watchdog tedge mosquitto-clients mosquitto libmosquitto1 collectd-core collectd
+#
+#      - name: install mosquitto
+#        run: sudo apt-get --assume-yes install mosquitto
+#
+#      - name: install libmosquitto1
+#        run: sudo apt-get --assume-yes install libmosquitto1
+#
+#      - name: install mosquitto-clients
+#        run: sudo apt-get --assume-yes install mosquitto-clients
+#
+#      - name: install collectd-core
+#        run: sudo apt-get --assume-yes install collectd-core collectd
+#
+#      - name: install tedge package
+#        run: sudo dpkg -i ./debian-package_unpack/tedge_0.*_armhf.deb
+#
+#      - name: install tedge mapper package
+#        run: sudo dpkg -i ./debian-package_unpack/tedge_mapper_*_armhf.deb
+#
+#      - name: install tedge agent package
+#        run: sudo dpkg -i ./debian-package_unpack/tedge_agent_*_armhf.deb
+#
+#      - name: install tedge watchdog package
+#        run: sudo dpkg -i ./debian-package_unpack/tedge_watchdog_*_armhf.deb
+#
+#      - name: install tedge plugin packages
+#        run: sudo dpkg -i ./debian-package_unpack/tedge_*_plugin_*_armhf.deb
+#
+#      - name: install c8y plugin packages
+#        run: sudo dpkg -i ./debian-package_unpack/c8y_*_plugin_*_armhf.deb
+#
+#      - name: run tedge help
+#        run: tedge --help
+#
+#        # replace the default config file with tedge custom config file
+#      - name: configure collectd
+#        run: sudo cp "/etc/tedge/contrib/collectd/collectd.conf" "/etc/collectd/collectd.conf"
+#
+#      - uses: actions/download-artifact@v3
+#        # https://github.com/marketplace/actions/download-a-build-artifact
+#        with:
+#          name: sawtooth_publisher_armv7-unknown-linux-gnueabihf
+#          path: /home/pi/examples
+#
+#      - name: chmod publisher
+#        run: chmod +x /home/pi/examples/sawtooth_publisher
+#
+#      - uses: actions/download-artifact@v3
+#        # https://github.com/marketplace/actions/download-a-build-artifact
+#        with:
+#          name: tedge_dummy_plugin_armv7-unknown-linux-gnueabihf
+#          path: /home/pi/tedge_dummy_plugin
+#
+#      - name: chmod dummy_plugin
+#        run: chmod +x /home/pi/tedge_dummy_plugin/tedge_dummy_plugin
+#
+#      - name: Configure Bridge
+#        run: ./ci/configure_bridge.sh
+#        env:
+#          C8YPASS: ${{ secrets.SECRET_C8YPASS }}
+#          C8YUSERNAME: ${{ secrets.SECRET_C8YUSERNAME }}
+#          C8YTENANT: ${{secrets.SECRET_C8YTENANT}}
+#          C8YDEVICE: m32sd10b
+#          TEBASEDIR: /home/pi/actions-runner/_work/thin-edge.io/thin-edge.io/
+#          EXAMPLEDIR: /home/pi/examples
+#          C8YURL: https://thin-edge-io.eu-latest.cumulocity.com
+#          IOTHUBNAME: ${{ secrets.IOTHUBNAME }}
+#
+#      - name: Run smoke test for Cumulocity
+#        run: ./ci/ci_smoke_test_c8y.sh
+#        env:
+#          C8YPASS: ${{ secrets.SECRET_C8YPASS }}
+#          C8YUSERNAME: ${{ secrets.SECRET_C8YUSERNAME }}
+#          C8YTENANT: ${{secrets.SECRET_C8YTENANT}}
+#          C8YDEVICE: m32sd10b
+#          TEBASEDIR: /home/pi/actions-runner/_work/thin-edge.io/thin-edge.io/
+#          EXAMPLEDIR: /home/pi/examples
+#          C8YURL: https://thin-edge-io.eu-latest.cumulocity.com
+#          IOTHUBNAME: ${{ secrets.IOTHUBNAME }}
+#
+## Run tests for Azure
+## Enable this, when we have decided about how many runners we use
+##
+##      - name: Run Smoke Test for Azure
+##        run: ./ci/ci_smoke_test_az.sh
+##        env:
+##          SASKEYQUEUE: ${{ secrets.SASKEYQUEUE }}
+##          SASKEYIOTHUB: ${{ secrets.SASKEYIOTHUB }}
+##          AZUREENDPOINT: ${{ secrets.AZUREENDPOINT }}
+##          AZUREEVENTHUB: ${{ secrets.AZUREEVENTHUB }}
+##          IOTHUBNAME: ${{ secrets.IOTHUBNAME }}
+#
+##################################################################################
+#
+#  install-and-use-rpi_m32sd10c:
+#    runs-on: [self-hosted, Linux, ARM, offsite_m32sd10c]
+#    needs: [build_matrix_arm]
+#
+#    steps:
+#      - name: checkout
+#        uses: actions/checkout@v2
+#
+#      - uses: actions/download-artifact@v3
+#        # https://github.com/marketplace/actions/download-a-build-artifact
+#        with:
+#          name: debian-packages-armv7-unknown-linux-gnueabihf
+#          path: debian-package_unpack
+#
+#      - name: Workaround Stop collectd mapper
+#        run: sudo systemctl stop tedge-mapper-collectd
+#        continue-on-error: true
+#
+#      - name: disconnect c8y
+#        run: sudo tedge disconnect c8y
+#        # We need to continue when there is no tedge already installed
+#        continue-on-error: true
+#
+#      - name: disconnect az
+#        run: sudo tedge disconnect az
+#        # We need to continue when there is no tedge already installed
+#        continue-on-error: true
+#
+#      - name: Stop apama
+#        run: sudo systemctl stop apama
+#        continue-on-error: true
+#
+#      - name: purge
+#        run: sudo dpkg -P c8y_configuration_plugin tedge_agent c8y_log_plugin tedge_mapper tedge_apt_plugin tedge_apama_plugin tedge_watchdog tedge mosquitto-clients mosquitto libmosquitto1 collectd-core collectd
+#
+#      - name: install mosquitto
+#        run: sudo apt-get --assume-yes install mosquitto
+#
+#      - name: install libmosquitto1
+#        run: sudo apt-get --assume-yes install libmosquitto1
+#
+#      - name: install mosquitto-clients
+#        run: sudo apt-get --assume-yes install mosquitto-clients
+#
+#      - name: install collectd-core
+#        run: sudo apt-get --assume-yes install collectd-core collectd
+#
+#      - name: install tedge package
+#        run: sudo dpkg -i ./debian-package_unpack/tedge_0.*_armhf.deb
+#
+#      - name: install tedge mapper package
+#        run: sudo dpkg -i ./debian-package_unpack/tedge_mapper_*_armhf.deb
+#
+#      - name: install tedge agent package
+#        run: sudo dpkg -i ./debian-package_unpack/tedge_agent_*_armhf.deb
+#
+#      - name: install tedge watchdog package
+#        run: sudo dpkg -i ./debian-package_unpack/tedge_watchdog_*_armhf.deb
+#
+#      - name: install tedge plugin packages
+#        run: sudo dpkg -i ./debian-package_unpack/tedge_*_plugin_*_armhf.deb
+#
+#      - name: install c8y plugin packages
+#        run: sudo dpkg -i ./debian-package_unpack/c8y_*_plugin_*_armhf.deb
+#
+#      - name: run tedge help
+#        run: tedge --help
+#
+#        # replace the default config file with tedge custom config file
+#      - name: configure collectd
+#        run: sudo cp "/etc/tedge/contrib/collectd/collectd.conf" "/etc/collectd/collectd.conf"
+#
+#      - uses: actions/download-artifact@v3
+#        # https://github.com/marketplace/actions/download-a-build-artifact
+#        with:
+#          name: sawtooth_publisher_armv7-unknown-linux-gnueabihf
+#          path: /home/pi/examples
+#
+#      - name: chmod publisher
+#        run: chmod +x /home/pi/examples/sawtooth_publisher
+#
+#      - uses: actions/download-artifact@v3
+#        # https://github.com/marketplace/actions/download-a-build-artifact
+#        with:
+#          name: tedge_dummy_plugin_armv7-unknown-linux-gnueabihf
+#          path: /home/pi/tedge_dummy_plugin
+#
+#      - name: chmod dummy_plugin
+#        run: chmod +x /home/pi/tedge_dummy_plugin/tedge_dummy_plugin
+#
+#      - name: Configure Bridge
+#        run: ./ci/configure_bridge.sh
+#        env:
+#          C8YPASS: ${{ secrets.SECRET_C8YPASS }}
+#          C8YUSERNAME: ${{ secrets.SECRET_C8YUSERNAME }}
+#          C8YTENANT: ${{secrets.SECRET_C8YTENANT}}
+#          C8YDEVICE: m32sd10c
+#          TEBASEDIR: /home/pi/actions-runner/_work/thin-edge.io/thin-edge.io/
+#          EXAMPLEDIR: /home/pi/examples
+#          C8YURL: https://thin-edge-io.eu-latest.cumulocity.com
+#          IOTHUBNAME: ${{ secrets.IOTHUBNAME }}
+#
+#      - name: Run smoke test for Cumulocity
+#        run: ./ci/ci_smoke_test_c8y.sh
+#        env:
+#          C8YPASS: ${{ secrets.SECRET_C8YPASS }}
+#          C8YUSERNAME: ${{ secrets.SECRET_C8YUSERNAME }}
+#          C8YTENANT: ${{secrets.SECRET_C8YTENANT}}
+#          C8YDEVICE: m32sd10c
+#          TEBASEDIR: /home/pi/actions-runner/_work/thin-edge.io/thin-edge.io/
+#          EXAMPLEDIR: /home/pi/examples
+#          C8YURL: https://thin-edge-io.eu-latest.cumulocity.com
+#          IOTHUBNAME: ${{ secrets.IOTHUBNAME }}
+#
+## Run tests for Azure
+## Enable this, when we have decided about how many runners we use
+##
+##      - name: Run Smoke Test for Azure
+##        run: ./ci/ci_smoke_test_az.sh
+##        env:
+##          SASKEYQUEUE: ${{ secrets.SASKEYQUEUE }}
+##          SASKEYIOTHUB: ${{ secrets.SASKEYIOTHUB }}
+##          AZUREENDPOINT: ${{ secrets.AZUREENDPOINT }}
+##          AZUREEVENTHUB: ${{ secrets.AZUREEVENTHUB }}
+##          IOTHUBNAME: ${{ secrets.IOTHUBNAME }}
+#
+##################################################################################
+#
+#  install-and-use-rpi_m32sd10d:
+#    runs-on: [self-hosted, Linux, ARM, offsite_m32sd10d]
+#    needs: [build_matrix_arm]
+#
+#    steps:
+#      - name: checkout
+#        uses: actions/checkout@v2
+#
+#      - uses: actions/download-artifact@v3
+#        # https://github.com/marketplace/actions/download-a-build-artifact
+#        with:
+#          name: debian-packages-armv7-unknown-linux-gnueabihf
+#          path: debian-package_unpack
+#
+#      - name: Workaround Stop collectd mapper
+#        run: sudo systemctl stop tedge-mapper-collectd
+#        continue-on-error: true
+#
+#      - name: disconnect c8y
+#        run: sudo tedge disconnect c8y
+#        # We need to continue when there is no tedge already installed
+#        continue-on-error: true
+#
+#      - name: disconnect az
+#        run: sudo tedge disconnect az
+#        # We need to continue when there is no tedge already installed
+#        continue-on-error: true
+#
+#      - name: Stop apama
+#        run: sudo systemctl stop apama
+#        continue-on-error: true
+#
+#      - name: purge
+#        run: sudo dpkg -P c8y_configuration_plugin tedge_agent c8y_log_plugin tedge_mapper tedge_apt_plugin tedge_apama_plugin tedge_watchdog tedge mosquitto-clients mosquitto libmosquitto1 collectd-core collectd
+#
+#      - name: install mosquitto
+#        run: sudo apt-get --assume-yes install mosquitto
+#
+#      - name: install libmosquitto1
+#        run: sudo apt-get --assume-yes install libmosquitto1
+#
+#      - name: install mosquitto-clients
+#        run: sudo apt-get --assume-yes install mosquitto-clients
+#
+#      - name: install collectd-core
+#        run: sudo apt-get --assume-yes install collectd-core collectd
+#
+#      - name: install tedge package
+#        run: sudo dpkg -i ./debian-package_unpack/tedge_0.*_armhf.deb
+#
+#      - name: install tedge mapper package
+#        run: sudo dpkg -i ./debian-package_unpack/tedge_mapper_*_armhf.deb
+#
+#      - name: install tedge agent package
+#        run: sudo dpkg -i ./debian-package_unpack/tedge_agent_*_armhf.deb
+#
+#      - name: install tedge watchdog package
+#        run: sudo dpkg -i ./debian-package_unpack/tedge_watchdog_*_armhf.deb
+#
+#      - name: install tedge plugin packages
+#        run: sudo dpkg -i ./debian-package_unpack/tedge_*_plugin_*_armhf.deb
+#
+#      - name: install c8y plugin packages
+#        run: sudo dpkg -i ./debian-package_unpack/c8y_*_plugin_*_armhf.deb
+#
+#      - name: run tedge help
+#        run: tedge --help
+#
+#      - name: configure collectd
+#        run: sudo cp "/etc/tedge/contrib/collectd/collectd.conf" "/etc/collectd/collectd.conf"
+#
+#      - uses: actions/download-artifact@v3
+#        # https://github.com/marketplace/actions/download-a-build-artifact
+#        with:
+#          name: sawtooth_publisher_armv7-unknown-linux-gnueabihf
+#          path: /home/pi/examples
+#
+#      - name: chmod publisher
+#        run: chmod +x /home/pi/examples/sawtooth_publisher
+#
+#      - uses: actions/download-artifact@v3
+#        # https://github.com/marketplace/actions/download-a-build-artifact
+#        with:
+#          name: tedge_dummy_plugin_armv7-unknown-linux-gnueabihf
+#          path: /home/pi/tedge_dummy_plugin
+#
+#      - name: chmod dummy_plugin
+#        run: chmod +x /home/pi/tedge_dummy_plugin/tedge_dummy_plugin
+#
+#      - name: Configure Bridge
+#        run: ./ci/configure_bridge.sh
+#        env:
+#          C8YPASS: ${{ secrets.SECRET_C8YPASS }}
+#          C8YUSERNAME: ${{ secrets.SECRET_C8YUSERNAME }}
+#          C8YTENANT: ${{secrets.SECRET_C8YTENANT}}
+#          C8YDEVICE: m32sd10d
+#          TEBASEDIR: /home/pi/actions-runner/_work/thin-edge.io/thin-edge.io/
+#          EXAMPLEDIR: /home/pi/examples
+#          C8YURL: https://thin-edge-io.eu-latest.cumulocity.com
+#          IOTHUBNAME: ${{ secrets.IOTHUBNAME }}
+#
+#      - name: Run smoke test for Cumulocity
+#        run: ./ci/ci_smoke_test_c8y.sh
+#        env:
+#          C8YPASS: ${{ secrets.SECRET_C8YPASS }}
+#          C8YUSERNAME: ${{ secrets.SECRET_C8YUSERNAME }}
+#          C8YTENANT: ${{secrets.SECRET_C8YTENANT}}
+#          C8YDEVICE: m32sd10d
+#          TEBASEDIR: /home/pi/actions-runner/_work/thin-edge.io/thin-edge.io/
+#          EXAMPLEDIR: /home/pi/examples
+#          C8YURL: https://thin-edge-io.eu-latest.cumulocity.com
+#          IOTHUBNAME: ${{ secrets.IOTHUBNAME }}
+#
+## Run tests for Azure
+## Enable this, when we have decided about how many runners we use
+##
+##      - name: Run Smoke Test for Azure
+##        run: ./ci/ci_smoke_test_az.sh
+##        env:
+##          SASKEYQUEUE: ${{ secrets.SASKEYQUEUE }}
+##          SASKEYIOTHUB: ${{ secrets.SASKEYIOTHUB }}
+##          AZUREENDPOINT: ${{ secrets.AZUREENDPOINT }}
+##          AZUREEVENTHUB: ${{ secrets.AZUREEVENTHUB }}
+##          IOTHUBNAME: ${{ secrets.IOTHUBNAME }}
 
 #################################################################################
 
