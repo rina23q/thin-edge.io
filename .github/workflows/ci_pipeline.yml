@@ -190,28 +190,11 @@ jobs:
       - Linux
       - ARM
       - offsite_${{ matrix.rpi }}]
+    continue-on-error: true
 
     steps:
-      - name: Workaround Stop collectd mapper
-        run: sudo systemctl stop tedge-mapper-collectd
-        continue-on-error: true
-
-      - name: disconnect c8y
-        run: sudo tedge disconnect c8y
-        # We need to continue when there is no tedge already installed
-        continue-on-error: true
-
-      - name: disconnect az
-        run: sudo tedge disconnect az
-        # We need to continue when there is no tedge already installed
-        continue-on-error: true
-
-      - name: Stop apama
-        run: sudo systemctl stop apama
-        continue-on-error: true
-
-      - name: purge
-        run: sudo dpkg -P c8y_configuration_plugin tedge_agent c8y_log_plugin tedge_mapper tedge_apt_plugin tedge_apama_plugin tedge_watchdog tedge mosquitto-clients mosquitto libmosquitto1 collectd-core collectd
+      - name: Clean up on ${{ matrix.target }}
+        run: ./ci/install/clean_up_rpi.sh
 
 #################################################################################
 
@@ -236,71 +219,11 @@ jobs:
           name: debian-packages-armv7-unknown-linux-gnueabihf
           path: debian-package_unpack
 
-#      - name: Workaround Stop collectd mapper
-#        run: sudo systemctl stop tedge-mapper-collectd
-#        continue-on-error: true
-#
-#      - name: disconnect c8y
-#        run: sudo tedge disconnect c8y
-#        # We need to continue when there is no tedge already installed
-#        continue-on-error: true
-#
-#      - name: disconnect az
-#        run: sudo tedge disconnect az
-#        # We need to continue when there is no tedge already installed
-#        continue-on-error: true
-#
-#      - name: Stop apama
-#        run: sudo systemctl stop apama
-#        continue-on-error: true
-#
-#      - name: purge
-#        run: sudo dpkg -P c8y_configuration_plugin tedge_agent c8y_log_plugin tedge_mapper tedge_apt_plugin tedge_apama_plugin tedge_watchdog tedge mosquitto-clients mosquitto libmosquitto1 collectd-core collectd
-
-      - name: install mosquitto
-        run: sudo apt-get --assume-yes install mosquitto
-
-      - name: install libmosquitto1
-        run: sudo apt-get --assume-yes install libmosquitto1
-
-      - name: install mosquitto-clients
-        run: sudo apt-get --assume-yes install mosquitto-clients
-
-      - name: install collectd-core
-        run: sudo apt-get --assume-yes install collectd-core collectd
-
-      - name: install tedge package
-        run: sudo dpkg -i ./debian-package_unpack/tedge_0.*_armhf.deb
-
-      - name: install tedge mapper package
-        run: sudo dpkg -i ./debian-package_unpack/tedge_mapper_*_armhf.deb
-
-      - name: install tedge agent package
-        run: sudo dpkg -i ./debian-package_unpack/tedge_agent_*_armhf.deb
-
-      - name: install tedge watchdog package
-        run: sudo dpkg -i ./debian-package_unpack/tedge_watchdog_*_armhf.deb
-
-      - name: install tedge plugin packages
-        run: sudo dpkg -i ./debian-package_unpack/tedge_*_plugin_*_armhf.deb
-
-      - name: install c8y plugin packages
-        run: sudo dpkg -i ./debian-package_unpack/c8y_*_plugin_*_armhf.deb
-
-      - name: run tedge help
-        run: tedge --help
-
-      - name: configure collectd
-        run: sudo cp "/etc/tedge/contrib/collectd/collectd.conf" "/etc/collectd/collectd.conf"
-
       - uses: actions/download-artifact@v3
         # https://github.com/marketplace/actions/download-a-build-artifact
         with:
           name: sawtooth_publisher_armv7-unknown-linux-gnueabihf
           path: /home/pi/examples
-
-      - name: chmod publisher
-        run: chmod +x /home/pi/examples/sawtooth_publisher
 
       - uses: actions/download-artifact@v3
         # https://github.com/marketplace/actions/download-a-build-artifact
@@ -308,8 +231,8 @@ jobs:
           name: tedge_dummy_plugin_armv7-unknown-linux-gnueabihf
           path: /home/pi/tedge_dummy_plugin
 
-      - name: chmod dummy_plugin
-        run: chmod +x /home/pi/tedge_dummy_plugin/tedge_dummy_plugin
+      - name: install all packages
+        run: ./ci/install/install_for_arm.sh
 
       - name: Configure Bridge
         run: ./ci/configure_bridge.sh
