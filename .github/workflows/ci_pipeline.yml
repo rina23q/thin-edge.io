@@ -21,7 +21,7 @@ env:
   RUSTFLAGS: -D warnings
 
 jobs:
-  build_amd64:
+  build-amd64:
     name: Build Debian packages for amd64
     runs-on: Ubuntu-20.04
 
@@ -54,7 +54,7 @@ jobs:
 
   install-and-use-amd64:
     runs-on: Ubuntu-20.04
-    needs: build_amd64
+    needs: build-amd64
 
     steps:
       - name: checkout
@@ -94,7 +94,7 @@ jobs:
         uses: Swatinem/rust-cache@v1
 
       - name: Cargo test features
-        run: ./ci/install/run-cargo-test-for-amd64
+        run: ./ci/install/run-cargo-test-for-amd64.sh
 
 #      - name: Cargo test features (compile)
 #        # Compile in advance to avoid that cargo compiles during the test run
@@ -124,7 +124,7 @@ jobs:
 
 ################################################################################
 
-  build_matrix_arm:
+  build-arm-matrix:
     name: Build Debian packages for ${{ matrix.target }}
     runs-on: Ubuntu-20.04
     strategy:
@@ -181,7 +181,7 @@ jobs:
 
 #################################################################################
 
-  install-and-use-rpi_matrix:
+  clean-up-rpi-matrix:
     strategy:
       matrix:
         rpi: [ m32sd10a, m32sd10b, m32sd10c, m32sd10d ]
@@ -190,18 +190,8 @@ jobs:
       - Linux
       - ARM
       - offsite_${{ matrix.rpi }}]
-    needs: [build_matrix_arm]
 
     steps:
-      - name: checkout
-        uses: actions/checkout@v2
-
-      - uses: actions/download-artifact@v3
-        # https://github.com/marketplace/actions/download-a-build-artifact
-        with:
-          name: debian-packages-armv7-unknown-linux-gnueabihf
-          path: debian-package_unpack
-
       - name: Workaround Stop collectd mapper
         run: sudo systemctl stop tedge-mapper-collectd
         continue-on-error: true
@@ -222,6 +212,50 @@ jobs:
 
       - name: purge
         run: sudo dpkg -P c8y_configuration_plugin tedge_agent c8y_log_plugin tedge_mapper tedge_apt_plugin tedge_apama_plugin tedge_watchdog tedge mosquitto-clients mosquitto libmosquitto1 collectd-core collectd
+
+#################################################################################
+
+  install-and-use-rpi-matrix:
+    strategy:
+      matrix:
+        rpi: [ m32sd10a, m32sd10b, m32sd10c, m32sd10d ]
+    runs-on:
+      - self-hosted
+      - Linux
+      - ARM
+      - offsite_${{ matrix.rpi }}]
+    needs: [build-arm-matrix, clean-up-rpi-matrix]
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+
+      - uses: actions/download-artifact@v3
+        # https://github.com/marketplace/actions/download-a-build-artifact
+        with:
+          name: debian-packages-armv7-unknown-linux-gnueabihf
+          path: debian-package_unpack
+
+#      - name: Workaround Stop collectd mapper
+#        run: sudo systemctl stop tedge-mapper-collectd
+#        continue-on-error: true
+#
+#      - name: disconnect c8y
+#        run: sudo tedge disconnect c8y
+#        # We need to continue when there is no tedge already installed
+#        continue-on-error: true
+#
+#      - name: disconnect az
+#        run: sudo tedge disconnect az
+#        # We need to continue when there is no tedge already installed
+#        continue-on-error: true
+#
+#      - name: Stop apama
+#        run: sudo systemctl stop apama
+#        continue-on-error: true
+#
+#      - name: purge
+#        run: sudo dpkg -P c8y_configuration_plugin tedge_agent c8y_log_plugin tedge_mapper tedge_apt_plugin tedge_apama_plugin tedge_watchdog tedge mosquitto-clients mosquitto libmosquitto1 collectd-core collectd
 
       - name: install mosquitto
         run: sudo apt-get --assume-yes install mosquitto
@@ -315,7 +349,7 @@ jobs:
 
 #################################################################################
 
-  system-test_offsite_matrix:
+  system-test-offsite-matrix:
     strategy:
       matrix:
         rpi: [ m32sd10a, m32sd10b, m32sd10c, m32sd10d ]
@@ -324,7 +358,7 @@ jobs:
       - Linux
       - ARM
       - offsite_${{ matrix.rpi }}]
-    needs: [install-and-use-rpi_matrix]
+    needs: [install-and-use-rpi-matrix]
 
     steps:
       - name: checkout
@@ -390,9 +424,9 @@ jobs:
           path: tests/
 
 #############################################################################
-  system-test_postprocessing:
+  system-test-postprocessing:
     runs-on: Ubuntu-20.04
-    needs: [system-test_offsite_matrix]
+    needs: [system-test-offsite-matrix]
 
     steps:
     - name: checkout
