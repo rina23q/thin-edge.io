@@ -46,7 +46,7 @@ jobs:
 ###############################################################################
 
   build_amd64:
-    name: Build tedge and mapper Debian packages for amd64
+    name: Build Debian packages for amd64
     runs-on: Ubuntu-20.04
     steps:
       - name: Checkout
@@ -88,7 +88,7 @@ jobs:
           path: target/release/tedge_dummy_plugin
 
   build_matrix_arm:
-    name: Build tedge and mapper Debian for armv7
+    name: Build Debian packages for ${{ matrix.target }}
     runs-on: Ubuntu-20.04
     strategy:
       matrix:
