@@ -94,7 +94,7 @@ jobs:
         uses: Swatinem/rust-cache@v1
 
       - name: Cargo test features
-        run: ./ci/install/run-cargo-test-for-amd64.sh
+        run: ./ci/integration-test/run_test_for_amd64.sh
 
 #      - name: Cargo test features (compile)
 #        # Compile in advance to avoid that cargo compiles during the test run
@@ -347,6 +347,7 @@ jobs:
           path: tests/
 
 #############################################################################
+
   system-test-postprocessing:
     runs-on: Ubuntu-20.04
     needs: [system-test-offsite-matrix]
