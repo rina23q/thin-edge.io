@@ -94,20 +94,6 @@ jobs:
         # https://github.com/marketplace/actions/rust-cache
         uses: Swatinem/rust-cache@v1
 
-#      - name: install cargo-deb
-#        uses: actions-rs/cargo@v1
-#        # https://github.com/marketplace/actions/rust-cargo
-#        with:
-#          command: install
-#          args: cargo-deb --version 1.38.1
-#
-#      - name: install cargo-strip
-#        uses: actions-rs/cargo@v1
-#        # https://github.com/marketplace/actions/rust-cargo
-#        with:
-#          command: install
-#          args: cargo-strip
-
       - name: Build for ${{ matrix.target }}
         run: ./ci/build/build_for_arm.sh ${{ matrix.target }}
 

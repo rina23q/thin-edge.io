@@ -5,7 +5,7 @@ set -euo pipefail
 ARCH=$1
 
 cargo install cargo-deb --version 1.38.1
-cargo install cargo-strip
+#cargo install cargo-strip
 
 # build cross release for target
 cross build --release --target="$ARCH"
