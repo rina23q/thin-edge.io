@@ -9,9 +9,6 @@ sudo apt-get --assume-yes install mosquitto
 sudo apt-get --assume-yes install libmosquitto1
 sudo apt-get --assume-yes install collectd-core
 
-pwd
-ls -ltr ./
-
 # install tedge packages
 sudo dpkg -i ./"$DIR"/tedge_0.*_amd64.deb
 sudo dpkg -i ./"$DIR"/tedge_mapper_*_amd64.deb
