@@ -830,7 +830,7 @@ jobs:
 
   system-test_offsite_a:
     runs-on: [self-hosted, Linux, ARM, offsite_m32sd10a]
-    needs: [install-and-use-rpi_m32sd10a]
+    needs: [install-and-use-rpi_matrix]
 
     steps:
 
@@ -900,7 +900,7 @@ jobs:
 
   system-test_offsite_b:
     runs-on: [self-hosted, Linux, ARM, offsite_m32sd10b]
-    needs: [install-and-use-rpi_m32sd10b]
+    needs: [install-and-use-rpi_matrix]
 
     steps:
 
@@ -970,7 +970,7 @@ jobs:
 
   system-test_offsite_c:
     runs-on: [self-hosted, Linux, ARM, offsite_m32sd10c]
-    needs: [install-and-use-rpi_m32sd10c]
+    needs: [install-and-use-rpi_matrix]
 
     steps:
 
@@ -1040,7 +1040,7 @@ jobs:
 
   system-test_offsite_d:
     runs-on: [self-hosted, Linux, ARM, offsite_m32sd10d]
-    needs: [install-and-use-rpi_m32sd10d]
+    needs: [install-and-use-rpi_matrix]
 
     steps:
 
