@@ -232,7 +232,7 @@ jobs:
           path: /home/pi/tedge_dummy_plugin
 
       - name: install all packages
-        run: ./ci/install/install_for_arm.sh
+        run: ./ci/install/install_for_arm.sh debian-package_unpack
 
       - name: Configure Bridge
         run: ./ci/configure_bridge.sh
