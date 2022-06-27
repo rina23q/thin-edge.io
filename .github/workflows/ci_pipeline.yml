@@ -132,8 +132,8 @@ jobs:
           command: install
           args: cargo-strip
 
-      - name: Build for arm
-        run: ./ci/build/build_for_arm.sh
+      - name: Build for ${{ matrix.target }}
+        run: ./ci/build/build_for_arm.sh ${{ matrix.target }}
 
 #      - name: build cross release for target
 #        uses: actions-rs/cargo@v1
