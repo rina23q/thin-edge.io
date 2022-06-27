@@ -135,7 +135,7 @@ jobs:
           path: debian-package_unpack
 
       - name: setup test environment
-        run: ./ci/install/install_for_arm.sh package_unpack
+        run: ./ci/install/install_for_amd64.sh package_unpack
 
 #      - name: Workaround Stop collectd mapper
 #        run: sudo systemctl stop tedge-mapper-collectd
