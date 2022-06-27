@@ -56,7 +56,7 @@ jobs:
           name: sawtooth_publisher_amd64
           path: target/release/sawtooth_publisher
 
-      - name: upload dummy-plugin
+      - name: upload dummy-plugin as zip
         # https://github.com/marketplace/actions/upload-a-build-artifact
         uses: actions/upload-artifact@v2
         with:
@@ -94,19 +94,19 @@ jobs:
         # https://github.com/marketplace/actions/rust-cache
         uses: Swatinem/rust-cache@v1
 
-      - name: install cargo-deb
-        uses: actions-rs/cargo@v1
-        # https://github.com/marketplace/actions/rust-cargo
-        with:
-          command: install
-          args: cargo-deb --version 1.38.1
-
-      - name: install cargo-strip
-        uses: actions-rs/cargo@v1
-        # https://github.com/marketplace/actions/rust-cargo
-        with:
-          command: install
-          args: cargo-strip
+#      - name: install cargo-deb
+#        uses: actions-rs/cargo@v1
+#        # https://github.com/marketplace/actions/rust-cargo
+#        with:
+#          command: install
+#          args: cargo-deb --version 1.38.1
+#
+#      - name: install cargo-strip
+#        uses: actions-rs/cargo@v1
+#        # https://github.com/marketplace/actions/rust-cargo
+#        with:
+#          command: install
+#          args: cargo-strip
 
       - name: Build for ${{ matrix.target }}
         run: ./ci/build/build_for_arm.sh ${{ matrix.target }}
