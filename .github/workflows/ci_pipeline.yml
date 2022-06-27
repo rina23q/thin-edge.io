@@ -39,8 +39,8 @@ jobs:
         # https://github.com/marketplace/actions/rust-cache
         uses: Swatinem/rust-cache@v1
 
-      - name: Build packages for arm64
-        run: ./ci/build/build_for_arm64.sh
+      - name: Build packages for amd64
+        run: ./ci/build/build_for_amd64.sh
 
       - name: Upload artifacts as zip
         # https://github.com/marketplace/actions/upload-a-build-artifact
@@ -134,56 +134,59 @@ jobs:
           name: debian-packages-amd64
           path: debian-package_unpack
 
-      - name: Workaround Stop collectd mapper
-        run: sudo systemctl stop tedge-mapper-collectd
-        continue-on-error: true
+      - name: setup test environment
+        run: ./ci/install/install_for_arm.sh package_unpack
 
-      - name: disconnect c8y
-        run: sudo tedge disconnect c8y
-        # We need to continue when there is no tedge already installed
-        continue-on-error: true
+#      - name: Workaround Stop collectd mapper
+#        run: sudo systemctl stop tedge-mapper-collectd
+#        continue-on-error: true
+#
+#      - name: disconnect c8y
+#        run: sudo tedge disconnect c8y
+#        # We need to continue when there is no tedge already installed
+#        continue-on-error: true
+#
+#      - name: disconnect az
+#        run: sudo tedge disconnect az
+#        # We need to continue when there is no tedge already installed
+#        continue-on-error: true
+#
+#      - name: purge
+#        run: sudo dpkg -P c8y_configuration_plugin tedge_agent c8y_log_plugin tedge_mapper tedge_apt_plugin tedge_apama_plugin tedge_watchdog tedge mosquitto libmosquitto1 collectd-core
 
-      - name: disconnect az
-        run: sudo tedge disconnect az
-        # We need to continue when there is no tedge already installed
-        continue-on-error: true
-
-      - name: purge
-        run: sudo dpkg -P c8y_configuration_plugin tedge_agent c8y_log_plugin tedge_mapper tedge_apt_plugin tedge_apama_plugin tedge_watchdog tedge mosquitto libmosquitto1 collectd-core
-
-      - name: install mosquitto
-        run: sudo apt-get --assume-yes install mosquitto
-
-      - name: install libmosquitto1
-        run: sudo apt-get --assume-yes install libmosquitto1
-
-      - name: install collectd-core
-        run: sudo apt-get --assume-yes install collectd-core
-
-      - name: install tedge package
-        run: sudo dpkg -i ./debian-package_unpack/tedge_0.*_amd64.deb
-
-      - name: install tedge mapper package
-        run: sudo dpkg -i ./debian-package_unpack/tedge_mapper_*_amd64.deb
-
-      - name: install tedge agent package
-        run: sudo dpkg -i ./debian-package_unpack/tedge_agent_*_amd64.deb
-
-      - name: install tedge watchdog package
-        run: sudo dpkg -i ./debian-package_unpack/tedge_watchdog_*_amd64.deb
-
-      - name: install tedge plugin packages
-        run: sudo dpkg -i ./debian-package_unpack/tedge_*_plugin_*_amd64.deb
-
-      - name: install c8y plugin packages
-        run: sudo dpkg -i ./debian-package_unpack/c8y_*_plugin_*_amd64.deb
-
-      - name: run tedge help
-        run: tedge --help
-
-        # For Analytics: replace the default config file with tedge custom config file
-      - name: configure collectd
-        run: sudo cp "/etc/tedge/contrib/collectd/collectd.conf" "/etc/collectd/collectd.conf"
+#      - name: install mosquitto
+#        run: sudo apt-get --assume-yes install mosquitto
+#
+#      - name: install libmosquitto1
+#        run: sudo apt-get --assume-yes install libmosquitto1
+#
+#      - name: install collectd-core
+#        run: sudo apt-get --assume-yes install collectd-core
+#
+#      - name: install tedge package
+#        run: sudo dpkg -i ./debian-package_unpack/tedge_0.*_amd64.deb
+#
+#      - name: install tedge mapper package
+#        run: sudo dpkg -i ./debian-package_unpack/tedge_mapper_*_amd64.deb
+#
+#      - name: install tedge agent package
+#        run: sudo dpkg -i ./debian-package_unpack/tedge_agent_*_amd64.deb
+#
+#      - name: install tedge watchdog package
+#        run: sudo dpkg -i ./debian-package_unpack/tedge_watchdog_*_amd64.deb
+#
+#      - name: install tedge plugin packages
+#        run: sudo dpkg -i ./debian-package_unpack/tedge_*_plugin_*_amd64.deb
+#
+#      - name: install c8y plugin packages
+#        run: sudo dpkg -i ./debian-package_unpack/c8y_*_plugin_*_amd64.deb
+#
+#      - name: run tedge help
+#        run: tedge --help
+#
+#        # For Analytics: replace the default config file with tedge custom config file
+#      - name: configure collectd
+#        run: sudo cp "/etc/tedge/contrib/collectd/collectd.conf" "/etc/collectd/collectd.conf"
 
   cargo-test-features:
     name: Run cargo test features
@@ -204,38 +207,38 @@ jobs:
         # https://github.com/marketplace/actions/rust-cache
         uses: Swatinem/rust-cache@v1
 
-      - uses: actions/download-artifact@v3
-        # https://github.com/marketplace/actions/download-a-build-artifact
-        with:
-          name: debian-packages-amd64
-          path: debian-package_unpack
-
-      - name: install mosquitto
-        run: sudo apt-get --assume-yes install mosquitto
-
-      - name: install libmosquitto1
-        run: sudo apt-get --assume-yes install libmosquitto1
-
-      - name: install collectd-core
-        run: sudo apt-get --assume-yes install collectd-core
-
-      - name: install tedge package
-        run: sudo dpkg -i ./debian-package_unpack/tedge_0.*_amd64.deb
-
-      - name: install tedge mapper package
-        run: sudo dpkg -i ./debian-package_unpack/tedge_mapper_*_amd64.deb
-
-      - name: install tedge agent package
-        run: sudo dpkg -i ./debian-package_unpack/tedge_agent_*_amd64.deb
-
-      - name: install tedge watchdog package
-        run: sudo dpkg -i ./debian-package_unpack/tedge_watchdog_*_amd64.deb
-
-      - name: install tedge plugin packages
-        run: sudo dpkg -i ./debian-package_unpack/tedge_*_plugin_*_amd64.deb
-
-      - name: install c8y plugin packages
-        run: sudo dpkg -i ./debian-package_unpack/c8y_*_plugin_*_amd64.deb
+#      - uses: actions/download-artifact@v3
+#        # https://github.com/marketplace/actions/download-a-build-artifact
+#        with:
+#          name: debian-packages-amd64
+#          path: debian-package_unpack
+#
+#      - name: install mosquitto
+#        run: sudo apt-get --assume-yes install mosquitto
+#
+#      - name: install libmosquitto1
+#        run: sudo apt-get --assume-yes install libmosquitto1
+#
+#      - name: install collectd-core
+#        run: sudo apt-get --assume-yes install collectd-core
+#
+#      - name: install tedge package
+#        run: sudo dpkg -i ./debian-package_unpack/tedge_0.*_amd64.deb
+#
+#      - name: install tedge mapper package
+#        run: sudo dpkg -i ./debian-package_unpack/tedge_mapper_*_amd64.deb
+#
+#      - name: install tedge agent package
+#        run: sudo dpkg -i ./debian-package_unpack/tedge_agent_*_amd64.deb
+#
+#      - name: install tedge watchdog package
+#        run: sudo dpkg -i ./debian-package_unpack/tedge_watchdog_*_amd64.deb
+#
+#      - name: install tedge plugin packages
+#        run: sudo dpkg -i ./debian-package_unpack/tedge_*_plugin_*_amd64.deb
+#
+#      - name: install c8y plugin packages
+#        run: sudo dpkg -i ./debian-package_unpack/c8y_*_plugin_*_amd64.deb
 
       - name: Cargo test features (compile)
         # Compile in advance to avoid that cargo compiles during the test run
