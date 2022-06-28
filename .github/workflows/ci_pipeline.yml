@@ -19,58 +19,58 @@ env:
   RUSTFLAGS: -D warnings
 
 jobs:
-  build-amd64:
-    name: Build for amd64
-    runs-on: Ubuntu-20.04
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Enable toolchain via github action
-        # https://github.com/actions-rs/toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: 1.58.1
-          override: true
-
-      - name: Enable cache
-        # https://github.com/marketplace/actions/rust-cache
-        uses: Swatinem/rust-cache@v1
-
-      - name: Build packages for amd64
-        run: ./ci/build/build_for_amd64.sh
-
-      - name: Upload artifacts as zip
-        # https://github.com/marketplace/actions/upload-a-build-artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: debian-packages-amd64
-          path: target/debian/*.deb
-
-#################################################################################
-
-  install-and-use-amd64:
-    name: Install artifacts on amd64
-    runs-on: Ubuntu-20.04
-    needs: build-amd64
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Download release artifacts
-        uses: actions/download-artifact@v3
-        # https://github.com/marketplace/actions/download-a-build-artifact
-        with:
-          name: debian-packages-amd64
-          path: debian-package_unpack
-
-      - name: Install artifacts on amd64
-        run: ./ci/installation/install_for_amd64.sh debian-package_unpack
-
-      - name: Run tedge help
-        run: tedge --help
+#  build-amd64:
+#    name: Build for amd64
+#    runs-on: Ubuntu-20.04
+#
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v2
+#
+#      - name: Enable toolchain via github action
+#        # https://github.com/actions-rs/toolchain
+#        uses: actions-rs/toolchain@v1
+#        with:
+#          toolchain: 1.58.1
+#          override: true
+#
+#      - name: Enable cache
+#        # https://github.com/marketplace/actions/rust-cache
+#        uses: Swatinem/rust-cache@v1
+#
+#      - name: Build packages for amd64
+#        run: ./ci/build/build_for_amd64.sh
+#
+#      - name: Upload artifacts as zip
+#        # https://github.com/marketplace/actions/upload-a-build-artifact
+#        uses: actions/upload-artifact@v2
+#        with:
+#          name: debian-packages-amd64
+#          path: target/debian/*.deb
+#
+##################################################################################
+#
+#  install-and-use-amd64:
+#    name: Install artifacts on amd64
+#    runs-on: Ubuntu-20.04
+#    needs: build-amd64
+#
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v2
+#
+#      - name: Download release artifacts
+#        uses: actions/download-artifact@v3
+#        # https://github.com/marketplace/actions/download-a-build-artifact
+#        with:
+#          name: debian-packages-amd64
+#          path: debian-package_unpack
+#
+#      - name: Install artifacts on amd64
+#        run: ./ci/installation/install_for_amd64.sh debian-package_unpack
+#
+#      - name: Run tedge help
+#        run: tedge --help
 
 #################################################################################
 
