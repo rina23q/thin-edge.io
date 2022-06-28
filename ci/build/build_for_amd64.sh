@@ -6,6 +6,8 @@ set -euo pipefail
 cargo install cargo-deb --version 1.38.1
 
 # Load the release package list as $RELEASE_PACKAGES
+pwd
+ls -ltr
 source ./../release_package_list.sh
 
 # Build release debian packages
