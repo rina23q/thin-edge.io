@@ -1,0 +1,70 @@
+name: ci_pipeline
+
+# All in one ci pipeline
+#  Note that the jobs system-test_offsite_{abcd} , install-and-use-rpi_m32sd10{abcd}
+#  are there four times and are almost identical. They only differ in a character
+#  a,b,c,d that we use to select a runner.
+#
+# TODO: Reduce complexity by moving functionality to bash scripts
+# TODO: Think about automated generation of this workflow, there is
+#   duplicated code, especially in the later sections
+# TODO: Smoke testing on Azure is disabled, we should check if it works out
+#   with 4 runners in parallel or enable only one
+
+on:
+  push:
+    branches: [ main, 'release-*' ]
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: -D warnings
+
+jobs:
+  cargo-test-features-amd64:
+    name: Run cargo test features
+    runs-on: Ubuntu-20.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: enable toolchain via github action
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: 1.58.1
+          override: true
+
+      - name: Enable cache
+        # https://github.com/marketplace/actions/rust-cache
+        uses: Swatinem/rust-cache@v1
+
+#      - name: Cargo test features
+#        run: ./ci/integration-test/cargo_test_for_amd64.sh
+
+      - name: Cargo test features (compile)
+        # Compile in advance to avoid that cargo compiles during the test run
+        # this seems to have an impact on some tests as the timing differs
+        uses: actions-rs/cargo@v1
+        # https://github.com/marketplace/actions/rust-cargo
+        with:
+          command: test
+          args: --verbose --no-run --features integration-test
+
+      - name: Cargo build dummy plugin
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: -p tedge_dummy_plugin
+
+        # To run the test for features here is kind of experimental
+        # they could fail if GitHub blocks external connections.
+        # It seems like they rarely do.
+      - name: Cargo test features
+        uses: actions-rs/cargo@v1
+        # https://github.com/marketplace/actions/rust-cargo
+        with:
+          command: test
+          args: --verbose --features integration-test,requires-sudo -- \
+            --skip sending_and_receiving_a_message
+
