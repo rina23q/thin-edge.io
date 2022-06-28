@@ -1,4 +1,4 @@
-name: ci_pipeline
+name: cargo_test_features
 
 # All in one ci pipeline
 #  Note that the jobs system-test_offsite_{abcd} , install-and-use-rpi_m32sd10{abcd}
