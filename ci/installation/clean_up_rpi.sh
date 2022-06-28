@@ -11,4 +11,4 @@ source ./ci/package_list.sh
 
 # Purge packages
 sudo apt --assume-yes purge $(echo "${RELEASE_PACKAGES[*]}")
-sudo apt --assume-yes purge $(echo "${EXTERNAL_ARM_PACKAGES[*]}")
+sudo DEBIAN_FRONTEND=noninteractive apt --assume-yes purge $(echo "${EXTERNAL_ARM_PACKAGES[*]}")
