@@ -184,7 +184,8 @@ jobs:
   clean-up-rpi-matrix:
     strategy:
       matrix:
-        rpi: [ m32sd10a, m32sd10b, m32sd10c, m32sd10d ]
+#        rpi: [ m32sd10a, m32sd10b, m32sd10c, m32sd10d ]
+        rpi: [ m32sd10a ]
     runs-on:
       - self-hosted
       - Linux
@@ -201,7 +202,8 @@ jobs:
   install-and-use-rpi-matrix:
     strategy:
       matrix:
-        rpi: [ m32sd10a, m32sd10b, m32sd10c, m32sd10d ]
+#        rpi: [ m32sd10a, m32sd10b, m32sd10c, m32sd10d ]
+        rpi: [ m32sd10a ]
     runs-on:
       - self-hosted
       - Linux
@@ -275,7 +277,8 @@ jobs:
   system-test-offsite-matrix:
     strategy:
       matrix:
-        rpi: [ m32sd10a, m32sd10b, m32sd10c, m32sd10d ]
+#        rpi: [ m32sd10a, m32sd10b, m32sd10c, m32sd10d ]
+        rpi: [ m32sd10a ]
     runs-on:
       - self-hosted
       - Linux
@@ -377,26 +380,26 @@ jobs:
         name: results_pysys_offsite_m32sd10a
         path: results/results_pysys_offsite_m32sd10a
 
-    - name: download result b
-      uses: actions/download-artifact@v3
-      # https://github.com/marketplace/actions/download-a-build-artifact
-      with:
-        name: results_pysys_offsite_m32sd10b
-        path: results/results_pysys_offsite_m32sd10b
-
-    - name: download result c
-      uses: actions/download-artifact@v3
-      # https://github.com/marketplace/actions/download-a-build-artifact
-      with:
-        name: results_pysys_offsite_m32sd10c
-        path: results/results_pysys_offsite_m32sd10c
-
-    - name: download result d
-      uses: actions/download-artifact@v3
-      # https://github.com/marketplace/actions/download-a-build-artifact
-      with:
-        name: results_pysys_offsite_m32sd10d
-        path: results/results_pysys_offsite_m32sd10d
+#    - name: download result b
+#      uses: actions/download-artifact@v3
+#      # https://github.com/marketplace/actions/download-a-build-artifact
+#      with:
+#        name: results_pysys_offsite_m32sd10b
+#        path: results/results_pysys_offsite_m32sd10b
+#
+#    - name: download result c
+#      uses: actions/download-artifact@v3
+#      # https://github.com/marketplace/actions/download-a-build-artifact
+#      with:
+#        name: results_pysys_offsite_m32sd10c
+#        path: results/results_pysys_offsite_m32sd10c
+#
+#    - name: download result d
+#      uses: actions/download-artifact@v3
+#      # https://github.com/marketplace/actions/download-a-build-artifact
+#      with:
+#        name: results_pysys_offsite_m32sd10d
+#        path: results/results_pysys_offsite_m32sd10d
 
     - name: Build report
       run: ./ci/report/build.sh
