@@ -186,11 +186,11 @@ jobs:
       matrix:
 #        rpi: [ m32sd10a, m32sd10b, m32sd10c, m32sd10d ]
         rpi: [ m32sd10a ]
-    runs-on:
-      - self-hosted
-      - Linux
-      - ARM
-      - offsite_${{ matrix.rpi }}]
+    runs-on: [self-hosted, Linux, ARM, offsite_${{ matrix.rpi }} ]
+#      - self-hosted
+#      - Linux
+#      - ARM
+#      - offsite_${{ matrix.rpi }}]
     continue-on-error: true
 
     steps:

@@ -1,16 +1,5 @@
 name: cargo_test_features
 
-# All in one ci pipeline
-#  Note that the jobs system-test_offsite_{abcd} , install-and-use-rpi_m32sd10{abcd}
-#  are there four times and are almost identical. They only differ in a character
-#  a,b,c,d that we use to select a runner.
-#
-# TODO: Reduce complexity by moving functionality to bash scripts
-# TODO: Think about automated generation of this workflow, there is
-#   duplicated code, especially in the later sections
-# TODO: Smoke testing on Azure is disabled, we should check if it works out
-#   with 4 runners in parallel or enable only one
-
 on:
   push:
     branches: [ main, 'release-*' ]
