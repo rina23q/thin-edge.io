@@ -5,9 +5,6 @@ name: ci_pipeline
 #  are there four times and are almost identical. They only differ in a character
 #  a,b,c,d that we use to select a runner.
 #
-# TODO: Reduce complexity by moving functionality to bash scripts
-# TODO: Think about automated generation of this workflow, there is
-#   duplicated code, especially in the later sections
 # TODO: Smoke testing on Azure is disabled, we should check if it works out
 #   with 4 runners in parallel or enable only one
 
@@ -29,7 +26,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: enable toolchain via github action
+      - name: Enable toolchain via github action
         # https://github.com/actions-rs/toolchain
         uses: actions-rs/toolchain@v1
         with:
@@ -53,20 +50,22 @@ jobs:
 #################################################################################
 
   install-and-use-amd64:
+    name: Install artifacts on amd64
     runs-on: Ubuntu-20.04
     needs: build-amd64
 
     steps:
-      - name: checkout
+      - name: Checkout
         uses: actions/checkout@v2
 
-      - uses: actions/download-artifact@v3
+      - name: Download release artifacts
+        uses: actions/download-artifact@v3
         # https://github.com/marketplace/actions/download-a-build-artifact
         with:
           name: debian-packages-amd64
           path: debian-package_unpack
 
-      - name: install artifacts on amd64
+      - name: Install artifacts on amd64
         run: ./ci/install/install_for_amd64.sh debian-package_unpack
 
       - name: run tedge help
@@ -83,7 +82,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: enable toolchain via github action
+      - name: Enable toolchain via github action
         uses: actions-rs/toolchain@v1
         with:
           toolchain: 1.58.1
@@ -93,34 +92,20 @@ jobs:
         # https://github.com/marketplace/actions/rust-cache
         uses: Swatinem/rust-cache@v1
 
-      - name: Cargo test features
+      - name: Compile test
         run: ./ci/integration-test/cargo_test_for_amd64.sh
 
-#      - name: Cargo test features (compile)
-#        # Compile in advance to avoid that cargo compiles during the test run
-#        # this seems to have an impact on some tests as the timing differs
-#        uses: actions-rs/cargo@v1
-#        # https://github.com/marketplace/actions/rust-cargo
-#        with:
-#          command: test
-#          args: --verbose --no-run --features integration-test
-#
-#      - name: Cargo build dummy plugin
-#        uses: actions-rs/cargo@v1
-#        with:
-#          command: build
-#          args: -p tedge_dummy_plugin
-#
-#        # To run the test for features here is kind of experimental
-#        # they could fail if GitHub blocks external connections.
-#        # It seems like they rarely do.
-#      - name: Cargo test features
-#        uses: actions-rs/cargo@v1
-#        # https://github.com/marketplace/actions/rust-cargo
-#        with:
-#          command: test
-#          args: --verbose --features integration-test,requires-sudo -- \
-#            --skip sending_and_receiving_a_message
+        # To run the test for features here is kind of experimental
+        # they could fail if GitHub blocks external connections.
+        # It seems like they rarely do.
+        # sudo is required, hence, difficult to port this command to bash script
+      - name: Cargo test features
+        uses: actions-rs/cargo@v1
+        # https://github.com/marketplace/actions/rust-cargo
+        with:
+          command: test
+          args: --verbose --features integration-test,requires-sudo -- \
+            --skip sending_and_receiving_a_message
 
 ################################################################################
 
@@ -140,10 +125,10 @@ jobs:
           ]
 
     steps:
-      - name: checkout
+      - name: Checkout
         uses: actions/checkout@v2
 
-      - name: enable toolchain via github action
+      - name: Enable toolchain via github action
         # https://github.com/actions-rs/toolchain
         uses: actions-rs/toolchain@v1
         with:
@@ -158,14 +143,14 @@ jobs:
       - name: Build for ${{ matrix.target }}
         run: ./ci/build/build_for_arm.sh ${{ matrix.target }}
 
-      - name: upload debian packages as zip
+      - name: Upload debian packages as zip
         # https://github.com/marketplace/actions/upload-a-build-artifact
         uses: actions/upload-artifact@v2
         with:
           name: debian-packages-${{ matrix.target }}
           path: target/${{ matrix.target }}/debian/*.deb
 
-      - name: upload sawtooth publisher as zip
+      - name: Upload sawtooth publisher as zip
         # https://github.com/marketplace/actions/upload-a-build-artifact
         uses: actions/upload-artifact@v2
         with:
@@ -186,16 +171,17 @@ jobs:
       matrix:
 #        rpi: [ m32sd10a, m32sd10b, m32sd10c, m32sd10d ]
         rpi: [ m32sd10a ]
-#    runs-on: [self-hosted, Linux, ARM, offsite_${{ matrix.rpi }} ]
     runs-on:
       - self-hosted
+      - Linux
+      - ARM
       - offsite_${{ matrix.rpi }}
 
     steps:
       - name: checkout
         uses: actions/checkout@v2
 
-      - name: Clean up on ${{ matrix.target }}
+      - name: Clean up ${{ matrix.rpi }}
         run: ./ci/install/clean_up_rpi.sh
         continue-on-error: true
 
@@ -210,32 +196,35 @@ jobs:
       - self-hosted
       - Linux
       - ARM
-      - offsite_${{ matrix.rpi }}]
+      - offsite_${{ matrix.rpi }}
     needs: [build-arm-matrix, clean-up-rpi-matrix]
 
     steps:
       - name: checkout
         uses: actions/checkout@v2
 
-      - uses: actions/download-artifact@v3
+      - name: Download release artifacts
+        uses: actions/download-artifact@v3
         # https://github.com/marketplace/actions/download-a-build-artifact
         with:
           name: debian-packages-armv7-unknown-linux-gnueabihf
           path: debian-package_unpack
 
-      - uses: actions/download-artifact@v3
+      - name: Download sawtooth publisher
+        uses: actions/download-artifact@v3
         # https://github.com/marketplace/actions/download-a-build-artifact
         with:
           name: sawtooth_publisher_armv7-unknown-linux-gnueabihf
           path: /home/pi/examples
 
-      - uses: actions/download-artifact@v3
+      - name: Download tedge_dummy_plugin
+        uses: actions/download-artifact@v3
         # https://github.com/marketplace/actions/download-a-build-artifact
         with:
           name: tedge_dummy_plugin_armv7-unknown-linux-gnueabihf
           path: /home/pi/tedge_dummy_plugin
 
-      - name: install all packages
+      - name: Install all
         run: ./ci/install/install_for_arm.sh debian-package_unpack
 
       - name: Configure Bridge
@@ -285,11 +274,11 @@ jobs:
       - self-hosted
       - Linux
       - ARM
-      - offsite_${{ matrix.rpi }}]
+      - offsite_${{ matrix.rpi }}
     needs: [install-and-use-rpi-matrix]
 
     steps:
-      - name: checkout
+      - name: Checkout
         uses: actions/checkout@v2
 
       - name: Run all Tests
@@ -344,7 +333,7 @@ jobs:
           TEBASEDIR: /home/pi/actions-runner/_work/thin-edge.io/thin-edge.io/
           EXAMPLEDIR: /home/pi/examples
 
-      - name: upload results as zip
+      - name: Upload results as zip
         # https://github.com/marketplace/actions/upload-a-build-artifact
         uses: actions/upload-artifact@v2
         with:
@@ -375,7 +364,7 @@ jobs:
 #          event-type: postprocess
 #          repository: abelikt/thin-edge.io_analytics
 
-    - name: download result a
+    - name: Download result a
       uses: actions/download-artifact@v3
       # https://github.com/marketplace/actions/download-a-build-artifact
       with:
@@ -406,14 +395,14 @@ jobs:
     - name: Build report
       run: ./ci/report/build.sh
 
-    - name: upload report as zip
+    - name: Upload report as zip
       # https://github.com/marketplace/actions/upload-a-build-artifact
       uses: actions/upload-artifact@v2
       with:
         name: report_matrix_${{ github.run_number }}
         path: results/report.zip
 
-    - name: upload report as html
+    - name: Upload report as html
       # https://github.com/marketplace/actions/upload-a-build-artifact
       uses: actions/upload-artifact@v2
       with:
