@@ -7,8 +7,8 @@ sudo tedge disconnect az
 sudo systemctl stop apama
 
 # Load the release package list as $RELEASE_PACKAGES
-source ./../release_package_list.sh
+source ./ci/package_list.sh
 
 # Purge packages
 sudo apt --assume-yes purge "${RELEASE_PACKAGES[*]}"
-sudo apt --assume-yes purge mosquitto-clients mosquitto libmosquitto1 collectd-core collectd
+sudo apt --assume-yes purge "${EXTERNAL_ARM_PACKAGES[*]}"

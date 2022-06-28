@@ -4,17 +4,13 @@ set -euo pipefail
 
 DIR=$1
 
-# install pre-required packages
-sudo apt-get --assume-yes install mosquitto
-sudo apt-get --assume-yes install libmosquitto1
-sudo apt-get --assume-yes install mosquitto-clients
-sudo apt-get --assume-yes install collectd-core
-sudo apt-get --assume-yes install collectd
+# Load the package list as $EXTERNAL_ARM_PACKAGES, $RELEASE_PACKAGES
+source ./ci/package_list.sh
 
-# Load the release package list as $RELEASE_PACKAGES
-source ./../release_package_list.sh
+# Install pre-required packages
+sudo apt-get --assume-yes install "${EXTERNAL_ARM_PACKAGES[*]}"
 
-# install tedge packages
+# Install thin-edge packages
 for PACKAGE in "${RELEASE_PACKAGES[@]}"
 do
     sudo dpkg -i ./"$DIR"/"$PACKAGE"_0.*_armhf.deb
