@@ -7,5 +7,5 @@ set -euo pipefail
 cargo test --verbose --no-run --features integration-test
 cargo build -p tedge_dummy_plugin
 
-cargo test --verbose --features integration-test,requires-sudo -- \
+/home/runner/.cargo/bin/cargo test --verbose --features integration-test,requires-sudo -- \
       --skip sending_and_receiving_a_message
