@@ -28,24 +28,6 @@ jobs:
         # https://github.com/marketplace/actions/rust-cache
         uses: Swatinem/rust-cache@v1
 
-#      - name: Cargo test features
-#        run: ./ci/integration-test/cargo_test_for_amd64.sh
-
-#      - name: Cargo test features (compile)
-#        # Compile in advance to avoid that cargo compiles during the test run
-#        # this seems to have an impact on some tests as the timing differs
-#        uses: actions-rs/cargo@v1
-#        # https://github.com/marketplace/actions/rust-cargo
-#        with:
-#          command: test
-#          args: --verbose --no-run --features integration-test
-#
-#      - name: Cargo build dummy plugin
-#        uses: actions-rs/cargo@v1
-#        with:
-#          command: build
-#          args: -p tedge_dummy_plugin
-
       - name: Cargo test features
         run: ./ci/integration-test/cargo_test_for_amd64.sh
 

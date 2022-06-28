@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Note: Must be in the expected installation order
 RELEASE_PACKAGES=(
 tedge
 tedge_mapper
