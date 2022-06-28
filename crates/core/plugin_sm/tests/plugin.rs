@@ -404,7 +404,7 @@ mod tests {
             path: dummy_plugin_path.clone(),
             sudo: None,
         };
-        (plugin, dummy_plugin_path)
+        dbg!(&dummy_plugin_path)(plugin, dummy_plugin_path)
     }
 
     fn get_dummy_plugin_tmp_path() -> PathBuf {
