@@ -6,4 +6,6 @@ set -euo pipefail
 # this seems to have an impact on some tests as the timing differs
 cargo test --verbose --no-run --features integration-test
 cargo build -p tedge_dummy_plugin
-ls -ltra
+
+cargo test --verbose --features integration-test,requires-sudo -- \
+      --skip sending_and_receiving_a_message
