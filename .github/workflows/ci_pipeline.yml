@@ -77,7 +77,7 @@ jobs:
   cargo-test-features-amd64:
     name: Run cargo test features
     runs-on: Ubuntu-20.04
-    needs: install-and-use-amd64
+#    needs: install-and-use-amd64
 
     steps:
       - name: Checkout
