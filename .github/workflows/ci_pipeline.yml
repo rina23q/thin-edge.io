@@ -68,7 +68,7 @@ jobs:
       - name: Install artifacts on amd64
         run: ./ci/install/install_for_amd64.sh debian-package_unpack
 
-      - name: run tedge help
+      - name: Run tedge help
         run: tedge --help
 
 #################################################################################
@@ -95,10 +95,10 @@ jobs:
       - name: Compile test
         run: ./ci/integration-test/cargo_test_for_amd64.sh
 
+        # sudo is required, hence, difficult to port this command to bash script
         # To run the test for features here is kind of experimental
         # they could fail if GitHub blocks external connections.
         # It seems like they rarely do.
-        # sudo is required, hence, difficult to port this command to bash script
       - name: Cargo test features
         uses: actions-rs/cargo@v1
         # https://github.com/marketplace/actions/rust-cargo
@@ -176,9 +176,10 @@ jobs:
       - Linux
       - ARM
       - offsite_${{ matrix.rpi }}
+    needs: build-arm-matrix
 
     steps:
-      - name: checkout
+      - name: Checkout
         uses: actions/checkout@v2
 
       - name: Clean up ${{ matrix.rpi }}
@@ -197,10 +198,10 @@ jobs:
       - Linux
       - ARM
       - offsite_${{ matrix.rpi }}
-    needs: [build-arm-matrix, clean-up-rpi-matrix]
+    needs: clean-up-rpi-matrix
 
     steps:
-      - name: checkout
+      - name: Checkout
         uses: actions/checkout@v2
 
       - name: Download release artifacts
@@ -275,7 +276,7 @@ jobs:
       - Linux
       - ARM
       - offsite_${{ matrix.rpi }}
-    needs: [install-and-use-rpi-matrix]
+    needs: install-and-use-rpi-matrix
 
     steps:
       - name: Checkout
@@ -344,10 +345,10 @@ jobs:
 
   system-test-postprocessing:
     runs-on: Ubuntu-20.04
-    needs: [system-test-offsite-matrix]
+    needs: system-test-offsite-matrix
 
     steps:
-    - name: checkout
+    - name: Checkout
       uses: actions/checkout@v2
 
     # Trigger repo dispatch here.
