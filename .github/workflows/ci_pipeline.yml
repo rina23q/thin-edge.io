@@ -190,11 +190,14 @@ jobs:
     runs-on:
       - self-hosted
       - offsite_${{ matrix.rpi }}
-    continue-on-error: true
 
     steps:
+      - name: checkout
+        uses: actions/checkout@v2
+
       - name: Clean up on ${{ matrix.target }}
         run: ./ci/install/clean_up_rpi.sh
+        continue-on-error: true
 
 #################################################################################
 
