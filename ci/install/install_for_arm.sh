@@ -11,13 +11,14 @@ sudo apt-get --assume-yes install mosquitto-clients
 sudo apt-get --assume-yes install collectd-core
 sudo apt-get --assume-yes install collectd
 
+# Load the release package list as $RELEASE_PACKAGES
+source ./../release_package_list.sh
+
 # install tedge packages
-sudo dpkg -i ./"$DIR"/tedge_0.*_armhf.deb
-sudo dpkg -i ./"$DIR"/tedge_mapper_*_armhf.deb
-sudo dpkg -i ./"$DIR"/tedge_agent_*_armhf.deb
-sudo dpkg -i ./"$DIR"/tedge_watchdog_*_armhf.deb
-sudo dpkg -i ./"$DIR"/tedge_*_plugin_*_armhf.deb
-sudo dpkg -i ./"$DIR"/c8y_*_plugin_*_armhf.deb
+for PACKAGE in "${RELEASE_PACKAGES[@]}"
+do
+    sudo dpkg -i ./"$DIR"/"$PACKAGE"_0.*_armhf.deb
+done
 
 # Configure collectd
 sudo cp "/etc/tedge/contrib/collectd/collectd.conf" "/etc/collectd/collectd.conf"
