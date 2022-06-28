@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-DIR=$1
+PKG_DIR=$1
 
 # Load the package list as $EXTERNAL_ARM_PACKAGES, $RELEASE_PACKAGES
 source ./ci/package_list.sh
@@ -13,7 +13,7 @@ sudo apt-get --assume-yes install $(echo "${EXTERNAL_ARM_PACKAGES[*]}")
 # Install thin-edge packages
 for PACKAGE in "${RELEASE_PACKAGES[@]}"
 do
-    sudo dpkg -i ./"$DIR"/"$PACKAGE"_0.*_armhf.deb
+    sudo dpkg -i ./"$PKG_DIR"/"$PACKAGE"_0.*_armhf.deb
 done
 
 # Configure collectd
