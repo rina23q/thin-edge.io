@@ -40,12 +40,14 @@ jobs:
             rust:
               - 'crates/**'
               - 'plugins/**'
+            worfflows:
+              - '.github/workflows/**'
 
   mdbook-build-check:
     name: Run mdbook build
     runs-on: ubuntu-20.04
     needs: changes
-    if: ${{ needs.changes.outputs.docs == 'true' }}
+    if: ${{ needs.changes.outputs.docs == 'true' || needs.changes.outputs.workflows == 'true' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -88,7 +90,7 @@ jobs:
     name: Run cargo fmt
     runs-on: Ubuntu-20.04
     needs: changes
-    if: ${{ needs.changes.outputs.rust == 'true' }}
+    if: ${{ needs.changes.outputs.rust == 'true' || needs.changes.outputs.workflows == 'true' }}
 
     steps:
       - name: Checkout
@@ -112,7 +114,7 @@ jobs:
     name: Run cargo clippy
     runs-on: Ubuntu-20.04
     needs: changes
-    if: ${{ needs.changes.outputs.rust == 'true' }}
+    if: ${{ needs.changes.outputs.rust == 'true' || needs.changes.outputs.workflows == 'true' }}
 
     steps:
       - name: Checkout
@@ -148,7 +150,7 @@ jobs:
     name: Run cargo audit
     runs-on: Ubuntu-20.04
     needs: changes
-    if: ${{ needs.changes.outputs.rust == 'true' }}
+    if: ${{ needs.changes.outputs.rust == 'true' || needs.changes.outputs.workflows == 'true' }}
 
     steps:
       - name: Checkout
@@ -164,7 +166,7 @@ jobs:
     name: Run cargo outdated
     runs-on: ubuntu-20.04
     needs: changes
-    if: ${{ needs.changes.outputs.rust == 'true' }}
+    if: ${{ needs.changes.outputs.rust == 'true' || needs.changes.outputs.workflows == 'true' }}
 
     steps:
       - uses: actions/checkout@v2
