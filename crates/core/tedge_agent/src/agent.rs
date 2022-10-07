@@ -11,7 +11,7 @@ use agent_interface::{
     RestartOperationResponse, SoftwareError, SoftwareListRequest, SoftwareListResponse,
     SoftwareRequestResponse, SoftwareType, SoftwareUpdateRequest, SoftwareUpdateResponse,
 };
-use flockfile::{check_another_instance_is_not_running, Flockfile};
+//use flockfile::{check_another_instance_is_not_running, Flockfile};
 use mqtt_channel::{Connection, Message, PubChannel, StreamExt, SubChannel, Topic, TopicFilter};
 use plugin_sm::{
     operation_logs::{LogKind, OperationLogs},

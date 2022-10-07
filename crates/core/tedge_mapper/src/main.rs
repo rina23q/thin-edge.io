@@ -5,7 +5,7 @@ use crate::{
     core::component::TEdgeComponent,
 };
 use clap::Parser;
-use flockfile::check_another_instance_is_not_running;
+//use flockfile::check_another_instance_is_not_running;
 use tedge_config::DEFAULT_TEDGE_CONFIG_PATH;
 use tedge_config::*;
 
@@ -85,7 +85,7 @@ async fn main() -> anyhow::Result<()> {
     let config = tedge_config::TEdgeConfigRepository::new(tedge_config_location.clone()).load()?;
     // Run only one instance of a mapper
 
-    let run_dir: PathBuf = config.query(RunPathSetting)?.into();
+    //let run_dir: PathBuf = config.query(RunPathSetting)?.into();
     // let _flock = check_another_instance_is_not_running(&mapper_opt.name.to_string(), &run_dir)?;
 
     if mapper_opt.init {
