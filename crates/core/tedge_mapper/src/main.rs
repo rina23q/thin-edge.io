@@ -86,7 +86,7 @@ async fn main() -> anyhow::Result<()> {
     // Run only one instance of a mapper
 
     let run_dir: PathBuf = config.query(RunPathSetting)?.into();
-    let _flock = check_another_instance_is_not_running(&mapper_opt.name.to_string(), &run_dir)?;
+    // let _flock = check_another_instance_is_not_running(&mapper_opt.name.to_string(), &run_dir)?;
 
     if mapper_opt.init {
         component.init(&mapper_opt.config_dir).await

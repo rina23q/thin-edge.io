@@ -201,12 +201,12 @@ pub struct SmAgent {
     config: SmAgentConfig,
     operation_logs: OperationLogs,
     persistence_store: AgentStateRepository,
-    _flock: Flockfile,
+    //_flock: Flockfile,
 }
 
 impl SmAgent {
     pub fn try_new(name: &str, mut config: SmAgentConfig) -> Result<Self, AgentError> {
-        let flock = check_another_instance_is_not_running(name, &config.run_dir)?;
+        //let flock = check_another_instance_is_not_running(name, &config.run_dir)?;
         info!("{} starting", &name);
 
         let persistence_store = AgentStateRepository::new(config.sm_home.clone());
@@ -221,7 +221,7 @@ impl SmAgent {
             config,
             operation_logs,
             persistence_store,
-            _flock: flock,
+            //_flock: flock,
         })
     }
 
