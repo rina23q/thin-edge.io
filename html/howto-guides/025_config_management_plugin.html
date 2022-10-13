@@ -160,7 +160,7 @@ Then, run this command in the directory where the package is stored.</p>
 <p>The binary is extracted in <code>&lt;current directory&gt;/usr/bin</code>.
 For more details, refer to our guide <a href="./015_installation_without_deb_support.html#extracting-binaries-from-deb-packages">Extracting from debian package</a>.</p>
 <h3 id="building-from-sources"><a class="header" href="#building-from-sources">Building from sources</a></h3>
-<p>Follow our guide <a href="./../BUILDING.html">Buiding thin-edge.io</a> and <a href="./015_installation_without_deb_support.html#if-building-from-source">Building from source</a>.</p>
+<p>Follow our guide <a href="./../BUILDING.html">Building thin-edge.io</a> and <a href="./015_installation_without_deb_support.html#if-building-from-source">Building from source</a>.</p>
 <pre><code class="language-shell">cargo build --release -p c8y_configuration_plugin
 </code></pre>
 <p>A <code>systemd</code> unit file for <code>c8y_configuration_plugin</code> can be found in the repository at <code>configuration/init/systemd/c8y-configuration-plugin.service</code>
@@ -210,7 +210,7 @@ You can find <code>c8y-configuration-plugin</code> and more are listed as suppor
 <p>To update any configuration file, create a local copy of that config file and then upload that file to the <a href="https://cumulocity.com/guides/users-guide/device-management/#to-add-a-configuration-snapshot">Cumulocity configuration repository</a> with the appropriate configuration type.</p>
 <p>The <code>c8y-configuration-plugin.toml</code> file can also be updated from the cloud in a similar manner to add/remove further configuration file entries. The updated TOML file has to be uploaded with the configuration type:  <strong>c8y-configuration-plugin</strong>.</p>
 <p>Then, go back to the <strong>Configuration</strong> tab of your desired device in Cumulocity.</p>
-<p><img src="./images/c8y-config-plugin-download.png" alt="Cumulocity Configuration Management Donwload" /></p>
+<p><img src="./images/c8y-config-plugin-download.png" alt="Cumulocity Configuration Management Download" /></p>
 <p>Click on the config file entry from the <strong>DEVICE SUPPORTED CONFIGURATIONS</strong> files list.
 You can choose the file that you uploaded from the <strong>AVAILABLE SUPPORTED CONFIGURATIONS</strong> section, and then apply that file to your device by clicking on the <strong>Send configuration to device</strong> button.</p>
 <p>After the operation created gets marked SUCCESSFUL, reload the page.

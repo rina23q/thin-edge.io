@@ -168,6 +168,10 @@ If multiple events are raised for a given type, thin-edge.io will process them a
 When the <code>time</code> field is not provided, thin-edge.io will use the current system time as the <code>time</code> of the event.
 When you want to skip both fields, use an empty payload to indicate the same.
 There are no such restrictions on the <code>&lt;event-type&gt;</code> value.</p>
+<h3 id="sending-events-from-child-devices"><a class="header" href="#sending-events-from-child-devices">Sending events from child devices</a></h3>
+<p>Events for child devices can be sent by publishing the event payload to <code>tedge/events/&lt;event-type&gt;/&lt;child-device-id&gt;</code> topic,
+where the <code>child-device-id</code> is the unique device id of the child device.
+The event payload structure is the same, as described in the previous section.</p>
 <h2 id="cloud-data-mapping"><a class="header" href="#cloud-data-mapping">Cloud data mapping</a></h2>
 <p>If the device is connected to some supported IoT cloud platform, an event that is triggered locally on thin-edge.io will be forwarded to the connected cloud platform as well.
 The mapping of thin-edge events data to its respective cloud-native representation will be done by the corresponding cloud mapper process.
@@ -187,9 +191,10 @@ For example, if the device is connected to Cumulocity IoT cloud platform, the Cu
     &quot;type&quot;:&quot;login_event&quot;,
     &quot;text&quot;:&quot;A user just logged in&quot;,
     &quot;time&quot;:&quot;2021-01-01T05:30:45+00:00&quot;,
-    &quot;source&quot;: {
-        &quot;id&quot;:&quot;&lt;c8y-device-id&gt;&quot;
-    }
+    &quot;externalSource&quot;:{
+        &quot;externalId&quot;:&quot;&lt;child-device-id&gt;&quot;,
+        &quot;type&quot;:&quot;c8y_Serial&quot;
+  }
 }
 </code></pre>
 <blockquote>

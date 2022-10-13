@@ -153,12 +153,14 @@ These daemons expose MQTT health endpoints which you can query to check if the p
 <li><code>tedge/health/tedge-mapper-c8y</code></li>
 <li><code>tedge/health/tedge-mapper-az</code></li>
 <li><code>tedge/health/tedge-mapper-collectd</code></li>
+<li><code>tedge/health/c8y-log-plugin</code></li>
+<li><code>tedge/health/c8y-configuration-plugin</code></li>
 </ul>
 <p>All future tedge daemons will also follow the same topic naming scheme convention.</p>
 <h1 id="mosquitto-bridge-health-endpoints"><a class="header" href="#mosquitto-bridge-health-endpoints">Mosquitto bridge health endpoints</a></h1>
 <p>The mosquitto bridge clients connecting thin-edge devices to the respective cloud platforms also report their health status as retained messages to <code>tedge/health/&lt;mosquitto-cloud-bridge&gt;</code> topics.
 The health check messages published by these clients are just numeric values <code>1</code> or <code>0</code>, indicating active and dead bridge clients respectively.</p>
-<p>Here are the health endpoints of curently supported clouds, bridged with mosquitto:</p>
+<p>Here are the health endpoints of currently supported clouds, bridged with mosquitto:</p>
 <table><thead><tr><th>Cloud</th><th>Health topic</th></tr></thead><tbody>
 <tr><td>Cumulocity</td><td><code>tedge/health/mosquitto-c8y-bridge</code></td></tr>
 <tr><td>Azure</td><td><code>tedge/health/mosquitto-az-bridge</code></td></tr>

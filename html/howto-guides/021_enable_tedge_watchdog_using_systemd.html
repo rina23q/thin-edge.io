@@ -180,6 +180,10 @@ by periodically sending health check messages to them within their configured <c
 the health status response from that service is expected on <code>tedge/health/&lt;service-name&gt;</code> topic.</p>
 <p>Once the health status response is received from a particular service,
 the <code>tedge-watchdog</code> service will send the <a href="https://www.freedesktop.org/software/systemd/man/sd_notify.html#">systemd notification</a> to systemd on behalf of that monitored service.</p>
+<blockquote>
+<p>Note: If none of the <code>thin-edge</code> services are enabled with the watchdog feature, then the <code>tedge-watchdog</code> service will stop with an <code>inactive</code> state.
+To monitor any of the <code>thin-edge</code> services, one has to update the corresponding <code>systemd</code> service file with <code>WatchdogSec</code> and then restart the <code>tedge-watchdog</code> service.</p>
+</blockquote>
 <h2 id="debugging"><a class="header" href="#debugging">Debugging</a></h2>
 <p>One can observe the message exchange between the <code>service</code> and the <code>watchdog</code>
 by subscribing to <code>tedge/health/#</code> and <code>tedge/health-check/#</code> topics.

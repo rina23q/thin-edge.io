@@ -146,7 +146,9 @@
 <pre><code class="language-shell">sudo tedge config set device.type VALUE
 </code></pre>
 <h2 id="custom-fragments"><a class="header" href="#custom-fragments">Custom fragments</a></h2>
-<p>If you wish to add more fragments to Cumulocity, you can do so by populating <code>/etc/tedge/device/inventory.json</code></p>
+<p>If you wish to add more fragments to Cumulocity, you can do so by populating <code>{base_config_dir}/device/inventory.json</code>.
+The default <code>base_config_dir</code> is <code>/etc/tedge</code>.
+See the link for more information about setting a custom <a href="../references/thin-edge-config-files.html">base_config_dir.</a></p>
 <p>An example <code>inventory.json</code> looks something like this:</p>
 <pre><code class="language-json">{
   &quot;c8y_RequiredAvailability&quot;: {

@@ -693,6 +693,10 @@ An empty message can't be used for the same, as empty messages are used to clear
 <p>Note: Using the retained flag is a must while clearing the alarm as well, without which the alarm won't be cleared properly.</p>
 </blockquote>
 <p>If alarms of different severities exist for a given alarm type, they must all be cleared separately as they're all treated as independent alarms.</p>
+<h3 id="raising-alarms-from-child-devices"><a class="header" href="#raising-alarms-from-child-devices">Raising alarms from child devices</a></h3>
+<p>Alarms for child devices can be raised by publishing the alarm payload to <code>tedge/alarms/&lt;severity&gt;/&lt;alarm-type&gt;/&lt;child-device-id&gt;</code> topic,
+where the <code>child-device-id</code> is the unique device id of the child device.
+The alarm payload structure is the same, as described in the previous section.</p>
 <h2 id="cloud-data-mapping"><a class="header" href="#cloud-data-mapping">Cloud data mapping</a></h2>
 <p>If the device is connected to some supported IoT cloud platform, any alarms raised locally on thin-edge.io will be forwarded to the connected cloud platform as well.
 The mapping of thin-edge alarms data to its respective cloud-native representation will be done by the corresponding cloud mapper process.
@@ -706,6 +710,7 @@ For example, if the device is connected to Cumulocity IoT cloud platform, the Cu
 <pre><code class="language-csv">301,temperature_high,&quot;Temperature is very high&quot;,2021-01-01T05:30:45+00:00
 </code></pre>
 <p>... and is published to <code>c8y/s/us</code> topic which will get forwarded to the connected Cumulocity cloud instance.</p>
+<p>If the alarm is raised from a child device, the payload is published to <code>c8y/s/us/&lt;child-device-id&gt;</code> topic instead.</p>
 <p>Find more information about SmartREST representations for alarms in Cumulocity <a href="https://cumulocity.com/guides/10.11.0/reference/smartrest-two/#alarm-templates">here</a></p>
 <p>Find more information about alarms data model in Cumulocity <a href="https://cumulocity.com/guides/concepts/domain-model/#events">here</a></p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="thin-edge-event"><a class="header" href="#thin-edge-event">Thin Edge Event</a></h1>
@@ -742,6 +747,10 @@ If multiple events are raised for a given type, thin-edge.io will process them a
 When the <code>time</code> field is not provided, thin-edge.io will use the current system time as the <code>time</code> of the event.
 When you want to skip both fields, use an empty payload to indicate the same.
 There are no such restrictions on the <code>&lt;event-type&gt;</code> value.</p>
+<h3 id="sending-events-from-child-devices"><a class="header" href="#sending-events-from-child-devices">Sending events from child devices</a></h3>
+<p>Events for child devices can be sent by publishing the event payload to <code>tedge/events/&lt;event-type&gt;/&lt;child-device-id&gt;</code> topic,
+where the <code>child-device-id</code> is the unique device id of the child device.
+The event payload structure is the same, as described in the previous section.</p>
 <h2 id="cloud-data-mapping-1"><a class="header" href="#cloud-data-mapping-1">Cloud data mapping</a></h2>
 <p>If the device is connected to some supported IoT cloud platform, an event that is triggered locally on thin-edge.io will be forwarded to the connected cloud platform as well.
 The mapping of thin-edge events data to its respective cloud-native representation will be done by the corresponding cloud mapper process.
@@ -761,9 +770,10 @@ For example, if the device is connected to Cumulocity IoT cloud platform, the Cu
     &quot;type&quot;:&quot;login_event&quot;,
     &quot;text&quot;:&quot;A user just logged in&quot;,
     &quot;time&quot;:&quot;2021-01-01T05:30:45+00:00&quot;,
-    &quot;source&quot;: {
-        &quot;id&quot;:&quot;&lt;c8y-device-id&gt;&quot;
-    }
+    &quot;externalSource&quot;:{
+        &quot;externalId&quot;:&quot;&lt;child-device-id&gt;&quot;,
+        &quot;type&quot;:&quot;c8y_Serial&quot;
+  }
 }
 </code></pre>
 <blockquote>
@@ -956,7 +966,7 @@ these monitoring metrics will be forwarded to the cloud.</p>
 </ul>
 <h2 id="trouble-shooting"><a class="header" href="#trouble-shooting">Trouble shooting</a></h2>
 <p>See here for <a href="tutorials/../howto-guides/009_trouble_shooting_monitoring.html">how to trouble shoot device monitoring?</a></p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="manage-the-softwares-on-your-devices-from-cumulocity-cloud"><a class="header" href="#manage-the-softwares-on-your-devices-from-cumulocity-cloud">Manage the softwares on your devices from Cumulocity cloud</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="manage-the-software-on-your-devices-from-cumulocity-cloud"><a class="header" href="#manage-the-software-on-your-devices-from-cumulocity-cloud">Manage the software on your devices from Cumulocity cloud</a></h1>
 <p>This document describes how to manage the software modules that are installed on a thin-edge device from the
 cloud using the <strong>software management</strong> feature of thin-edge.io.</p>
 <blockquote>
@@ -1552,10 +1562,43 @@ mosquitto_pub -t c8y/s/us -m 503,c8y_Command,&quot;$OUTPUT&quot;
 <pre><code class="language-shell">curl -fsSL https://raw.githubusercontent.com/thin-edge/thin-edge.io/main/get-thin-edge_io.sh | sudo sh -s
 </code></pre>
 <p>You can execute that command on your device and it will do all required steps for an initial setup.</p>
-<p>If you prefer to have a little more control over the installation or the script did not work for you, please go on with the following steps.</p>
-<h2 id="manual-installation-steps"><a class="header" href="#manual-installation-steps">Manual installation steps</a></h2>
+<blockquote>
+<p>Note: If you want to get a specific version, add <code>&lt;version&gt;</code> at the end like below. 
+<code>&lt;version&gt;</code> is consist of 3 digits, e.g. <code>0.7.3</code>.</p>
+<pre><code class="language-shell">curl -fsSL https://raw.githubusercontent.com/thin-edge/thin-edge.io/main/get-thin-edge_io.sh | sudo sh -s &lt;version&gt;
+</code></pre>
+</blockquote>
+<p>If you prefer to have a little more control over the installation or the script did not work for you,
+please go on with the <a href="howto-guides/002_installation.html#manual-installation-steps">manual installation steps</a>.</p>
+<h2 id="upgrade-thin-edgeio-with-get-thin-edge_iosh-script"><a class="header" href="#upgrade-thin-edgeio-with-get-thin-edge_iosh-script">Upgrade thin-edge.io with get-thin-edge_io.sh script</a></h2>
+<p>If you already have <code>thin-edge.io</code> on your device, to upgrade <code>thin-edge.io</code>,
+the easiest way is to use the same script as the installation. Follow the steps below.
+there is no need to remove old version.</p>
+<blockquote>
+<p>Note: To successfully upgrade <code>thin-edge.io</code> all thin-edge.io components <strong>must be stopped</strong>. The components are:
+<code>tedge-mapper-c8y</code>, <code>tedge-mapper-az</code>, <code>tedge-mapper-collectd</code>, <code>tedge-agent</code>, <code>c8y-log-plugin</code>, <code>c8y-configuration-plugin</code>.</p>
+<p>To stop <code>tedge-mapper-c8y</code>, <code>tedge-agent</code>, <code>tedge-mapper-az</code>, you can simply run the commands below.</p>
+<pre><code class="language-shell">sudo tedge disconnect c8y
+sudo tedge disconnect az
+</code></pre>
+<p>To stop each component one by one, this is an example how to stop them with <code>systemctl</code>:</p>
+<pre><code class="language-shell">systemctl stop tedge-mapper-c8y
+systemctl stop tedge-agent
+systemctl stop c8y-log-plugin
+</code></pre>
+</blockquote>
+<p>Then, run <code>get-thin-edge_io.sh</code> script as below to upgrade to the latest version.</p>
+<pre><code class="language-shell">curl -fsSL https://raw.githubusercontent.com/thin-edge/thin-edge.io/main/get-thin-edge_io.sh | sudo sh -s
+</code></pre>
+<blockquote>
+<p>Note: If you want to upgrade to a specific version, add <code>&lt;version&gt;</code> at the end like below.
+<code>&lt;version&gt;</code> is consist of 3 digits, e.g. <code>0.7.3</code>.</p>
+<pre><code class="language-shell">curl -fsSL https://raw.githubusercontent.com/thin-edge/thin-edge.io/main/get-thin-edge_io.sh | sudo sh -s &lt;version&gt;
+</code></pre>
+</blockquote>
+<h2 id="thin-edgeio-manual-installation"><a class="header" href="#thin-edgeio-manual-installation">thin-edge.io manual installation</a></h2>
 <p>To install thin edge package it is required to use <code>curl</code> to download the package and <code>dpkg</code> to install it.</p>
-<h2 id="dependency-installation"><a class="header" href="#dependency-installation">Dependency installation</a></h2>
+<h3 id="dependency-installation"><a class="header" href="#dependency-installation">Dependency installation</a></h3>
 <p>thin-edge.io has single dependency and it is <code>mosquitto</code> used for communication southbound and northbound e.g. southbound, devices can publish measurements; northbound, gateway may relay messages to cloud.
 <code>mosquitto</code> can be installed with your package manager. For apt the command may look as following:</p>
 <pre><code class="language-shell">apt install mosquitto
@@ -1565,17 +1608,7 @@ mosquitto_pub -t c8y/s/us -m 503,c8y_Command,&quot;$OUTPUT&quot;
 </blockquote>
 <pre><code class="language-shell">sudo apt install mosquitto
 </code></pre>
-<h2 id="thin-edgeio-installation"><a class="header" href="#thin-edgeio-installation"><code>thin-edge.io</code> installation</a></h2>
-<p>When all dependencies are in place you can proceed with installation of <code>thin-edge.io cli</code> and <code>thin-edge.io mapper</code> service.</p>
-<h3 id="upgrading-thin-edgeio"><a class="header" href="#upgrading-thin-edgeio">Upgrading <code>thin-edge.io</code></a></h3>
-<p>If you already have <code>thin-edge.io</code> on your device to upgrade <code>thin-edge.io</code> follow the steps below, there is no need to remove old version.</p>
-<blockquote>
-<p>Note: To successfully upgrade <code>thin-edge.io</code> all thin-edge.io components should be stopped, eg: <code>tedge-mapper</code> and <code>tedge-agent</code>:</p>
-<pre><code class="language-shell">systemctl stop tedge-mapper-c8y
-systemctl stop tedge-agent
-</code></pre>
-</blockquote>
-<h3 id="package-download"><a class="header" href="#package-download">Package download</a></h3>
+<h3 id="thin-edgeio-package-download"><a class="header" href="#thin-edgeio-package-download">thin-edge.io package download</a></h3>
 <p>thin-edge.io package is in thin-edge.io repository on GitHub: <a href="https://github.com/thin-edge/thin-edge.io/releases">thin-edge.io</a>.</p>
 <p>To download the package from github repository use following command (use desired version):</p>
 <pre><code class="language-shell">curl -LJO https://github.com/thin-edge/thin-edge.io/releases/download/&lt;package&gt;_&lt;version&gt;_&lt;arch&gt;.deb
@@ -1591,7 +1624,7 @@ systemctl stop tedge-agent
 <p>and for <code>mapper</code>:</p>
 <pre><code class="language-shell">curl -LJO https://github.com/thin-edge/thin-edge.io/releases/download/0.5.0/tedge_mapper_0.5.0_armhf.deb
 </code></pre>
-<h3 id="package-installation"><a class="header" href="#package-installation">Package installation</a></h3>
+<h3 id="thin-edgeio-package-installation"><a class="header" href="#thin-edgeio-package-installation">thin-edge.io package installation</a></h3>
 <p>Now, we have downloaded the package we can proceed to installation. First we will install cli tool <code>tedge</code>.</p>
 <blockquote>
 <p>Note: Some OSes may require you to use <code>sudo</code> to install packages and therefore all following commands may need <code>sudo</code>.</p>
@@ -1607,6 +1640,35 @@ systemctl stop tedge-agent
 </code></pre>
 <p>Eg:</p>
 <pre><code class="language-shell">dpkg -i tedge_mapper_0.5.0_armhf.deb
+</code></pre>
+<h2 id="uninstall-thin-edgeio"><a class="header" href="#uninstall-thin-edgeio">Uninstall <code>thin-edge.io</code></a></h2>
+<p>The <code>thin-edge.io</code> can be uninstalled using a script, that can be downloaded
+from below mentioned location. </p>
+<pre><code class="language-shell">wget https://raw.githubusercontent.com/thin-edge/thin-edge.io/main/uninstall-thin-edge_io.sh
+chmod a+x uninstall-thin-edge_io.sh
+</code></pre>
+<p>The uninstall script provides options as shown below.</p>
+<pre><code class="language-shell">USAGE: 
+   ./uninstall-thin-edge.io.sh [COMMAND]
+    
+COMMANDS:
+    remove     Uninstall thin-edge.io with keeping configuration files
+    purge      Uninstall thin-edge.io and also remove configuration files
+</code></pre>
+<blockquote>
+<p>Note: The uninstall script removes/purges the core thin-edge.io packages like <code>tedge, tedge_mapper, and tedge_agent</code> as well as thin-edge.io plugins like <code>tedge_apt_plugin, c8y_log_plugin, c8y_configuration_plugin</code> etc.</p>
+</blockquote>
+<h3 id="remove-thin-edgeio"><a class="header" href="#remove-thin-edgeio"><code>Remove</code> thin-edge.io</a></h3>
+<p>Use uninstall script as shown below just to <code>remove</code> the <code>thin-edge.io</code> packages.</p>
+<pre><code class="language-shell">./uninstall-thin-edge.io.sh remove
+</code></pre>
+<blockquote>
+<p>Note: Removes just the thin-edge.io packages and does not remove the <code>configuration</code> files.</p>
+</blockquote>
+<h3 id="purge-thin-edgeio"><a class="header" href="#purge-thin-edgeio"><code>Purge</code> thin-edge.io</a></h3>
+<p>Use uninstall script as shown below to remove the thin-edge.io as well as to remove the <code>configuration</code> files that are 
+associated with these thin-edge.io packages.</p>
+<pre><code class="language-shell">./uninstall-thin-edge.io.sh purge
 </code></pre>
 <h2 id="next-steps-2"><a class="header" href="#next-steps-2">Next steps</a></h2>
 <ol>
@@ -2115,7 +2177,7 @@ is connected to the Cumulocity cloud using <code>tedge connect c8y</code>.</p>
 <p>The <code>tedge connect c8y</code> will automatically start and enable the software management feature.
 Find more about <a href="howto-guides/../howto-guides/004_connect.html">how to connect thin-edge device to cloud</a></p>
 <p>Once the thin-edge device is successfully connected to Cumulocity cloud, the <strong>Software</strong> option will be enabled and
-the list of softwares that are installed on the device will be visible as shown in the figure below.</p>
+the list of software that are installed on the device will be visible as shown in the figure below.</p>
 <p><img src="howto-guides/./images/start-software-management.png" alt="Add new software" /></p>
 <blockquote>
 <p>Note: Disconnecting thin-edge device from cloud with <code>tedge disconnect c8y</code> command will stop and disable the software management feature.</p>
@@ -2424,12 +2486,14 @@ These daemons expose MQTT health endpoints which you can query to check if the p
 <li><code>tedge/health/tedge-mapper-c8y</code></li>
 <li><code>tedge/health/tedge-mapper-az</code></li>
 <li><code>tedge/health/tedge-mapper-collectd</code></li>
+<li><code>tedge/health/c8y-log-plugin</code></li>
+<li><code>tedge/health/c8y-configuration-plugin</code></li>
 </ul>
 <p>All future tedge daemons will also follow the same topic naming scheme convention.</p>
 <h1 id="mosquitto-bridge-health-endpoints"><a class="header" href="#mosquitto-bridge-health-endpoints">Mosquitto bridge health endpoints</a></h1>
 <p>The mosquitto bridge clients connecting thin-edge devices to the respective cloud platforms also report their health status as retained messages to <code>tedge/health/&lt;mosquitto-cloud-bridge&gt;</code> topics.
 The health check messages published by these clients are just numeric values <code>1</code> or <code>0</code>, indicating active and dead bridge clients respectively.</p>
-<p>Here are the health endpoints of curently supported clouds, bridged with mosquitto:</p>
+<p>Here are the health endpoints of currently supported clouds, bridged with mosquitto:</p>
 <table><thead><tr><th>Cloud</th><th>Health topic</th></tr></thead><tbody>
 <tr><td>Cumulocity</td><td><code>tedge/health/mosquitto-c8y-bridge</code></td></tr>
 <tr><td>Azure</td><td><code>tedge/health/mosquitto-az-bridge</code></td></tr>
@@ -2482,6 +2546,10 @@ by periodically sending health check messages to them within their configured <c
 the health status response from that service is expected on <code>tedge/health/&lt;service-name&gt;</code> topic.</p>
 <p>Once the health status response is received from a particular service,
 the <code>tedge-watchdog</code> service will send the <a href="https://www.freedesktop.org/software/systemd/man/sd_notify.html#">systemd notification</a> to systemd on behalf of that monitored service.</p>
+<blockquote>
+<p>Note: If none of the <code>thin-edge</code> services are enabled with the watchdog feature, then the <code>tedge-watchdog</code> service will stop with an <code>inactive</code> state.
+To monitor any of the <code>thin-edge</code> services, one has to update the corresponding <code>systemd</code> service file with <code>WatchdogSec</code> and then restart the <code>tedge-watchdog</code> service.</p>
+</blockquote>
 <h2 id="debugging"><a class="header" href="#debugging">Debugging</a></h2>
 <p>One can observe the message exchange between the <code>service</code> and the <code>watchdog</code>
 by subscribing to <code>tedge/health/#</code> and <code>tedge/health-check/#</code> topics.
@@ -2505,7 +2573,9 @@ then systemd restarts that service by killing the old process and spawning a new
 <pre><code class="language-shell">sudo tedge config set device.type VALUE
 </code></pre>
 <h2 id="custom-fragments"><a class="header" href="#custom-fragments">Custom fragments</a></h2>
-<p>If you wish to add more fragments to Cumulocity, you can do so by populating <code>/etc/tedge/device/inventory.json</code></p>
+<p>If you wish to add more fragments to Cumulocity, you can do so by populating <code>{base_config_dir}/device/inventory.json</code>.
+The default <code>base_config_dir</code> is <code>/etc/tedge</code>.
+See the link for more information about setting a custom <a href="howto-guides/../references/thin-edge-config-files.html">base_config_dir.</a></p>
 <p>An example <code>inventory.json</code> looks something like this:</p>
 <pre><code class="language-json">{
   &quot;c8y_RequiredAvailability&quot;: {
@@ -2641,7 +2711,7 @@ Then, run this command in the directory where the package is stored.</p>
 <p>The binary is extracted in <code>&lt;current directory&gt;/usr/bin</code>.
 For more details, refer to our guide <a href="howto-guides/./015_installation_without_deb_support.html#extracting-binaries-from-deb-packages">Extracting from debian package</a>.</p>
 <h3 id="building-from-sources"><a class="header" href="#building-from-sources">Building from sources</a></h3>
-<p>Follow our guide <a href="howto-guides/./../BUILDING.html">Buiding thin-edge.io</a> and <a href="howto-guides/./015_installation_without_deb_support.html#if-building-from-source">Building from source</a>.</p>
+<p>Follow our guide <a href="howto-guides/./../BUILDING.html">Building thin-edge.io</a> and <a href="howto-guides/./015_installation_without_deb_support.html#if-building-from-source">Building from source</a>.</p>
 <pre><code class="language-shell">cargo build --release -p c8y_configuration_plugin
 </code></pre>
 <p>A <code>systemd</code> unit file for <code>c8y_configuration_plugin</code> can be found in the repository at <code>configuration/init/systemd/c8y-configuration-plugin.service</code>
@@ -2691,7 +2761,7 @@ You can find <code>c8y-configuration-plugin</code> and more are listed as suppor
 <p>To update any configuration file, create a local copy of that config file and then upload that file to the <a href="https://cumulocity.com/guides/users-guide/device-management/#to-add-a-configuration-snapshot">Cumulocity configuration repository</a> with the appropriate configuration type.</p>
 <p>The <code>c8y-configuration-plugin.toml</code> file can also be updated from the cloud in a similar manner to add/remove further configuration file entries. The updated TOML file has to be uploaded with the configuration type:  <strong>c8y-configuration-plugin</strong>.</p>
 <p>Then, go back to the <strong>Configuration</strong> tab of your desired device in Cumulocity.</p>
-<p><img src="howto-guides/./images/c8y-config-plugin-download.png" alt="Cumulocity Configuration Management Donwload" /></p>
+<p><img src="howto-guides/./images/c8y-config-plugin-download.png" alt="Cumulocity Configuration Management Download" /></p>
 <p>Click on the config file entry from the <strong>DEVICE SUPPORTED CONFIGURATIONS</strong> files list.
 You can choose the file that you uploaded from the <strong>AVAILABLE SUPPORTED CONFIGURATIONS</strong> section, and then apply that file to your device by clicking on the <strong>Send configuration to device</strong> button.</p>
 <p>After the operation created gets marked SUCCESSFUL, reload the page.
@@ -3237,7 +3307,7 @@ and thin-edge.io routes the messages to different clouds in a secure and reliabl
 <li>MQTT is message oriented and bi-directional, which matches well with the event oriented programming model of industrial IoT.</li>
 <li>MQTT is available on many platforms, including Linux and Windows.</li>
 <li>MQTT client libraries are available for 25+ programming languages (see <a href="https://mqtt.org/software/">MQTT.org</a>]) </li>
-<li>MQTT overhead is relatively small in terms of client libary size and network overhead.</li>
+<li>MQTT overhead is relatively small in terms of client library size and network overhead.</li>
 <li>MQTT is message payload agnostic which enables sending not only JSON messages, but also text, CSV or binary data.</li>
 </ul>
 <p>Alternatives considered where: DBus, gRPC and REST over HTTP. </p>
@@ -3781,19 +3851,19 @@ USAGE:
 
 OPTIONS:
         --config-dir &lt;CONFIG_DIR&gt;      [default: /etc/tedge]
-        --config-file &lt;CONFIG_FILE&gt;    [default: $CONFIG_DIR/c8y/c8y-configuration-plugin.toml]
         --debug                        Turn-on the debug log level
     -h, --help                         Print help information
     -i, --init                         Create supported operation files
     -V, --version                      Print version information
 
     On start, `c8y_configuration_plugin` notifies the cloud tenant of the managed configuration files,
-    listed in the `CONFIG_FILE`, sending this list with a `119` on `c8y/s/us`.
+    listed in `CONFIG_DIR/c8y/c8y-configuration-plugin.toml`, sending this list with a `119` on `c8y/s/us`.
     `c8y_configuration_plugin` subscribes then to `c8y/s/ds` listening for configuration operation
     requests (messages `524` and `526`).
     notifying the Cumulocity tenant of their progress (messages `501`, `502` and `503`).
     
     The thin-edge `CONFIG_DIR` is used to find where:
+    * to store the configuration file: `c8y/c8y-configuration-plugin.toml`
     * to store temporary files on download: `tedge config get tmp.path`,
     * to connect the MQTT bus: `tedge config get mqtt.port`.
 </code></pre>
@@ -4174,7 +4244,7 @@ package-by-package using original commands <code>install</code> and <code>remove
 <li>Behaviour of operations <code>install</code> and <code>remove</code> is same as for original commands <code>install</code> and <code>remove</code> as specified above.
 <ul>
 <li>For details about operations' arguments &quot;name&quot;, &quot;version&quot; and &quot;path&quot;, see specification of original command <code>install</code> or <code>remove</code>.</li>
-<li>For details about <code>exitstatus</code> see accoring specification of original command <code>install</code> or <code>remove</code>.</li>
+<li>For details about <code>exitstatus</code> see according specification of original command <code>install</code> or <code>remove</code>.</li>
 </ul>
 </li>
 <li>An overall error must be reported (via process's exit status) when at least one software module operation has failed.</li>
@@ -4343,7 +4413,7 @@ total 2948
 <li><a href="references/./thin-edge-config-files.html">Thin-edge.io configuration files</a></li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="the-tedge-command"><a class="header" href="#the-tedge-command">The <code>tedge</code> command</a></h1>
-<pre><code>tedge 0.7.3
+<pre><code>tedge 0.7.5
 tedge is the cli tool for thin-edge.io
 
 USAGE:

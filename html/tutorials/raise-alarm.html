@@ -190,6 +190,10 @@ An empty message can't be used for the same, as empty messages are used to clear
 <p>Note: Using the retained flag is a must while clearing the alarm as well, without which the alarm won't be cleared properly.</p>
 </blockquote>
 <p>If alarms of different severities exist for a given alarm type, they must all be cleared separately as they're all treated as independent alarms.</p>
+<h3 id="raising-alarms-from-child-devices"><a class="header" href="#raising-alarms-from-child-devices">Raising alarms from child devices</a></h3>
+<p>Alarms for child devices can be raised by publishing the alarm payload to <code>tedge/alarms/&lt;severity&gt;/&lt;alarm-type&gt;/&lt;child-device-id&gt;</code> topic,
+where the <code>child-device-id</code> is the unique device id of the child device.
+The alarm payload structure is the same, as described in the previous section.</p>
 <h2 id="cloud-data-mapping"><a class="header" href="#cloud-data-mapping">Cloud data mapping</a></h2>
 <p>If the device is connected to some supported IoT cloud platform, any alarms raised locally on thin-edge.io will be forwarded to the connected cloud platform as well.
 The mapping of thin-edge alarms data to its respective cloud-native representation will be done by the corresponding cloud mapper process.
@@ -203,6 +207,7 @@ For example, if the device is connected to Cumulocity IoT cloud platform, the Cu
 <pre><code class="language-csv">301,temperature_high,&quot;Temperature is very high&quot;,2021-01-01T05:30:45+00:00
 </code></pre>
 <p>... and is published to <code>c8y/s/us</code> topic which will get forwarded to the connected Cumulocity cloud instance.</p>
+<p>If the alarm is raised from a child device, the payload is published to <code>c8y/s/us/&lt;child-device-id&gt;</code> topic instead.</p>
 <p>Find more information about SmartREST representations for alarms in Cumulocity <a href="https://cumulocity.com/guides/10.11.0/reference/smartrest-two/#alarm-templates">here</a></p>
 <p>Find more information about alarms data model in Cumulocity <a href="https://cumulocity.com/guides/concepts/domain-model/#events">here</a></p>
 
