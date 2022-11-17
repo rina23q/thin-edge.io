@@ -1,0 +1,394 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Getting started with thin-edge.io - thin-edge.io docs</title>
+        <!-- Custom HTML head -->
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item "><a href="../SUMMARY.html"><strong aria-hidden="true">1.</strong> Summary</a></li><li class="chapter-item "><a href="../001_overview.html"><strong aria-hidden="true">2.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="../user_doc.html"><strong aria-hidden="true">3.</strong> User Documentation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../tutorials/tutorials.html"><strong aria-hidden="true">3.1.</strong> Tutorials</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../tutorials/getting-started.html" class="active"><strong aria-hidden="true">3.1.1.</strong> Getting started with thin-edge.io</a></li><li class="chapter-item "><a href="../tutorials/connect-c8y.html"><strong aria-hidden="true">3.1.2.</strong> Connect my device to Cumulocity IoT</a></li><li class="chapter-item "><a href="../tutorials/connect-azure.html"><strong aria-hidden="true">3.1.3.</strong> Connect my device to Azure IoT</a></li><li class="chapter-item "><a href="../tutorials/send-thin-edge-data.html"><strong aria-hidden="true">3.1.4.</strong> Send Thin Edge Json data</a></li><li class="chapter-item "><a href="../tutorials/raise-alarm.html"><strong aria-hidden="true">3.1.5.</strong> Raise alarms</a></li><li class="chapter-item "><a href="../tutorials/send-events.html"><strong aria-hidden="true">3.1.6.</strong> Send events</a></li><li class="chapter-item "><a href="../tutorials/device-monitoring.html"><strong aria-hidden="true">3.1.7.</strong> Monitor my device</a></li><li class="chapter-item "><a href="../tutorials/software-management.html"><strong aria-hidden="true">3.1.8.</strong> Manage my device software</a></li><li class="chapter-item "><a href="../tutorials/write-my-software-management-plugin.html"><strong aria-hidden="true">3.1.9.</strong> Write my software management plugin</a></li><li class="chapter-item "><a href="../tutorials/supported_operations.html"><strong aria-hidden="true">3.1.10.</strong> Supported Operations Management for Cumulocity IoT</a></li><li class="chapter-item "><a href="../tutorials/yocto-linux.html"><strong aria-hidden="true">3.1.11.</strong> Build Thin Edge for a Yocto Linux distribution</a></li></ol></li><li class="chapter-item "><a href="../howto-guides/howto-guides.html"><strong aria-hidden="true">3.2.</strong> How-to Guides</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../howto-guides/002_installation.html"><strong aria-hidden="true">3.2.1.</strong> Installation</a></li><li class="chapter-item "><a href="../howto-guides/003_registration.html"><strong aria-hidden="true">3.2.2.</strong> How to create a test certificate</a></li><li class="chapter-item "><a href="../howto-guides/004_connect.html"><strong aria-hidden="true">3.2.3.</strong> How to connect a cloud end-point</a></li><li class="chapter-item "><a href="../howto-guides/005_pub_sub.html"><strong aria-hidden="true">3.2.4.</strong> How to send MQTT messages</a></li><li class="chapter-item "><a href="../howto-guides/007_test_connection.html"><strong aria-hidden="true">3.2.5.</strong> How to test the cloud connection?</a></li><li class="chapter-item "><a href="../howto-guides/008_config_local_mqtt_bind_address_and_port.html"><strong aria-hidden="true">3.2.6.</strong> How to configure the local mqtt bind address and port</a></li><li class="chapter-item "><a href="../howto-guides/009_trouble_shooting_monitoring.html"><strong aria-hidden="true">3.2.7.</strong> How to trouble shoot device monitoring</a></li><li class="chapter-item "><a href="../howto-guides/010_add_self_signed_trusted.html"><strong aria-hidden="true">3.2.8.</strong> How to add self-signed certificate root to trusted certificates list?</a></li><li class="chapter-item "><a href="../howto-guides/011_retrieve_jwt_token_from_cumulocity.html"><strong aria-hidden="true">3.2.9.</strong> How to retrieve JWT token from Cumulocity?</a></li><li class="chapter-item "><a href="../howto-guides/012_install_and_enable_software_management.html"><strong aria-hidden="true">3.2.10.</strong> How to install and enable software management?</a></li><li class="chapter-item "><a href="../howto-guides/013_connect_external_device.html"><strong aria-hidden="true">3.2.11.</strong> How to connect an external device?</a></li><li class="chapter-item "><a href="../howto-guides/014_thin_edge_logs.html"><strong aria-hidden="true">3.2.12.</strong> How to access the logs on the device?</a></li><li class="chapter-item "><a href="../howto-guides/015_installation_without_deb_support.html"><strong aria-hidden="true">3.2.13.</strong> How to install thin-edge.io on any Linux OS (no deb support)?</a></li><li class="chapter-item "><a href="../howto-guides/016_restart_device_operation.html"><strong aria-hidden="true">3.2.14.</strong> How to restart your thin-edge.io device</a></li><li class="chapter-item "><a href="../howto-guides/017_apama_software_management_plugin.html"><strong aria-hidden="true">3.2.15.</strong> How to use apama software management plugin</a></li><li class="chapter-item "><a href="../howto-guides/018_change_temp_path.html"><strong aria-hidden="true">3.2.16.</strong> How to change temp path</a></li><li class="chapter-item "><a href="../howto-guides/019_how_to_use_preferred_init_system.html"><strong aria-hidden="true">3.2.17.</strong> How to use thin-edge.io with your preferred init system</a></li><li class="chapter-item "><a href="../howto-guides/020_monitor_tedge_health.html"><strong aria-hidden="true">3.2.18.</strong> How to monitor health of tedge daemons</a></li><li class="chapter-item "><a href="../howto-guides/021_enable_tedge_watchdog_using_systemd.html"><strong aria-hidden="true">3.2.19.</strong> How to enable systemd watchdog monitoring for tedge services?</a></li><li class="chapter-item "><a href="../howto-guides/022_c8y_fragments.html"><strong aria-hidden="true">3.2.20.</strong> How to add custom fragments to Cumulocity</a></li><li class="chapter-item "><a href="../howto-guides/023_c8y_log_plugin.html"><strong aria-hidden="true">3.2.21.</strong> How to retrieve logs with the log plugin</a></li><li class="chapter-item "><a href="../howto-guides/024_smartrest_templates.html"><strong aria-hidden="true">3.2.22.</strong> How to use Cumulocity Custom SmartREST 2.0 Templates with thin-edge.io</a></li><li class="chapter-item "><a href="../howto-guides/025_config_management_plugin.html"><strong aria-hidden="true">3.2.23.</strong> How to manage configuration files with Cumulocity</a></li><li class="chapter-item "><a href="../howto-guides/026_how_to_install_thin_edge_manually.html"><strong aria-hidden="true">3.2.24.</strong> How to install thin-edge manually with OpenRC</a></li><li class="chapter-item "><a href="../howto-guides/child_device_config_management_agent.html"><strong aria-hidden="true">3.2.25.</strong> How to enable configuration management on child devices</a></li></ol></li></ol></li><li class="chapter-item "><a href="../dev_doc.html"><strong aria-hidden="true">4.</strong> Developer Documentation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../architecture/architecture.html"><strong aria-hidden="true">4.1.</strong> Architecture</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../architecture/thin-edge-json.html"><strong aria-hidden="true">4.1.1.</strong> Thin Edge Json</a></li><li class="chapter-item "><a href="../architecture/mapper.html"><strong aria-hidden="true">4.1.2.</strong> The Mapper</a></li><li class="chapter-item "><a href="../architecture/software-management.html"><strong aria-hidden="true">4.1.3.</strong> Software Management</a></li><li class="chapter-item "><a href="../architecture/faq.html"><strong aria-hidden="true">4.1.4.</strong> Architecture FAQ</a></li><li class="chapter-item "><a href="../supported-platforms.html"><strong aria-hidden="true">4.1.5.</strong> Platform support</a></li><li class="chapter-item "><a href="../references/init-system-config.html"><strong aria-hidden="true">4.1.6.</strong> Init System configuration</a></li></ol></li><li class="chapter-item "><a href="../tutorials/write-my-software-management-plugin.html"><strong aria-hidden="true">4.2.</strong> Write my own software management plugin</a></li><li class="chapter-item "><a href="../references/c8y-configuration-management.html"><strong aria-hidden="true">4.3.</strong> Device Configuration Management using Cumulocity</a></li><li class="chapter-item "><a href="../api.html"><strong aria-hidden="true">4.4.</strong> APIs</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../references/bridged-topics.html"><strong aria-hidden="true">4.4.1.</strong> The Bridged Topics</a></li><li class="chapter-item "><a href="../references/plugin-api.html"><strong aria-hidden="true">4.4.2.</strong> The Software Management Plugin API</a></li></ol></li><li class="chapter-item "><a href="../BUILDING.html"><strong aria-hidden="true">4.5.</strong> Building</a></li></ol></li><li class="chapter-item "><a href="../references/references.html"><strong aria-hidden="true">5.</strong> Command Line Reference</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../references/tedge.html"><strong aria-hidden="true">5.1.</strong> The tedge command</a></li><li class="chapter-item "><a href="../references/tedge-config.html"><strong aria-hidden="true">5.2.</strong> The tedge config command</a></li><li class="chapter-item "><a href="../references/tedge-cert.html"><strong aria-hidden="true">5.3.</strong> The tedge cert command</a></li><li class="chapter-item "><a href="../references/tedge-connect.html"><strong aria-hidden="true">5.4.</strong> The tedge connect command</a></li><li class="chapter-item "><a href="../references/tedge-disconnect.html"><strong aria-hidden="true">5.5.</strong> The tedge disconnect command</a></li><li class="chapter-item "><a href="../references/tedge-mqtt.html"><strong aria-hidden="true">5.6.</strong> The tedge mqtt command</a></li><li class="chapter-item "><a href="../references/thin-edge-config-files.html"><strong aria-hidden="true">5.7.</strong> Thin-edge.io configuration files</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">thin-edge.io docs</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="getting-started-with-thin-edgeio-on-a-raspberry-pi"><a class="header" href="#getting-started-with-thin-edgeio-on-a-raspberry-pi">Getting started with thin-edge.io on a Raspberry Pi</a></h1>
+<p>After following this tutorial you will have an overview of the installation and configuration of thin-edge.io. As an example, a Raspberry Pi is used. This tutorial explains in small steps to reach the goal of sending data to an IoT cloud platform (in this case, Cumulocity IoT) and performing some additional device management tasks.</p>
+<h2 id="introduction"><a class="header" href="#introduction">Introduction</a></h2>
+<p>thin-edge.io is an open-source project to provide a cloud-agnostic edge framework. It is much more generic than the device management agent, so it can connect to multiple IoT cloud platforms, and it allows flexible logic executed on the device. It is optimized for a very small footprint and high performance.</p>
+<p>The Raspberry PI is a relatively simple and cheap device but powerful. Therefore it is ideal for testing and try-outs and some production use cases.</p>
+<h2 id="prerequisite"><a class="header" href="#prerequisite">Prerequisite</a></h2>
+<p>To follow this guide, you only need the following:</p>
+<ul>
+<li>
+<p>A <a href="https://www.softwareag.cloud/site/product/cumulocity-iot.html">Cumulocity</a> Trial tenant.</p>
+</li>
+<li>
+<p>A Raspberry Pi (3 or 4) with Raspian installed, for other boards and OS'es have a look <a href="https://github.com/thin-edge/thin-edge.io/blob/main/docs/src/supported-platforms.md">here</a></p>
+</li>
+<li>
+<p>Updated device:</p>
+</li>
+</ul>
+<pre><code>$ sudo apt-get update &amp;&amp; sudo apt-get upgrade
+</code></pre>
+<h2 id="steps"><a class="header" href="#steps">Steps</a></h2>
+<p>This tutorial is divided into small steps. The first three steps are needed to install and connect to an IoT cloud platform. The last three are optional but needed to get a good overview of the capabilities of thin-edge.io.</p>
+<p><a href="#Step-1-Install-thin-edge.io">Step 1 Install thin-edge.io</a></p>
+<p><a href="#Step-2-Configure-and-Connect-to-IoT-Cloud">Step 2 Configure and Connect to IoT Cloud</a></p>
+<p><a href="#Step-3-Sending-Device-Data">Step 3 Sending Device Data</a></p>
+<p><a href="#Step-4-Monitor-your-device">Step 4 Monitor your device</a></p>
+<p><a href="#Step-5-Add-software-management">Step 5 Add software management</a></p>
+<p><a href="#Step-5-Manage-configuration-files">Step 6 Manage configuration files</a></p>
+<p><a href="#Step-6-Manage-Log-Files">Step 7 Manage Log-Files</a></p>
+<h2 id="step-1-install-thin-edgeio"><a class="header" href="#step-1-install-thin-edgeio">Step 1 Install thin-edge.io</a></h2>
+<p>There are two ways to install thin-edge.io:</p>
+<ul>
+<li>Use a script</li>
+<li>Manually</li>
+</ul>
+<p>The easiest way is to use the installation script with this command:</p>
+<pre><code>curl -fsSL https://raw.githubusercontent.com/thin-edge/thin-edge.io/main/get-thin-edge_io.sh | sudo sh -s
+</code></pre>
+<p>This script will install the latest version of thin-edge.io with the following components:</p>
+<ul>
+<li>Mosquitto</li>
+<li>Command line Interface (CLI) tool</li>
+<li>Tedge mapper</li>
+</ul>
+<p>If you want to manually install thin-edge.io or install another version, or upgrade the current version, please have a look <a href="https://thin-edge.github.io/thin-edge.io/html/howto-guides/002_installation.html#thin-edgeio-manual-installation">here</a> for more information.</p>
+<p>After a successful installation, you can now use thin-edge.io via the CLI and use the tedge commands.</p>
+<h3 id="tedge-cli"><a class="header" href="#tedge-cli">Tedge CLI</a></h3>
+<p>In the previous step, the CLI tool is installed, which is a very powerful</p>
+<p>The usage is as follows:</p>
+<pre><code>tedge [OPTIONS] [SUBCOMMAND]
+</code></pre>
+<p>and <code>-h</code> can be used to see the help for the latest subcommand.</p>
+<p>When running this command you should see something similar like the following:</p>
+<pre><code class="language-shell">$ sudo tedge -h
+
+tedge             
+tedge 0.7.7
+tedge is the cli tool for thin-edge.io
+
+USAGE:
+    tedge [OPTIONS] [SUBCOMMAND]
+
+OPTIONS:
+        --config-dir &lt;CONFIG_DIR&gt;    [default: /etc/tedge]
+    -h, --help                       Print help information
+        --init                       Initialize the tedge
+    -V, --version                    Print version information
+
+SUBCOMMANDS:
+    cert          Create and manage device certificate
+    config        Configure Thin Edge
+    connect       Connect to connector provider
+    disconnect    Remove bridge connection for a provider
+    help          Print this message or the help of the given subcommand(s)
+    mqtt          Publish a message on a topic and subscribe a topic
+</code></pre>
+<p>Here you can find an <a href="https://thin-edge.github.io/thin-edge.io/html/references/references.html">overview of the commands for the CLI tool</a>.</p>
+<p>The CLI will be used to configure the thin-edge.io installation on the device in the next steps.</p>
+<h2 id="step-2-configure-and-connect-to-iot-cloud"><a class="header" href="#step-2-configure-and-connect-to-iot-cloud">Step 2 Configure and Connect to IoT Cloud</a></h2>
+<p>To connect the device to the Cumulocity IoT Cloud it needs to be configured.
+The following configuration parameters are mandatory</p>
+<p><code> C8Y URL</code></p>
+<p>This URL is needed in order to allow the upload of the certificate to the specific tenant and the registration of the device. It can be configured via:</p>
+<pre><code>sudo tedge config set c8y.url {{YOUR_C8Y_URL}}
+</code></pre>
+<h3 id="certificate"><a class="header" href="#certificate">Certificate</a></h3>
+<p>thin-edge.io connects via MQTT protocol using a X.509 certificate for authentication. To do so, a certificate must be trusted by Cumulocity. A certificate is trusted when it is added to the trusted certificates and is in an activated state.</p>
+<p>First, we need to create the device certificate locally (If you already have a device certificate uploaded directly via the UI to Cumulocity you can skip that step).</p>
+<pre><code>sudo tedge cert create --device-id {{YOUR_UNIQUE_DEVICE_ID}}
+</code></pre>
+<ul>
+<li>The device id is a unique identifier e.g. MAC address that identifies a physical device.</li>
+</ul>
+<p>The certificate is uploaded to the Cumulocity Tenant via:</p>
+<pre><code>sudo tedge cert upload c8y --user {{YOUR_USERNAME}}
+</code></pre>
+<p>If the password prompt appears, enter your password.</p>
+<h3 id="connect"><a class="header" href="#connect">Connect</a></h3>
+<p>We now are ready to connect RevPi with Cumulocity. This can be achieved via:</p>
+<pre><code>sudo tedge connect c8y
+</code></pre>
+<p>When the connection is established, the device will be created on the platform side and can be found within the device list in the device management.</p>
+<h2 id="step-3-sending-device-data"><a class="header" href="#step-3-sending-device-data">Step 3 Sending Device Data</a></h2>
+<p>Once your device is configured and connected to an IoT cloud platform, you can start sending measurements, events or alarms. In the standard configuration, you can not connect externally to the mosquito broker and thus the messages have to be sent directly from the device itself. If you want to change that, you need to configure it according to [here](link to configure MQTT).</p>
+<p>The tedge CLI allows you to send payloads via MQTT the following way:</p>
+<pre><code>tedge mqtt pub {{TOPIC}} {{PAYLOAD}}
+</code></pre>
+<p>thin-edge.io comes with a tedge-mapper daemon. This process collects the data from the <code>tedge/#</code> topics and translates them to the tedge payloads on the <code>c8y/#</code> topics which is mapped directly to Cumulocity. The mapper translates simple JSON to the desired target payload for Cumulocity.</p>
+<h3 id="sending-measurements"><a class="header" href="#sending-measurements">Sending measurements</a></h3>
+<p>Measurements within Cumulocity represent regularly acquired readings and statistics from sensors.</p>
+<p>A simple single-valued measurement like a temperature measurement can be represented in Thin Edge JSON as follows:</p>
+<pre><code>{ &quot;temperature&quot;: 25 }
+</code></pre>
+<p>With the key-value pair representing the measurement type and the numeric value of the measurement. The endpoint that is supervised by the tedge-mapper for measurements is:</p>
+<pre><code>tedge/measurements
+</code></pre>
+<p>The temperature measurement described above can be sent as follows:</p>
+<pre><code>tedge mqtt pub tedge/measurements '{ &quot;temperature&quot;: 25 }'
+</code></pre>
+<h3 id="sending-events"><a class="header" href="#sending-events">Sending events</a></h3>
+<p>Events are used to pass real-time information, which are not just plain sensor values, through Cumulocity IoT (or other IoT cloud platforms).</p>
+<p>A simple event can be represented in Thin Edge JSON as follows:</p>
+<pre><code>{
+    &quot;text&quot;: &quot;A door was closed&quot;,
+    &quot;time&quot;: &quot;2022-06-10T05:30:45+00:00&quot;
+}
+</code></pre>
+<p>The endpoint that is supervised by the tedge-mapper for events is:</p>
+<pre><code>tedge/events/{{event-type}}
+</code></pre>
+<p>So the door open event described above can be sent as follows:</p>
+<pre><code>tedge mqtt pub tedge/events/door '{&quot;text&quot;: &quot;A door was closed&quot;,&quot;time&quot;: &quot;2022-06-10T05:30:45+00:00&quot;}'
+</code></pre>
+<h2 id="step-4-monitor-your-device"><a class="header" href="#step-4-monitor-your-device">Step 4 Monitor your device</a></h2>
+<p>With thin-edge.io device monitoring, you can collect metrics from the device and forward these device metrics to Cumulocity IoT.</p>
+<p>thin-edge.io uses the open source component <code>collectd</code> to collect the metrics from the device. thin-edge.io translates the <code>collected</code> metrics from their native format to the thin-edge.io JSON format and then into the cloud-vendor-specific format.</p>
+<p>Enabling monitoring on your device is a 3-steps process:</p>
+<ul>
+<li>Install collectd</li>
+<li>Configure collectd</li>
+<li>Enable thin-edge.io monitoring</li>
+</ul>
+<h3 id="install-collectd"><a class="header" href="#install-collectd">Install collectd</a></h3>
+<p>Because thin-edge.io uses the MQTT plugin of collectd, installation of the Mosquitto client library (either libmosquitto1 or mosquitto-clients) is required.</p>
+<pre><code>sudo apt-get install libmosquitto1
+</code></pre>
+<p>To install collectd:</p>
+<pre><code>sudo apt-get install collectd-core
+</code></pre>
+<h3 id="configure-collectd"><a class="header" href="#configure-collectd">Configure collectd</a></h3>
+<p>thin-edge.io provides a basic collectd configuration that can be used to collect CPU, memory and disk metrics.</p>
+<p>Simply copy the file to the main collectd configuration file and restart the daemon.</p>
+<pre><code>sudo cp /etc/tedge/contrib/collectd/collectd.conf /etc/collectd/collectd.conf
+sudo systemctl restart collectd
+</code></pre>
+<p>What you should see by now is that data arrives on the <code>collectd/#</code> topics. You can check that via:</p>
+<pre><code>tedge mqtt sub 'collectd/#'
+</code></pre>
+<h3 id="enable-collectd"><a class="header" href="#enable-collectd">Enable Collectd</a></h3>
+<p>To enable monitoring on your device, you have to launch the <code>tedge-mapper-collectd daemon</code> process. This process collects the data from the <code>collectd/#</code> topics and translates them to the tedge payloads on the <code>c8y/#</code> topics.</p>
+<pre><code>sudo systemctl start tedge-mapper-collectd
+sudo systemctl enable tedge-mapper-collectd
+</code></pre>
+<p>You can inspect the collected and translated metrics, by subscribing to these topics:</p>
+<pre><code>tedge mqtt sub 'c8y/#'
+</code></pre>
+<p>The monitoring data will appear in Cumulocity IoT on the device in the measurement section.</p>
+<h2 id="step-5-add-software-management"><a class="header" href="#step-5-add-software-management">Step 5 Add software management</a></h2>
+<p>Software management takes care of allowing installation and management of any type of software from the IoT cloud platform. Since the type is generic, any type of software can be managed. In thin-edge.io this can be extended with plugins. For every software type, a particular plugin is needed.</p>
+<p>The following plugins do exist:</p>
+<ul>
+<li>Docker</li>
+<li>APT</li>
+<li>Docker-compose</li>
+<li>Snap</li>
+</ul>
+<p>In order to use those plugins they need to be copied to:</p>
+<p><code>/etc/tedge/sm-plugins</code></p>
+<p>The APT plugin is installed automatically. You can find the other plugins in the repository. Make sure to disconnect/reconnect the device after adding plugins via:</p>
+<pre><code>sudo tedge disconnect c8y
+sudo tedge connect c8y
+</code></pre>
+<p>How to <a href="https://thin-edge.github.io/thin-edge.io/html/tutorials/write-my-software-management-plugin.html">develop your own plugins</a> is described here.</p>
+<h2 id="step-6-manage-configuration-files"><a class="header" href="#step-6-manage-configuration-files">Step 6 Manage configuration files</a></h2>
+<p>With thin-edge.io you can manage config files on a device by using the Cumulocity configuration management feature as a part of Device Management.</p>
+<p>This functionality is directly installed with the initial script. However, you need to configure the <code>/etc/tedge/c8y/c8y-configuration-plugin.toml</code> and add the entries for the configuration files that you want to manage. Just copy the following content to that file:</p>
+<pre><code>files = [
+    { path = '/etc/tedge/tedge.toml' },
+    { path = '/etc/tedge/mosquitto-conf/c8y-bridge.conf', type = 'c8y-bridge.conf' },
+    { path = '/etc/tedge/mosquitto-conf/tedge-mosquitto.conf', type = 'tedge-mosquitto.conf' },
+    { path = '/etc/mosquitto/mosquitto.conf', type = 'mosquitto.conf' }
+]
+</code></pre>
+<p>The daemon is started/enabled via:</p>
+<pre><code>sudo systemctl start c8y-configuration-plugin
+sudo systemctl enable c8y-configuration-plugin
+</code></pre>
+<h2 id="step-7-manage-log-files"><a class="header" href="#step-7-manage-log-files">Step 7 Manage Log-Files</a></h2>
+<p>With thin-edge.io you can request log files from a device by using the Cumulocity log request feature as a part of Device Management.</p>
+<p>This functionality is also directly installed with the initial script. However, you need to configure the /etc/tedge/c8y/c8y-log-plugin.toml and add the entries for the log files that can be requested. Just copy the following content to that file:</p>
+<pre><code>files = [
+  { type = &quot;software-management&quot;, path = &quot;/var/log/tedge/agent/software-*&quot; },
+  { type = &quot;mosquitto&quot;, path = &quot;/var/log/mosquitto/mosquitto.log&quot; },
+  { type = &quot;daemon&quot;, path = &quot;/var/log/daemon.log&quot; },
+  { type = &quot;user&quot;, path = &quot;/var/log/user.log&quot; },
+  { type = &quot;apt-history&quot;, path = &quot;/var/log/apt/history.log&quot; },
+  { type = &quot;apt-term&quot;, path = &quot;/var/log/apt/term.log&quot; },
+  { type = &quot;auth&quot;, path = &quot;/var/log/auth.log&quot; },
+  { type = &quot;dpkg&quot;, path = &quot;/var/log/dpkg.log&quot; },
+  { type = &quot;kern&quot;, path = &quot;/var/log/kern.log&quot; }
+]
+</code></pre>
+<p>The daemon is started/enabled via:</p>
+<pre><code>sudo systemctl start c8y-log-plugin
+sudo systemctl enable c8y-log-plugin
+</code></pre>
+<p>If you add the <code>c8y-log-plugin.toml</code> into the <code>c8y-configuration-plugin.toml</code> you can to the administration from there.
+However, keep in mind that the daemon has to be restarted every time the <code>/etc/tedge/c8y/c8y-log-plugin.toml</code> is touched via the command line.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../tutorials/tutorials.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                            <a rel="next" href="../tutorials/connect-c8y.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../tutorials/tutorials.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                    <a rel="next" href="../tutorials/connect-c8y.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+    </body>
+</html>
