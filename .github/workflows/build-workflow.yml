@@ -10,44 +10,39 @@ env:
   RUSTFLAGS: -D warnings
 
 jobs:
-  build-amd64:
-    name: Build for amd64
+  print-libc-2004:
     runs-on: Ubuntu-20.04
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - name: Print libc
+        run: /lib/x86_64-linux-gnu/libc.so.6
+        continue-on-error: true
+      - name: Print libraries
+        run: dpkg --list
+        continue-on-error: true
 
-      - name: Enable toolchain via github action
-        uses: dtolnay/rust-toolchain@1.63.0
-
-      - name: Enable cache
-        # https://github.com/marketplace/actions/rust-cache
-        uses: Swatinem/rust-cache@v2
-
-      - name: Build packages for amd64
-        run: ./ci/build_scripts/build_for_amd64.sh
-
-      - name: Upload artifacts as zip
-        # https://github.com/marketplace/actions/upload-a-build-artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: debian-packages-amd64
-          path: target/debian/*.deb
+  print-libc-2204:
+    runs-on: Ubuntu-22.04
+    steps:
+      - name: Print libc
+        run: /lib/x86_64-linux-gnu/libc.so.6
+        continue-on-error: true
+      - name: Print libraries
+        run: dpkg --list
+        continue-on-error: true
 
   build-arm-matrix:
     name: Build for ${{ matrix.target }}
-    runs-on: Ubuntu-20.04
+    runs-on: Ubuntu-22.04
     strategy:
       matrix:
         # Add only arm targets here as we use a custom strip binary!
         target:
           [
-            aarch64-unknown-linux-gnu,
-            aarch64-unknown-linux-musl,
-            arm-unknown-linux-gnueabihf,
+            # aarch64-unknown-linux-gnu,
+            # aarch64-unknown-linux-musl,
+            # arm-unknown-linux-gnueabihf,
             armv7-unknown-linux-gnueabihf,
-            armv7-unknown-linux-musleabihf,
+            # armv7-unknown-linux-musleabihf,
           ]
 
     steps:
