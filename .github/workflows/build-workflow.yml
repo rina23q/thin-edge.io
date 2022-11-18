@@ -20,19 +20,9 @@ jobs:
         run: dpkg --list
         continue-on-error: true
 
-  print-libc-2204:
-    runs-on: Ubuntu-22.04
-    steps:
-      - name: Print libc
-        run: /lib/x86_64-linux-gnu/libc.so.6
-        continue-on-error: true
-      - name: Print libraries
-        run: dpkg --list
-        continue-on-error: true
-
   build-arm-matrix:
     name: Build for ${{ matrix.target }}
-    runs-on: Ubuntu-22.04
+    runs-on: Ubuntu-20.04
     strategy:
       matrix:
         # Add only arm targets here as we use a custom strip binary!
