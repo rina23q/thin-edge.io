@@ -8,6 +8,8 @@ ARCH=$1
 cargo install cargo-deb --version 1.38.1
 cargo install cross
 
+cross --version
+
 # armv7 uses `arm-linux-gnueabihf-strip`; aarch64 uses `aarch64-linux-gnu-strip`
 # It appears `aarch64-linux-gnu-strip` seems to work explicitly on other arm bins but not other way around.
 sudo apt update
