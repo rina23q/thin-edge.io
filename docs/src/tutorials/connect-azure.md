@@ -4,7 +4,7 @@ The very first step to enable **thin-edge.io** is to connect your device to the 
 * This is a 10 minutes operation to be done only once.
 * It establishes a permanent connection from your device to the cloud end-point.
 * This connection is secure (encrypted over TLS), and the two peers are identified by x509 certificates.
-* Sending data to the cloud will then be as simple as sending data locally.
+* Sending data to the cloud will then be as simple as sending data locally and remotely.
 
 The focus is here on connecting the device to Azure IoT.
 See this [tutorial](connect-c8y.md), if you want to connect Cumulocity IoT instead.
