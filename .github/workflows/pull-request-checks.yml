@@ -115,7 +115,7 @@ jobs:
         # https://github.com/marketplace/actions/rust-cargo-install
         with:
           crate: mdbook-toc
-          version: latest
+          version: 0.9.0
 
       - name: Install mdbook-mermaid
         uses: actions-rs/install@v0.1
