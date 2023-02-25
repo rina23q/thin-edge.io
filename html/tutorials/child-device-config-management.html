@@ -1,0 +1,552 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Configuration management on child-devices - thin-edge.io docs</title>
+        <!-- Custom HTML head -->
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../././mdbook-admonish.css">
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item "><a href="../SUMMARY.html"><strong aria-hidden="true">1.</strong> Summary</a></li><li class="chapter-item "><a href="../001_overview.html"><strong aria-hidden="true">2.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="../user_doc.html"><strong aria-hidden="true">3.</strong> User Documentation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../tutorials/tutorials.html"><strong aria-hidden="true">3.1.</strong> Tutorials</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../tutorials/getting-started.html"><strong aria-hidden="true">3.1.1.</strong> Getting started with thin-edge.io</a></li><li class="chapter-item "><a href="../tutorials/connect-c8y.html"><strong aria-hidden="true">3.1.2.</strong> Connect my device to Cumulocity IoT</a></li><li class="chapter-item "><a href="../tutorials/connect-azure.html"><strong aria-hidden="true">3.1.3.</strong> Connect my device to Azure IoT</a></li><li class="chapter-item "><a href="../tutorials/connect-aws.html"><strong aria-hidden="true">3.1.4.</strong> Connect my device to AWS IoT</a></li><li class="chapter-item "><a href="../tutorials/send-thin-edge-data.html"><strong aria-hidden="true">3.1.5.</strong> Send measurements</a></li><li class="chapter-item "><a href="../tutorials/raise-alarm.html"><strong aria-hidden="true">3.1.6.</strong> Raise alarms</a></li><li class="chapter-item "><a href="../tutorials/send-events.html"><strong aria-hidden="true">3.1.7.</strong> Send events</a></li><li class="chapter-item "><a href="../tutorials/device-monitoring.html"><strong aria-hidden="true">3.1.8.</strong> Monitor my device</a></li><li class="chapter-item "><a href="../tutorials/software-management.html"><strong aria-hidden="true">3.1.9.</strong> Manage my device software</a></li><li class="chapter-item "><a href="../tutorials/write-my-software-management-plugin.html"><strong aria-hidden="true">3.1.10.</strong> Write my software management plugin</a></li><li class="chapter-item "><a href="../tutorials/supported_operations.html"><strong aria-hidden="true">3.1.11.</strong> Supported Operations Management for Cumulocity IoT</a></li><li class="chapter-item "><a href="../tutorials/yocto-linux.html"><strong aria-hidden="true">3.1.12.</strong> Build Thin Edge for a Yocto Linux distribution</a></li><li class="chapter-item expanded "><a href="../tutorials/child-device-config-management.html" class="active"><strong aria-hidden="true">3.1.13.</strong> Configuration management on child-devices</a></li></ol></li></ol></li><li class="chapter-item "><a href="../howto-guides/howto-guides.html"><strong aria-hidden="true">4.</strong> How-to Guides</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../howto-guides/002_installation.html"><strong aria-hidden="true">4.1.</strong> Installation</a></li><li class="chapter-item "><a href="../howto-guides/003_registration.html"><strong aria-hidden="true">4.2.</strong> How to create a test certificate</a></li><li class="chapter-item "><a href="../howto-guides/004_connect.html"><strong aria-hidden="true">4.3.</strong> How to connect a cloud end-point</a></li><li class="chapter-item "><a href="../howto-guides/005_pub_sub.html"><strong aria-hidden="true">4.4.</strong> How to send MQTT messages</a></li><li class="chapter-item "><a href="../howto-guides/007_test_connection.html"><strong aria-hidden="true">4.5.</strong> How to test the cloud connection?</a></li><li class="chapter-item "><a href="../howto-guides/008_config_local_mqtt_bind_address_and_port.html"><strong aria-hidden="true">4.6.</strong> How to configure the local mqtt bind address and port</a></li><li class="chapter-item "><a href="../howto-guides/009_trouble_shooting_monitoring.html"><strong aria-hidden="true">4.7.</strong> How to trouble shoot device monitoring</a></li><li class="chapter-item "><a href="../howto-guides/010_add_self_signed_trusted.html"><strong aria-hidden="true">4.8.</strong> How to add self-signed certificate root to trusted certificates list?</a></li><li class="chapter-item "><a href="../howto-guides/011_retrieve_jwt_token_from_cumulocity.html"><strong aria-hidden="true">4.9.</strong> How to retrieve JWT token from Cumulocity?</a></li><li class="chapter-item "><a href="../howto-guides/012_install_and_enable_software_management.html"><strong aria-hidden="true">4.10.</strong> How to install and enable software management?</a></li><li class="chapter-item "><a href="../howto-guides/013_connect_external_device.html"><strong aria-hidden="true">4.11.</strong> How to connect an external device?</a></li><li class="chapter-item "><a href="../howto-guides/014_thin_edge_logs.html"><strong aria-hidden="true">4.12.</strong> How to access the logs on the device?</a></li><li class="chapter-item "><a href="../howto-guides/015_installation_without_deb_support.html"><strong aria-hidden="true">4.13.</strong> How to install thin-edge.io on any Linux OS (no deb support)?</a></li><li class="chapter-item "><a href="../howto-guides/016_restart_device_operation.html"><strong aria-hidden="true">4.14.</strong> How to restart your thin-edge.io device</a></li><li class="chapter-item "><a href="../howto-guides/017_apama_software_management_plugin.html"><strong aria-hidden="true">4.15.</strong> How to use apama software management plugin</a></li><li class="chapter-item "><a href="../howto-guides/018_change_temp_path.html"><strong aria-hidden="true">4.16.</strong> How to change temp path</a></li><li class="chapter-item "><a href="../howto-guides/019_how_to_use_preferred_init_system.html"><strong aria-hidden="true">4.17.</strong> How to use thin-edge.io with your preferred init system</a></li><li class="chapter-item "><a href="../howto-guides/020_monitor_tedge_health.html"><strong aria-hidden="true">4.18.</strong> How to monitor health of tedge daemons</a></li><li class="chapter-item "><a href="../howto-guides/021_enable_tedge_watchdog_using_systemd.html"><strong aria-hidden="true">4.19.</strong> How to enable systemd watchdog monitoring for tedge services?</a></li><li class="chapter-item "><a href="../howto-guides/022_c8y_fragments.html"><strong aria-hidden="true">4.20.</strong> How to add custom fragments to Cumulocity</a></li><li class="chapter-item "><a href="../howto-guides/023_c8y_log_plugin.html"><strong aria-hidden="true">4.21.</strong> How to retrieve logs with the log plugin</a></li><li class="chapter-item "><a href="../howto-guides/024_smartrest_templates.html"><strong aria-hidden="true">4.22.</strong> How to use Cumulocity Custom SmartREST 2.0 Templates with thin-edge.io</a></li><li class="chapter-item "><a href="../howto-guides/025_config_management_plugin.html"><strong aria-hidden="true">4.23.</strong> How to manage configuration files with Cumulocity</a></li><li class="chapter-item "><a href="../howto-guides/026_how_to_install_thin_edge_manually.html"><strong aria-hidden="true">4.24.</strong> How to install thin-edge manually with OpenRC</a></li><li class="chapter-item "><a href="../howto-guides/child_device_config_management_agent.html"><strong aria-hidden="true">4.25.</strong> How to enable configuration management on child devices</a></li><li class="chapter-item "><a href="../howto-guides/027_remote_access_with_cumulocity.html"><strong aria-hidden="true">4.26.</strong> How to connect to your thin-edge.io device with Cumulocity remote access</a></li><li class="chapter-item "><a href="../howto-guides/028_c8y_service_monitoring.html"><strong aria-hidden="true">4.27.</strong> How to monitor a service from Cumulocity</a></li></ol></li><li class="chapter-item "><a href="../dev_doc.html"><strong aria-hidden="true">5.</strong> Developer Documentation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../architecture/architecture.html"><strong aria-hidden="true">5.1.</strong> Architecture</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../architecture/domain-model.html"><strong aria-hidden="true">5.1.1.</strong> Domain Model</a></li><li class="chapter-item "><a href="../architecture/data-model.html"><strong aria-hidden="true">5.1.2.</strong> Data Model</a></li><li class="chapter-item "><a href="../architecture/thin-edge-json.html"><strong aria-hidden="true">5.1.3.</strong> Thin Edge Json</a></li><li class="chapter-item "><a href="../architecture/mapper.html"><strong aria-hidden="true">5.1.4.</strong> The Mapper</a></li><li class="chapter-item "><a href="../architecture/software-management.html"><strong aria-hidden="true">5.1.5.</strong> Software Management</a></li><li class="chapter-item "><a href="../architecture/faq.html"><strong aria-hidden="true">5.1.6.</strong> Architecture FAQ</a></li><li class="chapter-item "><a href="../supported-platforms.html"><strong aria-hidden="true">5.1.7.</strong> Platform support</a></li><li class="chapter-item "><a href="../references/init-system-config.html"><strong aria-hidden="true">5.1.8.</strong> Init System configuration</a></li></ol></li><li class="chapter-item "><a href="../tutorials/write-my-software-management-plugin.html"><strong aria-hidden="true">5.2.</strong> Write my own software management plugin</a></li><li class="chapter-item "><a href="../references/c8y-configuration-management.html"><strong aria-hidden="true">5.3.</strong> Device Configuration Management using Cumulocity</a></li><li class="chapter-item "><a href="../api.html"><strong aria-hidden="true">5.4.</strong> APIs</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../references/bridged-topics.html"><strong aria-hidden="true">5.4.1.</strong> The Bridged Topics</a></li><li class="chapter-item "><a href="../references/plugin-api.html"><strong aria-hidden="true">5.4.2.</strong> The Software Management Plugin API</a></li></ol></li><li class="chapter-item "><a href="../BUILDING.html"><strong aria-hidden="true">5.5.</strong> Building</a></li></ol></li><li class="chapter-item "><a href="../references/references.html"><strong aria-hidden="true">6.</strong> Command Line Reference</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../references/tedge.html"><strong aria-hidden="true">6.1.</strong> The tedge command</a></li><li class="chapter-item "><a href="../references/tedge-config.html"><strong aria-hidden="true">6.2.</strong> The tedge config command</a></li><li class="chapter-item "><a href="../references/tedge-cert.html"><strong aria-hidden="true">6.3.</strong> The tedge cert command</a></li><li class="chapter-item "><a href="../references/tedge-connect.html"><strong aria-hidden="true">6.4.</strong> The tedge connect command</a></li><li class="chapter-item "><a href="../references/tedge-disconnect.html"><strong aria-hidden="true">6.5.</strong> The tedge disconnect command</a></li><li class="chapter-item "><a href="../references/tedge-mqtt.html"><strong aria-hidden="true">6.6.</strong> The tedge mqtt command</a></li><li class="chapter-item "><a href="../references/thin-edge-config-files.html"><strong aria-hidden="true">6.7.</strong> Thin-edge.io configuration files</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">thin-edge.io docs</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="configuration-management-on-child-devices"><a class="header" href="#configuration-management-on-child-devices">Configuration management on child-devices</a></h1>
+<p>After following this tutorial, you will know how to manage various configuration files on child-devices connected to a thin-edge device.
+You will learn how to perform the following configuration management operations on child devices:</p>
+<ul>
+<li>Fetch and view the snapshot of a configuration on a child-device from Cumulocity IoT cloud</li>
+<li>Update a configuration on the child-device from Cumulocity IoT cloud</li>
+</ul>
+<h1 id="introduction"><a class="header" href="#introduction">Introduction</a></h1>
+<p>Let's first start with the definition of child-devices.</p>
+<p>Thin-edge.io facilitates remote management of the device it is running on, as well as to devices that are connected to that device.</p>
+<ul>
+<li>the device where thin-edge.io is running on, is referred to as the <strong>main device</strong> or <strong>thin-edge device</strong>.
+<ul>
+<li>thin-edge.io on the main-device establishes and manages all communication to the cloud.</li>
+</ul>
+</li>
+<li>all devices connected to the main-device are referred to as <strong>external child-devices</strong>.</li>
+<li>each external child-device can be represented in the cloud with its individual device twin.
+<ul>
+<li>a unique <code>child-id</code> makes the association between each external child-device and its <strong>device twin</strong>.</li>
+</ul>
+</li>
+<li>all telemetry data and device management functionality can appear in the context of the
+external child-device's device twin.</li>
+<li>containers or processes running on the main-device can also act like child-devices and
+they are referred to as <strong>logical child-devices</strong>.</li>
+</ul>
+<p>The figure below illustrates the child-device concept.</p>
+<p><img src="https://github.com/thin-edge/thin-edge.io/blob/main/docs/src/architecture/images/device-concept.svg" alt="Device Concept" /></p>
+<p>Configuration management can be enabled for child-devices using the same <code>c8y-configuration-plugin</code>,
+used for configuration management of the thin-edge device itself.
+You can read more about this plugin and its usage <a href="../howto-guides/025_config_management_plugin.html">here</a>.</p>
+<p>Another piece of software referred to as a <strong>child-device connector</strong> is also required to coordinate configuration management
+on the child device from the thin-edge device over the protocol that is used to communicate with it.</p>
+<p>The child-device connector would handle the following responsibilities:</p>
+<ul>
+<li>Declare the supported configuration list to thin-edge.io.</li>
+<li>Handle configuration snapshot requests from thin-edge.io.</li>
+<li>Handle configuration update requests from thin-edge.io.</li>
+</ul>
+<p>The <strong>supported configuration list</strong> is the list of configuration files on the child-device that needs to be managed from the cloud. Configuration management by thin-edge.io is enabled only for the files provided in this list.
+These declared configuration files can be fetched from the child device with configuration snapshot requests and
+can be updated with configuration update requests.</p>
+<p>Handling the above-mentioned responsibilities involves multiple interactions with thin-edge.io:</p>
+<ul>
+<li>via MQTT to receive and respond to configuration management requests.</li>
+<li>via HTTP to upload/download files while handling those requests.</li>
+</ul>
+<p>For example, during the bootstrapping/startup of the child-device, the child-device connector needs to upload the supported configuration list of the child-device to thin-edge.io by uploading a file using the HTTP file-transfer API of thin-edge.io,
+followed by an MQTT message informing thin-edge.io that the upload is complete.
+Similarly, handling a configuration snapshot or update request involves sending MQTT messages before and after the configuration file is uploaded/downloaded via HTTP to/from thin-edge.io.</p>
+<div id="admonition-note" class="admonition note">
+<div class="admonition-title">
+<p>Note</p>
+<p><a class="admonition-anchor-link" href="#admonition-note"></a></p>
+</div>
+<div>
+<p>The child-device connector is not part of the thin-edge.io installation and must be developed by the device developer.
+It can be written in any language that the device developer chooses.
+To ease this development, we have written a <a href="https://github.com/thin-edge/thin-edge.io_examples/blob/main/child-device-agent/child_device_agent.py">reference implementation</a> in Python which can easily be adapted directly or replicated in the language of your choice,
+for your device type.
+The key thing to focus on in the implementation is the interaction with the external device to fetch/update the configuration files over the protocol that the device supports.
+The rest of the MQTT and HTTP interactions would remain the same.</p>
+</div>
+</div>
+<p>Since child-device connectors typically run on thin-edge.io device itself, these APIs can be accessed via a local IP or even 127.0.0.1.
+In cases where the child-device connector is deployed on the external child-device itself,
+the MQTT and HTTP APIs of thin-edge.io need to be accessed over the network using its IP address, 
+which is configured using the thin-edge.io configuration settings <code>mqtt.external.bind_address</code> or <code>mqtt.bind_address</code>.
+The MQTT APIs are exposed via port 1883 and the HTTP APIs are exposed via port 8000.</p>
+<p>In this tutorial 127.0.0.1. is used.</p>
+<h1 id="prerequisites"><a class="header" href="#prerequisites">Prerequisites</a></h1>
+<p>To follow this tutorial, you only need the following:</p>
+<ul>
+<li>A <a href="https://www.softwareag.cloud/site/product/cumulocity-iot.html">Cumulocity IoT</a> tenant.</li>
+<li>A device where thin-edge.io is installed.
+Any device with a Debian-based OS (Raspbian, Ubuntu etc) can be used.
+For example, a Raspberry Pi, your development machine or even a virtual machine can be used.</li>
+<li>A child-device connector implementation.
+You can either use the <a href="https://github.com/thin-edge/thin-edge.io_examples/blob/main/child-device-agent/child_device_agent.py">reference implementation</a> adapted for your child device or develop one on your own.
+If you just want to understand the child device connector contract,
+you may even manually execute the <code>curl</code> and <code>mosquitto</code> commands shown in the following sections.
+To use the <code>mosquitto</code> commands, it must be installed with <code>sudo apt-get install mosquitto-clients</code>.</li>
+<li>A device to run the child-device connector on.
+It can be run either on the main device itself or on the external child-device.
+If you're just running the <code>curl</code> and <code>mosquitto</code> commands directly, they even be run directly from the main device itself.</li>
+</ul>
+<h1 id="steps"><a class="header" href="#steps">Steps</a></h1>
+<p>This tutorial is divided into 3 main steps:</p>
+<p><a href="child-device-config-management.html#step-1-bootstrap-the-child-device">Step 1: Bootstrap the child device</a></p>
+<p>In this step, a child-device with its supported configuration list will be created in Cumulocity IoT, with the help of thin-edge.io,
+during the startup/bootstrap phase of the child-device connector.</p>
+<p><a href="child-device-config-management.html#step-2-get-configuration-snapshot-from-the-child-device">Step 2: Get configuration snapshot from the child device</a></p>
+<p>In this step, configuration files from a child-device will be requested to make them visible in Cumulocity IoT.</p>
+<p><a href="child-device-config-management.html#step-3-update-configuration-on-the-child-device">Step 3: Update configuration on the child device</a></p>
+<p>In this step, configuration files from a child-device will be updated with the updated configuration file pushed from Cumulocity IoT to the child-device via thin-edge.</p>
+<div id="admonition-note-1" class="admonition note">
+<div class="admonition-title">
+<p>Note</p>
+<p><a class="admonition-anchor-link" href="#admonition-note-1"></a></p>
+</div>
+<div>
+<p>The examples in this document uses <code>curl</code> and <code>mosquitto</code> commands just for representational purposes.
+In a realistic deployment, the child device connector will be running as a daemon,
+performing configuration management operations with thin-edge over its MQTT and HTTP APIs.</p>
+</div>
+</div>
+<h2 id="step-1-bootstrap-the-child-device"><a class="header" href="#step-1-bootstrap-the-child-device">Step 1: Bootstrap the child device</a></h2>
+<p>In this step, a child-device with its supported configuration list will be created in Cumulocity using thin-edge.io.</p>
+<p>Follow these steps to bootstrap the child device:</p>
+<ol>
+<li>
+<p>Create a <code>c8y-configuration-plugin.toml</code> file that contains the supported configuration list of the child-device 
+i.e. a list of configuration files in the same format as specified in the <a href="https://thin-edge.github.io/thin-edge.io/html/howto-guides/025_config_management_plugin.html">configuration management documentation</a> as follows:</p>
+<pre><code>files = [
+    { path = '/path/to/some/config', type = 'config1'},
+]
+</code></pre>
+<ul>
+<li><code>path</code> is the full path to the configuration file on the child-device file system.</li>
+<li><code>type</code> is a unique alias for each file entry which will be used to represent that file in Cumulocity IoT.</li>
+</ul>
+<p><strong>Example:</strong></p>
+<pre><code class="language-toml">files = [
+    { path = '/home/pi/config/config1', type = 'config1'},
+    { path = '/home/pi/config/config2', type = 'config2'},
+]
+</code></pre>
+<p><em>Update these paths with some realistic paths on your device, or create these files with some dummy content.</em></p>
+</li>
+</ol>
+<div id="admonition-note-2" class="admonition note">
+<div class="admonition-title">
+<p>Note</p>
+<p><a class="admonition-anchor-link" href="#admonition-note-2"></a></p>
+</div>
+<div>
+<p>This is not the <code>c8y-configuration-plugin.toml</code> file which is used for configuration management of the thin-edge.io main device.
+This is a separate file, in the same format, required for each child-device, with its supported configuration list.</p>
+</div>
+</div>
+<ol start="2">
+<li>
+<p>Upload this file to thin-edge.io via HTTP</p>
+<p>The child-device connector needs to upload this file to thin-edge.io with an HTTP PUT request to the URL:
+<code>http://{tedge-ip}:8000/tedge/file-transfer/{child-id}/c8y-configuration-plugin</code></p>
+<ul>
+<li><code>{tedge-ip}</code> is the IP of the thin-edge.io device which is configured as <code>mqtt.external.bind_address</code> or <code>mqtt.bind_address</code> or
+<code>127.0.0.1</code> if neither is configured.</li>
+<li><code>{child-id}</code> is the child-device-id.</li>
+</ul>
+<p><strong>Example:</strong></p>
+<pre><code class="language-console">curl -X PUT --data-binary @/home/pi/config/c8y-configuration-plugin.toml http://127.0.0.1:8000/tedge/file-transfer/child1/c8y-configuration-plugin
+</code></pre>
+</li>
+<li>
+<p>Notify thin-edge.io about the upload via MQTT.</p>
+<p>Once the upload is complete, the connector should notify thin-edge.io about the upload by sending the following MQTT message:</p>
+<p><strong>Topic:</strong></p>
+<p><code>tedge/{child-d}/commands/res/config_snapshot</code></p>
+<p><strong>Payload:</strong> </p>
+<pre><code class="language-json">{ &quot;type&quot;: &quot;c8y-configuration-plugin”, &quot;path&quot;: ”/child/local/fs/path” }
+</code></pre>
+<p><strong>Example:</strong></p>
+<pre><code class="language-console">mosquitto_pub -h 127.0.0.1 -t &quot;tedge/child1/commands/res/config_snapshot&quot; -m '{&quot;path&quot;: &quot;&quot;, &quot;type&quot;:&quot;c8y-configuration-plugin&quot;}'
+</code></pre>
+</li>
+<li>
+<p>Verify that the configuration list appears in Cumulocity under the child device's <code>Configuration</code> tab
+under <code>DEVICE-SUPPORTED CONFIGURATIONS</code> as follows: </p>
+<p><img src="./images/get-config-snapshot-list.png" alt="get-config-snapshot-list" /></p>
+</li>
+</ol>
+<h2 id="step-2-get-configuration-snapshot-from-the-child-device"><a class="header" href="#step-2-get-configuration-snapshot-from-the-child-device">Step 2: Get configuration snapshot from the child device</a></h2>
+<p>Following these steps, a configuration file from the child-device will be requested to make them visible in Cumulocity IoT:</p>
+<ol>
+<li>
+<p>Subscribe to, and receive config snapshot requests via MQTT:</p>
+<pre><code class="language-console">mosquitto_sub -h 127.0.0.1 -t &quot;tedge/{child-id}/commands/req/config_snapshot&quot;
+</code></pre>
+<p>The <code>config_snapshot</code> requests will be received by this subscriber.</p>
+</li>
+<li>
+<p>In Cumulocity IoT, navigate to <code>Device Management</code> -&gt; <code>Devices</code> -&gt; <code>All Devices</code> -&gt; select the thin-edge device -&gt; <code>Child devices</code> -&gt; select the child-device (<code>child1</code>) -&gt; <code>Configuration</code></p>
+</li>
+<li>
+<p>Select the config file type (<code>config1</code>) from the list of configuration files under the <code>DEVICE-SUPPORTED CONFIGURATIONS</code>
+and then click on the <code>Get snapshot from device</code> button.</p>
+<p><img src="./images/get-config-snapshot.png" alt="get-config-snapshot" /></p>
+<p>This will trigger a <code>config_snapshot</code> request to the child-device via MQTT which will be received by the subscriber spawned in step. 1 as follows:</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-json">{
+  &quot;url&quot;:&quot;http://127.0.0.1:8000/tedge/file-transfer/child1/config_snapshot/config1&quot;,
+  &quot;path&quot;:&quot;/home/pi/config/config1&quot;,
+  &quot;type&quot;:&quot;config1&quot;
+}
+</code></pre>
+</li>
+</ol>
+<div id="admonition-note-3" class="admonition note">
+<div class="admonition-title">
+<p>Note</p>
+<p><a class="admonition-anchor-link" href="#admonition-note-3"></a></p>
+</div>
+<div>
+<p>After receiving this request, the responses in the next three steps must be sent within 60 seconds,
+else the operation will fail with a timeout.</p>
+</div>
+</div>
+<ol start="4">
+<li>
+<p>After receiving the request, the child-device connector may <strong>optionally</strong> acknowledge the receipt of the request by sending an &quot;executing&quot; MQTT status message, as follows:</p>
+<p><strong>Topic:</strong></p>
+<p><code>tedge/{child-d}/commands/res/config_snapshot</code></p>
+<p><strong>Payload:</strong></p>
+<pre><code class="language-json">{
+  &quot;status&quot;: &quot;executing&quot;,
+  &quot;type&quot;: &quot;{config-type}&quot;,
+  &quot;path&quot;: &quot;/child/local/fs/path&quot;
+}
+</code></pre>
+<p><strong>Example:</strong></p>
+<pre><code class="language-console">mosquitto_pub -h 127.0.0.1 -t &quot;tedge/child1/commands/res/config_snapshot&quot; -m '{&quot;status&quot;: &quot;executing&quot;, &quot;path&quot;: &quot;/home/pi/config/config1&quot;, &quot;type&quot;: &quot;config1&quot;}'
+</code></pre>
+</li>
+</ol>
+<div id="admonition-note-4" class="admonition note">
+<div class="admonition-title">
+<p>Note</p>
+<p><a class="admonition-anchor-link" href="#admonition-note-4"></a></p>
+</div>
+<div>
+<p>Sending the <code>executing</code> status will reset the operation timeout window.
+The timer can be reset any number of times by sending this response.</p>
+</div>
+</div>
+<ol start="5">
+<li>
+<p>Upload the requested config file to the URL received in the request via HTTP.</p>
+<p>After sending the 'executing' status message, the connector must upload the requested configuration file content
+to the URL received in the request with an HTTP PUT request.</p>
+<pre><code class="language-console">curl -X PUT --data-binary @/home/pi/config/config2 http://127.0.0.1:8000/tedge/file-transfer/child1/config_snapshot/config1
+</code></pre>
+</li>
+<li>
+<p>Once the upload is complete, send a &quot;successful&quot; status message via MQTT as follows:</p>
+<p><strong>Topic:</strong></p>
+<p><code>tedge/{child-d}/commands/res/config_snapshot</code></p>
+<p><strong>Payload</strong>:</p>
+<pre><code class="language-json">{
+    &quot;status&quot;: &quot;successful&quot;,
+    &quot;type&quot;: &quot;{config-type}&quot;,
+    &quot;path&quot;: &quot;/child/local/fs/path&quot;
+}
+</code></pre>
+<p><strong>Example:</strong></p>
+<pre><code class="language-console">mosquitto_pub -h localhost -t &quot;tedge/child1/commands/res/config_snapshot&quot; -m '{&quot;status&quot;: &quot;successful&quot;, &quot;path&quot;: &quot;/home/pi/config/config1&quot;, &quot;type&quot;: &quot;config1&quot;}'
+</code></pre>
+</li>
+</ol>
+<h2 id="step-3-update-configuration-on-the-child-device"><a class="header" href="#step-3-update-configuration-on-the-child-device">Step 3: Update configuration on the child device</a></h2>
+<p>Performing config update is an 8-step process:</p>
+<ol>
+<li>
+<p>Subscribe to, and receive config update requests via MQTT.</p>
+<p><strong>Example:</strong></p>
+<pre><code class="language-console">mosquitto_sub -h 127.0.0.1 -t &quot;tedge/child1/commands/req/config_update&quot;
+</code></pre>
+</li>
+<li>
+<p>In Cumulocity IoT, go to <code>device management</code> -&gt;  <code>Management</code> -&gt; <code>Configuration repository</code> -&gt; <code>Add configuration snapshot</code> and fill in the fields in the pop-up. Uploading a simple text file will be sufficient as an example. Give it the <code>name</code> and <code>type</code> as <strong>config1</strong>.</p>
+<p><img src="./images/add-config-snapshot.png" alt="add configuration snapshot" /></p>
+</li>
+<li>
+<p>Click on <code>Devices</code> -&gt; <code>All Devices</code>, then click on your device. Then click on  <code>child-devices</code> -&gt;  then click on the child-device (child1) defined in <em>Step 1 Bootstrap the child-device</em> and then click on <code>Configuration</code> and on your config file (config1).</p>
+<p><img src="./images/add-config-snapshot-configurations.png" alt="open configuration screen" /></p>
+</li>
+<li>
+<p>In the column <em>AVAILABLE SUPPORTED CONFIGURATIONS</em> click on the previously added/uploaded configuration snapshot (config1) and click on <em>Send configuration to device</em>. This will trigger a config snapshot request to the child-device via MQTT.</p>
+<p><img src="./images/send-config-snapshot-configurations.png" alt="send-configuration-snapshot" /></p>
+<p>The subscriber spawned in step 1 will receive the following request on <code>tedge/child1/commands/req/config_update</code> topic.</p>
+<pre><code class="language-json">{
+  &quot;url&quot;: &quot;http://127.0.0.1:8000/tedge/file-transfer/child1/config_update/config1&quot;,
+  &quot;path&quot;: &quot;/home/pi/config/config1&quot;,
+  &quot;type&quot;: &quot;config1&quot;
+}
+</code></pre>
+</li>
+</ol>
+<div id="admonition-note-5" class="admonition note">
+<div class="admonition-title">
+<p>Note</p>
+<p><a class="admonition-anchor-link" href="#admonition-note-5"></a></p>
+</div>
+<div>
+<p>After receiving this request, the responses in the next three steps must be sent within 60 seconds,
+else the operation will fail with a timeout.</p>
+</div>
+</div>
+<ol start="5">
+<li>
+<p>Optionally send an “executing” operation status update to acknowledge the receipt of the request via MQTT as follows:</p>
+<p><strong>Topic:</strong></p>
+<p><code>tedge/{child-d}/commands/res/config_update</code></p>
+<p><strong>Payload</strong>:</p>
+<pre><code class="language-json">{
+    &quot;status&quot;: &quot;executing&quot;,
+    &quot;type&quot;: &quot;{config-type}&quot;,
+    &quot;path&quot;: &quot;/child/local/fs/path&quot;
+}
+</code></pre>
+<p><strong>Example:</strong></p>
+<pre><code class="language-console">mosquitto_pub -h 127.0.0.1 -t &quot;tedge/child1/commands/res/config_update&quot; -m '{&quot;status&quot;: &quot;executing&quot;, &quot;path&quot;: &quot;/home/pi/config/config1&quot;,    &quot;type&quot;: &quot;config1&quot;}'
+</code></pre>
+</li>
+</ol>
+<div id="admonition-note-6" class="admonition note">
+<div class="admonition-title">
+<p>Note</p>
+<p><a class="admonition-anchor-link" href="#admonition-note-6"></a></p>
+</div>
+<div>
+<p>Sending the <code>executing</code> status will reset the operation timeout window.
+The timer can be reset any number of times by sending this response.</p>
+</div>
+</div>
+<ol start="6">
+<li>
+<p>Download the config file update from the URL received in the request via HTTP.</p>
+<p>After sending the &quot;executing&quot; status message, the connector must download the configuration file update
+from the <code>URL</code> received in the request with an <code>HTTP GET</code> request.
+The connector can then apply the downloaded configuration file update on the device.</p>
+<pre><code class="language-console">curl http://127.0.0.1:8000/tedge/file-transfer/child1/config_update/config1 --output config1
+</code></pre>
+</li>
+<li>
+<p>Apply the config file update on the child-device</p>
+<p>The connector can then apply the downloaded configuration file update on the device.</p>
+</li>
+<li>
+<p>Send a “successful” operation status update via MQTT</p>
+<p>Once the update is applied, send a &quot;successful&quot; MQTT status message as follows:</p>
+<p><strong>Topic:</strong></p>
+<p><code>tedge/{child-d}/commands/res/config_update</code></p>
+<p><strong>Payload</strong>:</p>
+<pre><code class="language-json">{
+    &quot;status&quot;: &quot;successful&quot;,
+    &quot;type&quot;: &quot;{config-type}&quot;,
+    &quot;path&quot;: &quot;/child/local/fs/path&quot;
+}
+</code></pre>
+<p><strong>Example:</strong></p>
+<pre><code class="language-console">mosquitto_pub -h 127.0.0.1 -t &quot;tedge/child1/commands/res/config_update&quot; -m '{&quot;status&quot;: &quot;successful&quot;, &quot;path&quot;: &quot;/home/pi/config/config1&quot;, &quot;type&quot;: &quot;config1&quot;}'
+</code></pre>
+<p>If there are any failures while downloading and applying the update, fail the operation in Cumulocity IoT by sending a &quot;failed&quot; status   update with the <code>reason</code> to the same topic as follows:</p>
+<pre><code class="language-json">{
+    &quot;status&quot;: &quot;failed&quot;,
+    &quot;type&quot;: &quot;{config-type}&quot;,
+    &quot;path&quot;: &quot;/child/local/fs/path&quot;,
+    &quot;reason&quot;: &quot;Download failed&quot;
+}
+</code></pre>
+<p><strong>Example:</strong></p>
+<pre><code class="language-console">mosquitto_pub -h 127.0.0.1 -t &quot;tedge/child1/commands/res/config_update&quot; -m '{&quot;status&quot;: &quot;failed&quot;, &quot;reason&quot;: &quot;Download failed&quot;, &quot;path&quot;: &quot;/home/pi/config/config1&quot;, &quot;type&quot;: &quot;config1&quot;}'
+</code></pre>
+</li>
+</ol>
+<h2 id="references"><a class="header" href="#references">References</a></h2>
+<ul>
+<li>Configuration Management <a href="https://thin-edge.github.io/thin-edge.io/html/howto-guides/child_device_config_management_agent.html">documentation</a></li>
+<li>Reference implementation of a <a href="https://github.com/thin-edge/thin-edge.io_examples/tree/main/child-device-agent">child-device connector</a> written in Python to demonstrate the contract described in this document.</li>
+<li>How to enable configuration <a href="https://github.com/thin-edge/thin-edge.io/blob/main/docs/src/howto-guides/child_device_config_management_agent.md">management on child-devices</a></li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../tutorials/yocto-linux.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                            <a rel="next" href="../howto-guides/howto-guides.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../tutorials/yocto-linux.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                    <a rel="next" href="../howto-guides/howto-guides.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        <script type="text/javascript" src="../mermaid.min.js"></script>
+        <script type="text/javascript" src="../mermaid-init.js"></script>
+    </body>
+</html>

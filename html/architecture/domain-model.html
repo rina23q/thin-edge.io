@@ -1,0 +1,468 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Domain Model - thin-edge.io docs</title>
+        <!-- Custom HTML head -->
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../././mdbook-admonish.css">
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item "><a href="../SUMMARY.html"><strong aria-hidden="true">1.</strong> Summary</a></li><li class="chapter-item "><a href="../001_overview.html"><strong aria-hidden="true">2.</strong> Introduction</a></li><li class="chapter-item "><a href="../user_doc.html"><strong aria-hidden="true">3.</strong> User Documentation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../tutorials/tutorials.html"><strong aria-hidden="true">3.1.</strong> Tutorials</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../tutorials/getting-started.html"><strong aria-hidden="true">3.1.1.</strong> Getting started with thin-edge.io</a></li><li class="chapter-item "><a href="../tutorials/connect-c8y.html"><strong aria-hidden="true">3.1.2.</strong> Connect my device to Cumulocity IoT</a></li><li class="chapter-item "><a href="../tutorials/connect-azure.html"><strong aria-hidden="true">3.1.3.</strong> Connect my device to Azure IoT</a></li><li class="chapter-item "><a href="../tutorials/connect-aws.html"><strong aria-hidden="true">3.1.4.</strong> Connect my device to AWS IoT</a></li><li class="chapter-item "><a href="../tutorials/send-thin-edge-data.html"><strong aria-hidden="true">3.1.5.</strong> Send measurements</a></li><li class="chapter-item "><a href="../tutorials/raise-alarm.html"><strong aria-hidden="true">3.1.6.</strong> Raise alarms</a></li><li class="chapter-item "><a href="../tutorials/send-events.html"><strong aria-hidden="true">3.1.7.</strong> Send events</a></li><li class="chapter-item "><a href="../tutorials/device-monitoring.html"><strong aria-hidden="true">3.1.8.</strong> Monitor my device</a></li><li class="chapter-item "><a href="../tutorials/software-management.html"><strong aria-hidden="true">3.1.9.</strong> Manage my device software</a></li><li class="chapter-item "><a href="../tutorials/write-my-software-management-plugin.html"><strong aria-hidden="true">3.1.10.</strong> Write my software management plugin</a></li><li class="chapter-item "><a href="../tutorials/supported_operations.html"><strong aria-hidden="true">3.1.11.</strong> Supported Operations Management for Cumulocity IoT</a></li><li class="chapter-item "><a href="../tutorials/yocto-linux.html"><strong aria-hidden="true">3.1.12.</strong> Build Thin Edge for a Yocto Linux distribution</a></li><li class="chapter-item "><a href="../tutorials/child-device-config-management.html"><strong aria-hidden="true">3.1.13.</strong> Configuration management on child-devices</a></li></ol></li></ol></li><li class="chapter-item "><a href="../howto-guides/howto-guides.html"><strong aria-hidden="true">4.</strong> How-to Guides</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../howto-guides/002_installation.html"><strong aria-hidden="true">4.1.</strong> Installation</a></li><li class="chapter-item "><a href="../howto-guides/003_registration.html"><strong aria-hidden="true">4.2.</strong> How to create a test certificate</a></li><li class="chapter-item "><a href="../howto-guides/004_connect.html"><strong aria-hidden="true">4.3.</strong> How to connect a cloud end-point</a></li><li class="chapter-item "><a href="../howto-guides/005_pub_sub.html"><strong aria-hidden="true">4.4.</strong> How to send MQTT messages</a></li><li class="chapter-item "><a href="../howto-guides/007_test_connection.html"><strong aria-hidden="true">4.5.</strong> How to test the cloud connection?</a></li><li class="chapter-item "><a href="../howto-guides/008_config_local_mqtt_bind_address_and_port.html"><strong aria-hidden="true">4.6.</strong> How to configure the local mqtt bind address and port</a></li><li class="chapter-item "><a href="../howto-guides/009_trouble_shooting_monitoring.html"><strong aria-hidden="true">4.7.</strong> How to trouble shoot device monitoring</a></li><li class="chapter-item "><a href="../howto-guides/010_add_self_signed_trusted.html"><strong aria-hidden="true">4.8.</strong> How to add self-signed certificate root to trusted certificates list?</a></li><li class="chapter-item "><a href="../howto-guides/011_retrieve_jwt_token_from_cumulocity.html"><strong aria-hidden="true">4.9.</strong> How to retrieve JWT token from Cumulocity?</a></li><li class="chapter-item "><a href="../howto-guides/012_install_and_enable_software_management.html"><strong aria-hidden="true">4.10.</strong> How to install and enable software management?</a></li><li class="chapter-item "><a href="../howto-guides/013_connect_external_device.html"><strong aria-hidden="true">4.11.</strong> How to connect an external device?</a></li><li class="chapter-item "><a href="../howto-guides/014_thin_edge_logs.html"><strong aria-hidden="true">4.12.</strong> How to access the logs on the device?</a></li><li class="chapter-item "><a href="../howto-guides/015_installation_without_deb_support.html"><strong aria-hidden="true">4.13.</strong> How to install thin-edge.io on any Linux OS (no deb support)?</a></li><li class="chapter-item "><a href="../howto-guides/016_restart_device_operation.html"><strong aria-hidden="true">4.14.</strong> How to restart your thin-edge.io device</a></li><li class="chapter-item "><a href="../howto-guides/017_apama_software_management_plugin.html"><strong aria-hidden="true">4.15.</strong> How to use apama software management plugin</a></li><li class="chapter-item "><a href="../howto-guides/018_change_temp_path.html"><strong aria-hidden="true">4.16.</strong> How to change temp path</a></li><li class="chapter-item "><a href="../howto-guides/019_how_to_use_preferred_init_system.html"><strong aria-hidden="true">4.17.</strong> How to use thin-edge.io with your preferred init system</a></li><li class="chapter-item "><a href="../howto-guides/020_monitor_tedge_health.html"><strong aria-hidden="true">4.18.</strong> How to monitor health of tedge daemons</a></li><li class="chapter-item "><a href="../howto-guides/021_enable_tedge_watchdog_using_systemd.html"><strong aria-hidden="true">4.19.</strong> How to enable systemd watchdog monitoring for tedge services?</a></li><li class="chapter-item "><a href="../howto-guides/022_c8y_fragments.html"><strong aria-hidden="true">4.20.</strong> How to add custom fragments to Cumulocity</a></li><li class="chapter-item "><a href="../howto-guides/023_c8y_log_plugin.html"><strong aria-hidden="true">4.21.</strong> How to retrieve logs with the log plugin</a></li><li class="chapter-item "><a href="../howto-guides/024_smartrest_templates.html"><strong aria-hidden="true">4.22.</strong> How to use Cumulocity Custom SmartREST 2.0 Templates with thin-edge.io</a></li><li class="chapter-item "><a href="../howto-guides/025_config_management_plugin.html"><strong aria-hidden="true">4.23.</strong> How to manage configuration files with Cumulocity</a></li><li class="chapter-item "><a href="../howto-guides/026_how_to_install_thin_edge_manually.html"><strong aria-hidden="true">4.24.</strong> How to install thin-edge manually with OpenRC</a></li><li class="chapter-item "><a href="../howto-guides/child_device_config_management_agent.html"><strong aria-hidden="true">4.25.</strong> How to enable configuration management on child devices</a></li><li class="chapter-item "><a href="../howto-guides/027_remote_access_with_cumulocity.html"><strong aria-hidden="true">4.26.</strong> How to connect to your thin-edge.io device with Cumulocity remote access</a></li><li class="chapter-item "><a href="../howto-guides/028_c8y_service_monitoring.html"><strong aria-hidden="true">4.27.</strong> How to monitor a service from Cumulocity</a></li></ol></li><li class="chapter-item expanded "><a href="../dev_doc.html"><strong aria-hidden="true">5.</strong> Developer Documentation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../architecture/architecture.html"><strong aria-hidden="true">5.1.</strong> Architecture</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../architecture/domain-model.html" class="active"><strong aria-hidden="true">5.1.1.</strong> Domain Model</a></li><li class="chapter-item "><a href="../architecture/data-model.html"><strong aria-hidden="true">5.1.2.</strong> Data Model</a></li><li class="chapter-item "><a href="../architecture/thin-edge-json.html"><strong aria-hidden="true">5.1.3.</strong> Thin Edge Json</a></li><li class="chapter-item "><a href="../architecture/mapper.html"><strong aria-hidden="true">5.1.4.</strong> The Mapper</a></li><li class="chapter-item "><a href="../architecture/software-management.html"><strong aria-hidden="true">5.1.5.</strong> Software Management</a></li><li class="chapter-item "><a href="../architecture/faq.html"><strong aria-hidden="true">5.1.6.</strong> Architecture FAQ</a></li><li class="chapter-item "><a href="../supported-platforms.html"><strong aria-hidden="true">5.1.7.</strong> Platform support</a></li><li class="chapter-item "><a href="../references/init-system-config.html"><strong aria-hidden="true">5.1.8.</strong> Init System configuration</a></li></ol></li><li class="chapter-item "><a href="../tutorials/write-my-software-management-plugin.html"><strong aria-hidden="true">5.2.</strong> Write my own software management plugin</a></li><li class="chapter-item "><a href="../references/c8y-configuration-management.html"><strong aria-hidden="true">5.3.</strong> Device Configuration Management using Cumulocity</a></li><li class="chapter-item "><a href="../api.html"><strong aria-hidden="true">5.4.</strong> APIs</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../references/bridged-topics.html"><strong aria-hidden="true">5.4.1.</strong> The Bridged Topics</a></li><li class="chapter-item "><a href="../references/plugin-api.html"><strong aria-hidden="true">5.4.2.</strong> The Software Management Plugin API</a></li></ol></li><li class="chapter-item "><a href="../BUILDING.html"><strong aria-hidden="true">5.5.</strong> Building</a></li></ol></li><li class="chapter-item "><a href="../references/references.html"><strong aria-hidden="true">6.</strong> Command Line Reference</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../references/tedge.html"><strong aria-hidden="true">6.1.</strong> The tedge command</a></li><li class="chapter-item "><a href="../references/tedge-config.html"><strong aria-hidden="true">6.2.</strong> The tedge config command</a></li><li class="chapter-item "><a href="../references/tedge-cert.html"><strong aria-hidden="true">6.3.</strong> The tedge cert command</a></li><li class="chapter-item "><a href="../references/tedge-connect.html"><strong aria-hidden="true">6.4.</strong> The tedge connect command</a></li><li class="chapter-item "><a href="../references/tedge-disconnect.html"><strong aria-hidden="true">6.5.</strong> The tedge disconnect command</a></li><li class="chapter-item "><a href="../references/tedge-mqtt.html"><strong aria-hidden="true">6.6.</strong> The tedge mqtt command</a></li><li class="chapter-item "><a href="../references/thin-edge-config-files.html"><strong aria-hidden="true">6.7.</strong> Thin-edge.io configuration files</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">thin-edge.io docs</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="thin-edge-domain-model"><a class="header" href="#thin-edge-domain-model">thin-edge Domain Model</a></h1>
+<p>The following section introduces the <strong>thin-edge</strong> domain model.</p>
+<p><strong>thin-edge</strong> is the glue between the <strong>cloud</strong> and <strong>devices</strong>. I.e. it interfaces on the one hand <strong>devices</strong> (especially resource constrained industrial <strong>devices</strong>), and connects on the other hand the <strong>cloud</strong>.
+The <strong>cloud</strong> could be some IoT Cloud Platform, such as <a href="https://www.softwareag.cloud/site/product/cumulocity-iot.html">Cumulocity</a>, <a href="https://azure.microsoft.com">Azure</a> or <a href="https://aws.amazon.com">AWS</a>; or an on-premise &quot;IoT system&quot;.</p>
+<p><strong>thin-edge</strong> has been designed with the assumption that the <strong>device</strong> is represented in the <strong>IoT cloud</strong> as <strong>device twin</strong>.
+The <strong>device twin</strong> in the IoT cloud is a logical representation of the <strong>device</strong>. As such, it carries or references <strong>Telemetry Data</strong>, and stores the <em>state</em> of the <strong>device</strong>.
+Here <em>state</em> refers to e.g. <strong>Device Management</strong> details as <em>installed software versions</em> or <em>configurations</em>.</p>
+<h2 id="telemetry-data"><a class="header" href="#telemetry-data">Telemetry Data</a></h2>
+<p><strong>Telemetry data</strong> are <em>measurements</em>, <em>events</em> and <em>alarms</em>.</p>
+<ul>
+<li><strong>Measurement</strong>:
+<ul>
+<li>has a <em>type name</em></li>
+<li>carries a <em>time-series</em> of <strong>samples</strong>
+<ul>
+<li>a <strong>sample</strong> is a single value or set of values, all taken at a single point in time
+<ul>
+<li>could be a mix of values coming from physical <strong>Sensors</strong><sup class="footnote-reference"><a href="#1">1</a></sup> and the device's <strong>Domain Application</strong><sup class="footnote-reference"><a href="#1">1</a></sup>;
+e.g. <em>voltage</em> and <em>current</em> of an electricity meter, and current state of the manufacturing control process</li>
+<li>all <strong>sample's</strong> values could be a mix of numbers, strings or booleans</li>
+<li>a <strong>sample</strong> has <em>one</em> timestamp</li>
+</ul>
+</li>
+<li>a <em>sequence</em> of <strong>samples</strong> is a set of <strong>samples</strong> over a period of time;
+e.g. <em>voltage</em> and <em>current</em> captured in a fixed interval</li>
+</ul>
+</li>
+<li>a measurement optionally holds individual <em>units</em> for the values of the <strong>samples</strong></li>
+<li>a measurement relates to a source, i.e. a device or a process</li>
+</ul>
+</li>
+<li><strong>Setpoint</strong>, is a single value or set of values
+<ul>
+<li>the values are process variables, used by the <strong>Domain Application</strong><sup class="footnote-reference"><a href="#1">1</a></sup>;<br/>
+e.g. the <em>lower limit</em> and the <em>upper limit</em> of a climate control process</li>
+<li>the values are visible in the cloud, similar to measurements</li>
+<li>the values can be manipulated from cloud-site or the device-site
+<ul>
+<li>each manipulation is processed asynchronously;
+i.e. once new values were set, those are used by the <strong>Domain Application</strong><sup class="footnote-reference"><a href="#1">1</a></sup> from next control-cycle on</li>
+</ul>
+</li>
+<li>the values could be a mix of numbers, strings or booleans</li>
+</ul>
+</li>
+<li><strong>Event</strong>, is a notification that something happened on the device's environment or software system
+<ul>
+<li>has one timestamp</li>
+<li>common triggers for an <strong>event</strong> can be
+<ul>
+<li>a <em>sensor's<sup class="footnote-reference"><a href="#1">1</a></sup> value</em> that detects something like a door has been closed</li>
+<li>a signal from the device's <em>domain application</em><sup class="footnote-reference"><a href="#1">1</a></sup></li>
+<li>a device's <em>system notification</em> that e.g. a user has started an ssh session</li>
+</ul>
+</li>
+<li>the interpretation of a <em>sensor's value</em>, a <em>domain application's</em> signal or a <em>system's notification</em>
+that shall represent an <strong>event</strong> trigger falls to some custom specific software piece
+<ul>
+<li>whenever that software piece interprets an <strong>event</strong> trigger, it uses the <strong>thin-edge</strong> API to send an event notification to <strong>thin-edge</strong></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Alarm</strong>, similar to <strong>events</strong>; but in addition: 
+<ul>
+<li>the <em>End User</em> (an operator of the system) has to take action to resolve the <strong>alarm</strong></li>
+<li>also the <em>custom specific sw component</em> can send a notification to <strong>thin-edge</strong> to clear an <strong>alarm</strong></li>
+</ul>
+</li>
+</ul>
+<h2 id="device-management"><a class="header" href="#device-management">Device Management</a></h2>
+<p><strong>Device Management</strong> allows managing and monitoring devices in the field from the cloud.
+That includes:</p>
+<ul>
+<li><strong>Software Management</strong>:
+<ul>
+<li>allows managing the installed software packages on the device, as
+<ul>
+<li>retrieve list and versions of installed packages</li>
+<li>install new or update existing software packages</li>
+<li>remove installed software packages</li>
+</ul>
+</li>
+<li>software packages are installable units on the device, as e.g.
+<ul>
+<li>packages for a Linux Packages Managers (e.g. for Debian, ...)</li>
+<li>container images (e.g. for Docker)</li>
+<li>simple ZIP files</li>
+<li>custom specific files/packages</li>
+</ul>
+</li>
+<li>software packages can carry:
+<ul>
+<li>the <strong>domain application</strong><sup class="footnote-reference"><a href="#1">1</a></sup></li>
+<li>parts from <strong>OS / Libs / Runtime</strong><sup class="footnote-reference"><a href="#1">1</a></sup>, or the whole thing as one</li>
+<li><strong>thin-edge</strong> itself</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Firmware Management</strong>:
+<ul>
+<li>allows to update the <em>OS base-image</em> of the device as one (e.g. the Linux distribution)</li>
+<li>a firmware update might dictate a new software list and new configurations
+<ul>
+<li>i.e. <em>software modules</em> previously installed with <strong>Software Management</strong> might be gone after a firmware update;
+e.g. when those <em>software modules</em> were installed into the area of the <em>OS base-image</em></li>
+<li>the actual behaviour of <strong>Software Management</strong> together with <strong>Firmware Management</strong> depends on details of the
+specific deployment and package management of the custom device</li>
+<li>same also applies for <strong>Configuration Management</strong> together with <strong>Firmware Management</strong></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Configuration Management</strong>:
+<ul>
+<li>allows viewing and changing configurations on the device, as
+<ul>
+<li>list available configurations</li>
+<li>transfer individual configurations from device to cloud, and vice versa</li>
+</ul>
+</li>
+<li>a configuration is a text file or a binary file, as e.g.
+<ul>
+<li>configuration file(s) of the <strong>domain application</strong><sup class="footnote-reference"><a href="#1">1</a></sup></li>
+<li>configuration file(s) of <strong>OS / Libs / Runtime</strong><sup class="footnote-reference"><a href="#1">1</a></sup></li>
+<li>configuration file(s) of <strong>thin-edge</strong> it-self</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Log Management</strong>:
+<ul>
+<li>allows viewing logs from the device
+<ul>
+<li>lists available logs</li>
+<li>transfer individual logs from device to cloud</li>
+</ul>
+</li>
+<li>a log is a text file, as e.g.
+<ul>
+<li>log file(s) of the <strong>domain application</strong><sup class="footnote-reference"><a href="#1">1</a></sup></li>
+<li>log file(s) of <strong>OS / Libs / Runtime</strong><sup class="footnote-reference"><a href="#1">1</a></sup></li>
+<li>log file(s) of <strong>thin-edge</strong> it-self</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Device Monitoring</strong>:
+<ul>
+<li>collects metrics (e.g. cpu, memory and disk metrics) from the device and forward these to the IoT cloud</li>
+<li>allows monitoring the health of devices</li>
+<li>helps troubleshooting when problems with the device are reported</li>
+</ul>
+</li>
+</ul>
+<div class="footnote-definition" id="1"><sup class="footnote-definition-label">1</sup>
+<p>more details see appendix <a href="#device-domain">Device Domain</a></p>
+</div>
+<h2 id="child-devices"><a class="header" href="#child-devices">Child-Devices</a></h2>
+<p><strong>thin-edge</strong> facilitates IoT functionality to the device it is running on, as well as to devices that are connected to that device.</p>
+<ul>
+<li>the device <strong>thin-edge</strong> is running on is referred as the <strong>main-device</strong>
+<ul>
+<li><strong>thin-edge</strong> on the <strong>main-device</strong> establishes and manages all communication to the cloud</li>
+</ul>
+</li>
+<li>all devices connected to the <strong>main-device</strong> are referred as <strong>external child-devices</strong> </li>
+<li>each <strong>external child-device</strong> can be represented in the cloud with its individual <strong>device twin</strong>
+<ul>
+<li>a unique <strong>child-id</strong> makes the association between each <strong>external child-device</strong> and it's <strong>device twin</strong></li>
+</ul>
+</li>
+<li>all <strong>telemetry data</strong> and <strong>device management</strong> functionality can appear in the context of the 
+<strong>external child-device's</strong> individual <strong>device twin</strong>, or the <strong>main-device's</strong> <strong>device twin</strong></li>
+<li>also <em>containers</em> or <em>processes</em> running on the <strong>main-devices</strong> can be handled like <strong>external child-device</strong>;
+those are referered then as <strong>logical child-devices</strong></li>
+</ul>
+<p>The figure below illustrates the child-device concept.</p>
+<p><img src="images/device-concept.svg" alt="Device Concept" /></p>
+<h2 id="plugins"><a class="header" href="#plugins">Plugins</a></h2>
+<p><strong>thin-edge</strong> realizes <strong>Device Management</strong> based on <strong>plugins</strong>.</p>
+<ul>
+<li>a <strong>plugin</strong> can be an (external) executable (e.g. as the <code>c8y-configuration-plugin</code> for <em>configuration management</em>)
+or part of a thin-edge built-in software component (e.g. <em>software management</em> in <code>tedge-agent</code>)</li>
+<li>to realize <strong>Device Management</strong> functionality, a <strong>plugin</strong> accesses <em>resources</em> and <em>services</em> of the device, as e.g.
+<ul>
+<li><em>software management</em> uses the device's <em>package manager</em></li>
+<li><em>configuration management</em> reads/writes device's <em>configuration files</em></li>
+</ul>
+</li>
+<li>a <strong>plugin</strong> can facilitate <strong>Device Management</strong> functionality for the <strong>main-device</strong> and <strong>external child-devices</strong>, or even containers on the <strong>main-device</strong> (e.g. docker containers)
+<ul>
+<li>a <strong>plugin</strong> runs usually on the <strong>main-device</strong></li>
+<li><em>resources</em> and <em>services</em> (e.g. file system, package manager, ...) of <strong>external child-devices</strong> or other containers can not accessed directly by the <strong>plugin</strong></li>
+<li>the access to those <em>resources</em> and <em>services</em> is established by another software component, referred as <strong>plugin adapter</strong>
+<ul>
+<li>a <strong>plugin adapter</strong> can run on the <strong>external child-device</strong> or inside the container, and provides access via network to the <strong>plugin</strong></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>The figure below illustrates the concept of <strong>plugins</strong> and <strong>plugin adapters</strong>.</p>
+<p><img src="images/plugin-concept.svg" alt="Plugin Concept" /></p>
+<h3 id="plugin-adapter"><a class="header" href="#plugin-adapter">Plugin Adapter</a></h3>
+<p>A <strong>plugin adapter</strong> is the counterpart of a <strong>plugin</strong>, that takes the responsibility to access the <strong>external child-device's</strong> or container's <em>resources</em> and <em>services</em>.</p>
+<ul>
+<li>a <strong>plugin adapter</strong> can serve one or more <strong>plugins</strong></li>
+<li>for access to an <strong>external child-device</strong>, the <strong>plugin adapter</strong> can be installed and executed on that <strong>external child-device</strong>, or on the <strong>main-device</strong>
+<ul>
+<li>if it runs on the <strong>external child-device</strong> it can access the <em>resources</em> and <em>services</em> directly</li>
+<li>if it runs on the <strong>main-device</strong> it can use any (low-level) interfaces the <strong>external child-device</strong> provides to access those <em>resources</em>
+<ul>
+<li>One main reason to install the <strong>plugin adapter</strong> on the <strong>main-device</strong> is, when the <strong>external child-device</strong> cannot or shall not be altered.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>for access to another container, the <strong>plugin adapter</strong> can be installed and executed inside that container, where it can access the <em>resources</em> and <em>services</em> directly</li>
+</ul>
+<h3 id="plugin-identifier-and-contract"><a class="header" href="#plugin-identifier-and-contract">Plugin-Identifier and Contract</a></h3>
+<p>A <strong>plugin</strong> defines and implements a specific <strong>contract</strong> for all interactions with a <strong>plugin adapter</strong></p>
+<ul>
+<li>part of the <strong>contract</strong> could be e.g.:
+<ul>
+<li>the <strong>plugin adapter</strong> must listen and react to certain requests of the <strong>plugin</strong>, e.g. on MQTT</li>
+<li>the <strong>plugin adapter</strong> must provide/consume files to/from the <strong>plugin</strong> on purpose, e.g. via HTTP</li>
+<li>...and more...</li>
+</ul>
+</li>
+<li>a <strong>plugin</strong> can be flagged with a unique <em>plugin-identifier</em> (e.g. <code>tedge_config</code>, <code>tedge_software</code> or any other unique string for a custom specific plugin)
+<ul>
+<li>based on that <em>plugin-identifier</em> a <strong>plugin adapter</strong> can report and find <strong>plugins</strong> the child-device intends to contact (e.g. during provisioning phase)</li>
+<li>a <strong>plugin</strong> and a <strong>plugin adapter</strong> using the same <em>plugin-identifier</em> can assume to implement the same <strong>contract</strong>, and to be compatible with each other</li>
+</ul>
+</li>
+</ul>
+<h2 id="inventory"><a class="header" href="#inventory">Inventory</a></h2>
+<p><strong>thin-edge</strong> holds and manages an <strong>inventory</strong> on the <strong>main-device</strong>, that stores and provides information about the <strong>main-device</strong> and known <strong>child-devices</strong></p>
+<ul>
+<li>information stored per <strong>device</strong> are
+<ul>
+<li>supported kinds of <strong>Device Management</strong> capabilities/operations</li>
+<li>supported kinds of <strong>Telemetry Data</strong></li>
+<li>optionally any custom-specific meta-information per <strong>device</strong></li>
+</ul>
+</li>
+<li>the <strong>inventory</strong> is the communication backbone for <strong>plugins</strong>, <strong>external child-devices</strong>, the <strong>domain application</strong><sup class="footnote-reference"><a href="#1">1</a></sup> and <strong>thin-edge</strong> it-self
+<ul>
+<li>one can add information to announce capabilities a <strong>device</strong> supports</li>
+<li>another one can retrieve those information to identify capabililties a <strong>device</strong> supports</li>
+</ul>
+</li>
+</ul>
+<h1 id="appendix"><a class="header" href="#appendix">Appendix</a></h1>
+<h2 id="device-overview"><a class="header" href="#device-overview">Device Overview</a></h2>
+<p><strong>thin-edge</strong> is designed to facilitate IoT functionality to resource constrained <strong>devices</strong>. The focus is on industrial OT <strong>devices</strong> or any other kind of embedded <strong>devices</strong>. It is not reduced to <strong>devices</strong> that are capable to install and run thin-edge, but includes also <strong>devices</strong> that need another <em>(gateway) device</em> aside, that executes <strong>thin-edge</strong>.</p>
+<p>Usual <strong>devices</strong> are <strong>PLCs</strong> (<strong>P</strong>rogrammable <strong>L</strong>ogic <strong>C</strong>ontrollers), <strong>IPCs</strong> (<strong>I</strong>ndustrial <strong>PC</strong>s) or any kind of <strong>SoC-based</strong> or <strong>Microcontroller-based</strong> Embedded System. The figure below shows a simplified conceptual model of such a device.</p>
+<p><img src="images/simple-device-model.svg" alt="Simple Device Model" /></p>
+<!--
+* TODO: add somehow "Such a **device** is most often a specialized hardware that has been ruggedized to operate in harsh electrical, thermic and mechanical industrial environments."
+-->
+<ul>
+<li>The <strong>Domain Application</strong> is a program, that contains the domain specific process logic.
+<ul>
+<li>On a <strong>PLC</strong> it's a <em>control application</em>, created by an <em>automation engineer</em> in a domain specific graphical programming language (like &quot;Ladder Diagram&quot; or &quot;Function block diagram&quot;)</li>
+<li>Or on a <strong>SoC-based</strong> or <strong>Microcontroller-based</strong> system it's an <em>application program</em>, created by an <em>embedded software engineer</em> usually in C/C++</li>
+</ul>
+</li>
+<li>The <strong>OS / Libs / Runtime</strong> provide basic functionality to the <strong>Domain Application</strong><!-- TODO: add somehow "used to abstract the hardware. But: on a microcontroller usually less abstraction, more hw dep on the domain app, and even no OS" -->
+</li>
+<li><strong>Sensors</strong> and <strong>Actuators</strong> enable the <strong>device</strong> to observe and control physical behaviour on the shopfloor or device's environment.
+<ul>
+<li>can be integrated in the <strong>device's</strong> hardware,
+or connected to the <strong>device</strong> via some <strong>Fieldbus</strong> (e.g. Modbus, CANopen, PROFINET, EtherCAT, ...) or
+some <strong>Local Interface</strong> as USB, UART, SPI, I2C, ...</li>
+<li>can be simple peripherals as a light barrier, or a sensor for temperature or pressure;
+or complex equipment as robotic arms or even other <strong>devices</strong></li>
+</ul>
+</li>
+<li><strong>Inputs / Outputs</strong> are the communication channels between the <strong>Domain Application</strong> and <strong>Sensors</strong> and <strong>Actuators</strong>
+<ul>
+<li>drivers (as part of the <strong>OS / Libs / Runtime</strong> and/or the <strong>Domain Application</strong>) do expose all data from
+<strong>Sensors</strong> and <strong>Actuators</strong> to the <strong>device</strong> as inputs or outputs</li>
+<li>also the <strong>Domain Application</strong> can expose data as input or output (e.g. own <em>signals</em> or <em>states</em>)</li>
+</ul>
+</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../architecture/architecture.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                            <a rel="next" href="../architecture/data-model.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../architecture/architecture.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                    <a rel="next" href="../architecture/data-model.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        <script type="text/javascript" src="../mermaid.min.js"></script>
+        <script type="text/javascript" src="../mermaid-init.js"></script>
+    </body>
+</html>

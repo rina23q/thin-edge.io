@@ -1,0 +1,328 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Data Model - thin-edge.io docs</title>
+        <!-- Custom HTML head -->
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../././mdbook-admonish.css">
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item "><a href="../SUMMARY.html"><strong aria-hidden="true">1.</strong> Summary</a></li><li class="chapter-item "><a href="../001_overview.html"><strong aria-hidden="true">2.</strong> Introduction</a></li><li class="chapter-item "><a href="../user_doc.html"><strong aria-hidden="true">3.</strong> User Documentation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../tutorials/tutorials.html"><strong aria-hidden="true">3.1.</strong> Tutorials</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../tutorials/getting-started.html"><strong aria-hidden="true">3.1.1.</strong> Getting started with thin-edge.io</a></li><li class="chapter-item "><a href="../tutorials/connect-c8y.html"><strong aria-hidden="true">3.1.2.</strong> Connect my device to Cumulocity IoT</a></li><li class="chapter-item "><a href="../tutorials/connect-azure.html"><strong aria-hidden="true">3.1.3.</strong> Connect my device to Azure IoT</a></li><li class="chapter-item "><a href="../tutorials/connect-aws.html"><strong aria-hidden="true">3.1.4.</strong> Connect my device to AWS IoT</a></li><li class="chapter-item "><a href="../tutorials/send-thin-edge-data.html"><strong aria-hidden="true">3.1.5.</strong> Send measurements</a></li><li class="chapter-item "><a href="../tutorials/raise-alarm.html"><strong aria-hidden="true">3.1.6.</strong> Raise alarms</a></li><li class="chapter-item "><a href="../tutorials/send-events.html"><strong aria-hidden="true">3.1.7.</strong> Send events</a></li><li class="chapter-item "><a href="../tutorials/device-monitoring.html"><strong aria-hidden="true">3.1.8.</strong> Monitor my device</a></li><li class="chapter-item "><a href="../tutorials/software-management.html"><strong aria-hidden="true">3.1.9.</strong> Manage my device software</a></li><li class="chapter-item "><a href="../tutorials/write-my-software-management-plugin.html"><strong aria-hidden="true">3.1.10.</strong> Write my software management plugin</a></li><li class="chapter-item "><a href="../tutorials/supported_operations.html"><strong aria-hidden="true">3.1.11.</strong> Supported Operations Management for Cumulocity IoT</a></li><li class="chapter-item "><a href="../tutorials/yocto-linux.html"><strong aria-hidden="true">3.1.12.</strong> Build Thin Edge for a Yocto Linux distribution</a></li><li class="chapter-item "><a href="../tutorials/child-device-config-management.html"><strong aria-hidden="true">3.1.13.</strong> Configuration management on child-devices</a></li></ol></li></ol></li><li class="chapter-item "><a href="../howto-guides/howto-guides.html"><strong aria-hidden="true">4.</strong> How-to Guides</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../howto-guides/002_installation.html"><strong aria-hidden="true">4.1.</strong> Installation</a></li><li class="chapter-item "><a href="../howto-guides/003_registration.html"><strong aria-hidden="true">4.2.</strong> How to create a test certificate</a></li><li class="chapter-item "><a href="../howto-guides/004_connect.html"><strong aria-hidden="true">4.3.</strong> How to connect a cloud end-point</a></li><li class="chapter-item "><a href="../howto-guides/005_pub_sub.html"><strong aria-hidden="true">4.4.</strong> How to send MQTT messages</a></li><li class="chapter-item "><a href="../howto-guides/007_test_connection.html"><strong aria-hidden="true">4.5.</strong> How to test the cloud connection?</a></li><li class="chapter-item "><a href="../howto-guides/008_config_local_mqtt_bind_address_and_port.html"><strong aria-hidden="true">4.6.</strong> How to configure the local mqtt bind address and port</a></li><li class="chapter-item "><a href="../howto-guides/009_trouble_shooting_monitoring.html"><strong aria-hidden="true">4.7.</strong> How to trouble shoot device monitoring</a></li><li class="chapter-item "><a href="../howto-guides/010_add_self_signed_trusted.html"><strong aria-hidden="true">4.8.</strong> How to add self-signed certificate root to trusted certificates list?</a></li><li class="chapter-item "><a href="../howto-guides/011_retrieve_jwt_token_from_cumulocity.html"><strong aria-hidden="true">4.9.</strong> How to retrieve JWT token from Cumulocity?</a></li><li class="chapter-item "><a href="../howto-guides/012_install_and_enable_software_management.html"><strong aria-hidden="true">4.10.</strong> How to install and enable software management?</a></li><li class="chapter-item "><a href="../howto-guides/013_connect_external_device.html"><strong aria-hidden="true">4.11.</strong> How to connect an external device?</a></li><li class="chapter-item "><a href="../howto-guides/014_thin_edge_logs.html"><strong aria-hidden="true">4.12.</strong> How to access the logs on the device?</a></li><li class="chapter-item "><a href="../howto-guides/015_installation_without_deb_support.html"><strong aria-hidden="true">4.13.</strong> How to install thin-edge.io on any Linux OS (no deb support)?</a></li><li class="chapter-item "><a href="../howto-guides/016_restart_device_operation.html"><strong aria-hidden="true">4.14.</strong> How to restart your thin-edge.io device</a></li><li class="chapter-item "><a href="../howto-guides/017_apama_software_management_plugin.html"><strong aria-hidden="true">4.15.</strong> How to use apama software management plugin</a></li><li class="chapter-item "><a href="../howto-guides/018_change_temp_path.html"><strong aria-hidden="true">4.16.</strong> How to change temp path</a></li><li class="chapter-item "><a href="../howto-guides/019_how_to_use_preferred_init_system.html"><strong aria-hidden="true">4.17.</strong> How to use thin-edge.io with your preferred init system</a></li><li class="chapter-item "><a href="../howto-guides/020_monitor_tedge_health.html"><strong aria-hidden="true">4.18.</strong> How to monitor health of tedge daemons</a></li><li class="chapter-item "><a href="../howto-guides/021_enable_tedge_watchdog_using_systemd.html"><strong aria-hidden="true">4.19.</strong> How to enable systemd watchdog monitoring for tedge services?</a></li><li class="chapter-item "><a href="../howto-guides/022_c8y_fragments.html"><strong aria-hidden="true">4.20.</strong> How to add custom fragments to Cumulocity</a></li><li class="chapter-item "><a href="../howto-guides/023_c8y_log_plugin.html"><strong aria-hidden="true">4.21.</strong> How to retrieve logs with the log plugin</a></li><li class="chapter-item "><a href="../howto-guides/024_smartrest_templates.html"><strong aria-hidden="true">4.22.</strong> How to use Cumulocity Custom SmartREST 2.0 Templates with thin-edge.io</a></li><li class="chapter-item "><a href="../howto-guides/025_config_management_plugin.html"><strong aria-hidden="true">4.23.</strong> How to manage configuration files with Cumulocity</a></li><li class="chapter-item "><a href="../howto-guides/026_how_to_install_thin_edge_manually.html"><strong aria-hidden="true">4.24.</strong> How to install thin-edge manually with OpenRC</a></li><li class="chapter-item "><a href="../howto-guides/child_device_config_management_agent.html"><strong aria-hidden="true">4.25.</strong> How to enable configuration management on child devices</a></li><li class="chapter-item "><a href="../howto-guides/027_remote_access_with_cumulocity.html"><strong aria-hidden="true">4.26.</strong> How to connect to your thin-edge.io device with Cumulocity remote access</a></li><li class="chapter-item "><a href="../howto-guides/028_c8y_service_monitoring.html"><strong aria-hidden="true">4.27.</strong> How to monitor a service from Cumulocity</a></li></ol></li><li class="chapter-item expanded "><a href="../dev_doc.html"><strong aria-hidden="true">5.</strong> Developer Documentation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../architecture/architecture.html"><strong aria-hidden="true">5.1.</strong> Architecture</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../architecture/domain-model.html"><strong aria-hidden="true">5.1.1.</strong> Domain Model</a></li><li class="chapter-item expanded "><a href="../architecture/data-model.html" class="active"><strong aria-hidden="true">5.1.2.</strong> Data Model</a></li><li class="chapter-item "><a href="../architecture/thin-edge-json.html"><strong aria-hidden="true">5.1.3.</strong> Thin Edge Json</a></li><li class="chapter-item "><a href="../architecture/mapper.html"><strong aria-hidden="true">5.1.4.</strong> The Mapper</a></li><li class="chapter-item "><a href="../architecture/software-management.html"><strong aria-hidden="true">5.1.5.</strong> Software Management</a></li><li class="chapter-item "><a href="../architecture/faq.html"><strong aria-hidden="true">5.1.6.</strong> Architecture FAQ</a></li><li class="chapter-item "><a href="../supported-platforms.html"><strong aria-hidden="true">5.1.7.</strong> Platform support</a></li><li class="chapter-item "><a href="../references/init-system-config.html"><strong aria-hidden="true">5.1.8.</strong> Init System configuration</a></li></ol></li><li class="chapter-item "><a href="../tutorials/write-my-software-management-plugin.html"><strong aria-hidden="true">5.2.</strong> Write my own software management plugin</a></li><li class="chapter-item "><a href="../references/c8y-configuration-management.html"><strong aria-hidden="true">5.3.</strong> Device Configuration Management using Cumulocity</a></li><li class="chapter-item "><a href="../api.html"><strong aria-hidden="true">5.4.</strong> APIs</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../references/bridged-topics.html"><strong aria-hidden="true">5.4.1.</strong> The Bridged Topics</a></li><li class="chapter-item "><a href="../references/plugin-api.html"><strong aria-hidden="true">5.4.2.</strong> The Software Management Plugin API</a></li></ol></li><li class="chapter-item "><a href="../BUILDING.html"><strong aria-hidden="true">5.5.</strong> Building</a></li></ol></li><li class="chapter-item "><a href="../references/references.html"><strong aria-hidden="true">6.</strong> Command Line Reference</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../references/tedge.html"><strong aria-hidden="true">6.1.</strong> The tedge command</a></li><li class="chapter-item "><a href="../references/tedge-config.html"><strong aria-hidden="true">6.2.</strong> The tedge config command</a></li><li class="chapter-item "><a href="../references/tedge-cert.html"><strong aria-hidden="true">6.3.</strong> The tedge cert command</a></li><li class="chapter-item "><a href="../references/tedge-connect.html"><strong aria-hidden="true">6.4.</strong> The tedge connect command</a></li><li class="chapter-item "><a href="../references/tedge-disconnect.html"><strong aria-hidden="true">6.5.</strong> The tedge disconnect command</a></li><li class="chapter-item "><a href="../references/tedge-mqtt.html"><strong aria-hidden="true">6.6.</strong> The tedge mqtt command</a></li><li class="chapter-item "><a href="../references/thin-edge-config-files.html"><strong aria-hidden="true">6.7.</strong> Thin-edge.io configuration files</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">thin-edge.io docs</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="thin-edge-data-model"><a class="header" href="#thin-edge-data-model">thin-edge Data Model</a></h1>
+<p>The <strong>data model</strong> identifies all data send or received from/to <strong>thin-edge</strong> and its components, to interact with those.
+For all data it defines format and explains behaviour.</p>
+<h2 id="use-of-mqtt"><a class="header" href="#use-of-mqtt">Use of MQTT</a></h2>
+<p><strong>thin-edge</strong> expects the MQTT broker <a href="https://mosquitto.org/">mosquitto</a> to be available on the device.
+<strong>thin-edge</strong> uses <strong>mosquitto</strong> to consume and provide telemetry data. All telemetry data are reflected with specific MQTT topics and payload in JSON format.</p>
+<p><strong>thin-edge</strong> assumes <strong>mosquitto</strong> is configured in a secure manner, to avoid any inappropriate access to <strong>thin-edge</strong> topics and payload.
+Any malicious access to the broker can hazard <strong>thin-edge</strong> and all connected devices. Mosquitto provides a wide range of authentication and access control options. For more details see <em>Authentication</em> and <em>ACL</em> (Access Control List) in <a href="https://mosquitto.org/man/mosquitto-conf-5.html">mosquitto documentation</a>.</p>
+<h3 id="telemetry-data-on-mqtt"><a class="header" href="#telemetry-data-on-mqtt">Telemetry Data on MQTT</a></h3>
+<p>All telemetry data (<strong>Measurements</strong>, <strong>Events</strong>, <strong>Alarms</strong>) are reflected with MQTT topics, where each has its specific subtopic (e.g. <code>tedge/measurements</code>, <code>tedge/events</code>, <code>tedge/alarms</code> etc.).</p>
+<ul>
+<li>each provider of a <strong>measurement</strong>, <strong>event</strong> or <strong>alarm</strong> sends the occurring data to <strong>thin-edge's</strong> MQTT broker
+<ul>
+<li>a provider can be the domain application<sup class="footnote-reference"><a href="#1">1</a></sup>, other SW components / 3rd parties</li>
+</ul>
+</li>
+<li>all processes (e.g. the domain application<sup class="footnote-reference"><a href="#1">1</a></sup>, other SW components / 3rd parties) on the main-device and all child-devices can consume those telemetry data from the MQTT broker</li>
+<li>the cloud mapper on the <strong>main-device</strong> picks-up <em>all</em> telemetry data from the MQTT broker and transfers those to the cloud</li>
+</ul>
+<p>The communication diagram below illustrates that behaviour.</p>
+<p><img src="images/MQTT-communication.svg" alt="MQTT communication flow" /></p>
+<h3 id="telemetry-data-for-child-devices"><a class="header" href="#telemetry-data-for-child-devices">Telemetry Data for Child-Devices</a></h3>
+<p>All telemetry data provided to the MQTT bus are associated by <strong>thin-edge</strong> and all consumers with the thin-edge <strong>main-device</strong> or some <strong>child-device</strong> (see more details about <strong>child-devices</strong> in the <a href="./domain-model.html#child-devices">domain model</a>).</p>
+<p>Therefore the <code>child-id</code> of the <strong>child-device</strong> is can be appended to the MQTT topic, if the message is meant for a <strong>child-device</strong>;
+or no <code>child-id</code> is appended, if the message is meant for the <strong>main-device</strong>.</p>
+<p>MQTT topics for the <strong>main-device</strong>:</p>
+<pre><code>tedge/measurements
+tedge/events/&lt;event-type&gt;
+tedge/alarms/&lt;severity&gt;/&lt;alarm-type&gt;
+</code></pre>
+<p>MQTT topics for a <strong>child-device</strong>, including the <strong>child-device's</strong> specific <code>child-id</code>:</p>
+<pre><code>tedge/measurements/&lt;child-id&gt;
+tedge/events/&lt;event-type&gt;/&lt;child-id&gt;
+tedge/alarms/&lt;severity&gt;/&lt;alarm-type&gt;/&lt;child-id&gt;
+</code></pre>
+<h2 id="telemetry-data"><a class="header" href="#telemetry-data">Telemetry Data</a></h2>
+<p><strong>Telemetry Data</strong> consists of <strong>measurements</strong>, <strong>events</strong> and <strong>alarms</strong>. Each is defined by a set of data-elements, each with specific behaviour.</p>
+<h3 id="measurements"><a class="header" href="#measurements">Measurements</a></h3>
+<p><strong>Measurements</strong> carry values from physical <strong>Sensors</strong><sup class="footnote-reference"><a href="#1">1</a></sup> or a device's <strong>Domain Application</strong><sup class="footnote-reference"><a href="#1">1</a></sup>;
+e.g. voltage and current of an electricity meter, or current state of the manufacturing control process</p>
+<h4 id="mqtt-topics-for-measurements"><a class="header" href="#mqtt-topics-for-measurements">MQTT topics for measurements</a></h4>
+<pre><code>tedge/measurements
+
+tedge/measurements/&lt;child-id&gt;
+</code></pre>
+<h4 id="mqtt-payload-for-measurements"><a class="header" href="#mqtt-payload-for-measurements">MQTT payload for measurements</a></h4>
+<p>A measurement can carry a <strong>single value</strong>, or <strong>multiple values</strong> all taken at a single point in time.</p>
+<p>One MQTT message can contain a mixture of more than one single-value and multi-value measurements.</p>
+<h5 id="example-for-a-single-value-measurement-payload"><a class="header" href="#example-for-a-single-value-measurement-payload">Example for a single-value measurement payload</a></h5>
+<pre><code class="language-javascript">{
+  &quot;temperature&quot;:               // 'name' of that measurement
+                 25.3,         // 'value' of that measurement
+  &quot;time&quot;: &quot;2020-10-15T05:30:47+00:00&quot;,  // optional 'timestamp' of that measurement
+}
+</code></pre>
+<h5 id="example-for-a-multi-value-measurement-payload"><a class="header" href="#example-for-a-multi-value-measurement-payload">Example for a multi-value measurement payload</a></h5>
+<pre><code class="language-javascript">{
+  &quot;current&quot;: {                // 'name' of that measurement
+    &quot;L1&quot;: 9.5,               // the 1st 'value' of that measurement, named as &quot;L1&quot;
+    &quot;L2&quot;: 1.3                // the 2nd 'value' of that measurement, named as &quot;L2&quot;
+    // ...even more values can occur
+  },
+  &quot;time&quot;: &quot;2020-10-15T05:30:47+00:00&quot;,  // optional 'timestamp' of that measurement
+}
+</code></pre>
+<table><thead><tr><th>Reference</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>name</code></td><td>a string that identifies the measurement uniquely in context of the device</td></tr>
+<tr><td><code>value</code></td><td>the value that was sampled; can be named (especially in context of a multi-value measurement) or unnamed; must be an integer or floating point number</td></tr>
+<tr><td><code>timestamp</code></td><td>optional time that indicates when values were sampled; when not provided, thin-edge.io uses the current system time as the time of the sample; when provided must be conform to ISO 8601</td></tr>
+</tbody></table>
+<h4 id="behaviour-of-measurements"><a class="header" href="#behaviour-of-measurements">Behaviour of measurements</a></h4>
+<ul>
+<li>thin-edge does not store any historical sampled values for measurements</li>
+<li>there is no initialization value for measurements; i.e. a measurement is not visible on thin-edge before the 1st sample was sent to thin-edge</li>
+<li>a measurement should never be published as MQTT retain message;
+That is as a single retained measurement might be consumed and processed more than once by a consuming software
+component (e.g. when that software component restarts and subscribes again).</li>
+</ul>
+<h3 id="events"><a class="header" href="#events">Events</a></h3>
+<p><strong>Events</strong> are notifications that something happened on a device's environment or software system;
+e.g. a sensor<sup class="footnote-reference"><a href="#1">1</a></sup> detected something like a door has been closed, or a system notification that e.g. a user has started an ssh session</p>
+<h4 id="mqtt-topics-for-events"><a class="header" href="#mqtt-topics-for-events">MQTT topics for events</a></h4>
+<pre><code>tedge/events/&lt;event-type&gt;
+
+tedge/events/&lt;event-type&gt;/&lt;child-id&gt;
+</code></pre>
+<h4 id="mqtt-payload-for-events"><a class="header" href="#mqtt-payload-for-events">MQTT payload for events</a></h4>
+<pre><code class="language-javascript">{
+  // example of an event
+  &quot;text&quot;: &quot;A user just logged in&quot;,     // 'text' message of that event
+  &quot;time&quot;: &quot;2021-01-01T05:30:45+00:00&quot;  // optional 'timestamp' of that event
+  &quot;someOtherCustomFragment&quot;: {         // optional 'custom fragments'
+    &quot;nested&quot;: {
+      &quot;value&quot;: &quot;extra info&quot;
+    }
+  }
+}
+</code></pre>
+<table><thead><tr><th>Reference</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>event-type</code></td><td>a string part of the MQTT topic, that identifies the event uniquely in context of the device</td></tr>
+<tr><td><code>text</code></td><td>carries a human readable event-text; must be UTF-8 encoded</td></tr>
+<tr><td><code>timestamp</code></td><td>optional time that indicates when the event has occurred; when not provided, thin-edge.io uses the current system time as the time of the event; when provided must be conform to ISO 8601</td></tr>
+<tr><td><code>custom fragments</code></td><td>additional fields are handled as custom specific information; if the connected cloud supports custom fragments its mapper transfers those accordingly to the cloud</td></tr>
+</tbody></table>
+<h4 id="behaviour-of-events"><a class="header" href="#behaviour-of-events">Behaviour of events</a></h4>
+<ul>
+<li>thin-edge does not store any historical occurrences for events</li>
+<li>an event should never be published as MQTT retain message;
+That is as a single retained event might be consumed and processed more than once by a consuming software
+component (e.g. when that software component restarts and subscribes again).</li>
+</ul>
+<h3 id="alarms"><a class="header" href="#alarms">Alarms</a></h3>
+<p><strong>Alarms</strong> are notifications about some critical behaviour of the device's environment or software system;
+e.g. when a temperature sensor detects a temperature went out of its valid range</p>
+<h4 id="mqtt-topics-for-alarms"><a class="header" href="#mqtt-topics-for-alarms">MQTT topics for alarms</a></h4>
+<pre><code>tedge/alarms/&lt;severity&gt;/&lt;alarm-type&gt;
+
+tedge/alarms/&lt;severity&gt;/&lt;alarm-type&gt;/&lt;child-id&gt;
+</code></pre>
+<h4 id="mqtt-payload-for-alarms"><a class="header" href="#mqtt-payload-for-alarms">MQTT payload for alarms</a></h4>
+<pre><code class="language-javascript">{
+  // example for an alarm
+  &quot;text&quot;: &quot;Temperature is very high&quot;,  // 'text' message of that alarm
+  &quot;time&quot;: &quot;2021-01-01T05:30:45+00:00&quot;, // optional 'timestamp' of that alarm
+  &quot;someOtherCustomFragment&quot;: {         // optional 'custom fragments'
+    &quot;nested&quot;: {
+      &quot;value&quot;: &quot;extra info&quot;
+    }
+  }
+}
+</code></pre>
+<table><thead><tr><th>Reference</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>alarm-type</code></td><td>a string part of the MQTT topic, that identifies the alarm uniquely in context of the device</td></tr>
+<tr><td><code>severity</code></td><td>a string part of the MQTT topic, that indicates the severity of the alarm; must be <code>critical</code>, <code>major</code>, <code>minor</code> or <code>warning</code></td></tr>
+<tr><td><code>text</code></td><td>carries a human readable alarm-text; must be UTF-8 encoded</td></tr>
+<tr><td><code>timestamp</code></td><td>optional time that indicates when the alarm has occurred; when not provided, thin-edge.io uses the current system time as the time of the alarm; when provided must be conform to ISO 8601</td></tr>
+<tr><td><code>custom fragments</code></td><td>additional fields are handled as custom specific information; if the connected cloud supports custom fragments its mapper transfers those accordingly to the cloud</td></tr>
+</tbody></table>
+<h4 id="behaviour-of-alarms"><a class="header" href="#behaviour-of-alarms">Behaviour of alarms</a></h4>
+<ul>
+<li>thin-edge does not store any historical occurrences for alarms</li>
+<li><strong>alarms</strong> are stateful; i.e. once raised, an <strong>alarm</strong> is active until it was explicitly cleared by the device's software or the cloud</li>
+<li>all alarms shall be published as MQTT retain message to reflect the alarm's stateful behaviour in the broker; The retain messages is kept in
+the MQTT broker as long as the alarm is raised. When a raised alarm is gone again, an empty retain message shall be published to clear
+the alarm message in the broker.</li>
+</ul>
+<div class="footnote-definition" id="1"><sup class="footnote-definition-label">1</sup>
+<p>details see &quot;Domain Model&quot; appendix <a href="./domain-model.html#device-overview">Device Domain</a> --&gt;</p>
+</div>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../architecture/domain-model.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                            <a rel="next" href="../architecture/thin-edge-json.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../architecture/domain-model.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                    <a rel="next" href="../architecture/thin-edge-json.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        <script type="text/javascript" src="../mermaid.min.js"></script>
+        <script type="text/javascript" src="../mermaid-init.js"></script>
+    </body>
+</html>
