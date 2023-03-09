@@ -1091,10 +1091,11 @@ tedge-mapper-aws service successfully started and enabled!
 
 </code></pre>
 <h2 id="sending-your-first-telemetry-data-2"><a class="header" href="#sending-your-first-telemetry-data-2">Sending your first telemetry data</a></h2>
-<p>Sending data to AWS is done using MQTT over topics prefixed with <code>aws</code>.
-Any messages sent on the topic will be forwarded to AWS.
-Here, we use <code>tedge mqtt pub aws/messages/</code> a message to be understood as a temperature of 20 Degree.</p>
-<pre><code class="language-shell">tedge mqtt pub aws/messages/ '{&quot;temperature&quot;: 20}'
+<p>Using the AWS mapper, you can publish measurement telemetry data to AWS by publishing on the <code>tedge/measurements</code> topic:</p>
+<pre><code class="language-shell">tedge mqtt pub tedge/measurements '{&quot;temperature&quot;: 21.3}'
+</code></pre>
+<p>Alternatively, post your own custom messages on <code>aws/td/#</code> topic:</p>
+<pre><code class="language-shell">tedge mqtt pub aws/td '{&quot;text&quot;: &quot;My message&quot;}'
 </code></pre>
 <p>To view the messages that were sent from the device to the cloud, follow this
 <a href="https://docs.aws.amazon.com/iot/latest/developerguide/view-mqtt-messages.html">document</a>.</p>
@@ -2093,7 +2094,6 @@ The operations files should have permissions <code>644</code> and the owner <cod
 </code></pre>
 <pre><code>/etc/tedge/operations:
 drwxr-xr-x 2 tedge tedge 4096 Jan 01 00:00 az
-drwxr-xr-x 2 tedge tedge 4096 Jan 01 00:00 aws
 drwxr-xr-x 2 tedge tedge 4096 Jan 01 00:00 c8y
 
 /etc/tedge/operations/az:
@@ -2454,7 +2454,7 @@ external child-device's device twin.</li>
 they are referred to as <strong>logical child-devices</strong>.</li>
 </ul>
 <p>The figure below illustrates the child-device concept.</p>
-<p><img src="https://github.com/thin-edge/thin-edge.io/blob/main/docs/src/architecture/images/device-concept.svg" alt="Device Concept" /></p>
+<p><img src="tutorials/../architecture/images/device-concept.svg" alt="Device Concept" /></p>
 <p>Configuration management can be enabled for child-devices using the same <code>c8y-configuration-plugin</code>,
 used for configuration management of the thin-edge device itself.
 You can read more about this plugin and its usage <a href="tutorials/../howto-guides/025_config_management_plugin.html">here</a>.</p>
@@ -5154,7 +5154,7 @@ The messages that arrive in the mapper should be formed in the <a href="architec
 The mapper verifies whether the arrived messages are correctly formatted,
 in case the verification fails, the mapper publishes a corresponded error message
 on the topic <code>tedge/errors</code> with the QoS level 1 (at least once).</p>
-<p>When the mapper receives a correctly formatted message, 
+<p>When the mapper receives a correctly formatted message,
 the message will be translated into a cloud-specific format.</p>
 <h2 id="cumulocity-mapper"><a class="header" href="#cumulocity-mapper">Cumulocity mapper</a></h2>
 <p>The Cumulocity mapper translates <a href="architecture/thin-edge-json.html">Thin Edge JSON</a> into Cumulocity's <a href="https://cumulocity.com/guides/device-sdk/mqtt/#json">JSON via MQTT</a>.
@@ -5261,7 +5261,7 @@ The mapper keeps 1 KB as a buffer for the strings added by Azure.</li>
 <h2 id="aws-mapper"><a class="header" href="#aws-mapper">AWS mapper</a></h2>
 <p>The AWS mapper takes messages formatted in the <a href="architecture/thin-edge-json.html">Thin Edge JSON</a> as input.
 It validates if the incoming message is correctly formatted Thin Edge JSON, then outputs the message.
-The validated messages are published on the topic <code>aws/messages/</code> from where they are forwarded to AWS.
+The validated messages are published on the topic <code>aws/td/#</code> from where they are forwarded to AWS.
 This mapper is launched by the <code>tedge connect aws</code> command, and stopped by the <code>tedge disconnect aws</code> command.</p>
 <h2 id="error-cases"><a class="header" href="#error-cases">Error cases</a></h2>
 <p>When some error occurs in a mapper process, the mapper publishes a corresponded error message
@@ -6457,14 +6457,15 @@ The AWS topics are prefixed by <code>aws/</code>.</p>
 <ul>
 <li>
 <p><code>aws/td/#</code> - Use this topic to send the messages from device to cloud. The messages are forwarded to the AWS topic
-named <code>thinedge/{device_id}/td/</code> where {device_id} is the Thin Edge device id.</p>
+named <code>thinedge/{device_id}/td</code> where {device_id} is the Thin Edge device id.</p>
 </li>
 <li>
 <p><code>aws/cmd/#</code> - Use this topic to subscribe for the messages that were sent from cloud to device. Any message published
 by AWS on one the subtopics of <code>thinedge/{device_id}/cmd/#</code> is republished here.</p>
 </li>
 <li>
-<p><code>aws/shadow/#</code> Use this topic to interact with unnamed and named shadows of the device. It's mapped to <code>$aws/things/{device_id}/shadow</code>.</p>
+<p><code>aws/shadow/#</code> Use this topic to interact with unnamed and named shadows of the device. It's mapped to
+<code>$aws/things/{device_id}/shadow</code>.</p>
 </li>
 </ul>
 <h2 id="collectd-topics"><a class="header" href="#collectd-topics">Collectd topics</a></h2>

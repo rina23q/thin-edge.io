@@ -252,10 +252,11 @@ tedge-mapper-aws service successfully started and enabled!
 
 </code></pre>
 <h2 id="sending-your-first-telemetry-data"><a class="header" href="#sending-your-first-telemetry-data">Sending your first telemetry data</a></h2>
-<p>Sending data to AWS is done using MQTT over topics prefixed with <code>aws</code>.
-Any messages sent on the topic will be forwarded to AWS.
-Here, we use <code>tedge mqtt pub aws/messages/</code> a message to be understood as a temperature of 20 Degree.</p>
-<pre><code class="language-shell">tedge mqtt pub aws/messages/ '{&quot;temperature&quot;: 20}'
+<p>Using the AWS mapper, you can publish measurement telemetry data to AWS by publishing on the <code>tedge/measurements</code> topic:</p>
+<pre><code class="language-shell">tedge mqtt pub tedge/measurements '{&quot;temperature&quot;: 21.3}'
+</code></pre>
+<p>Alternatively, post your own custom messages on <code>aws/td/#</code> topic:</p>
+<pre><code class="language-shell">tedge mqtt pub aws/td '{&quot;text&quot;: &quot;My message&quot;}'
 </code></pre>
 <p>To view the messages that were sent from the device to the cloud, follow this
 <a href="https://docs.aws.amazon.com/iot/latest/developerguide/view-mqtt-messages.html">document</a>.</p>

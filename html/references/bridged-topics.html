@@ -213,14 +213,15 @@ The AWS topics are prefixed by <code>aws/</code>.</p>
 <ul>
 <li>
 <p><code>aws/td/#</code> - Use this topic to send the messages from device to cloud. The messages are forwarded to the AWS topic
-named <code>thinedge/{device_id}/td/</code> where {device_id} is the Thin Edge device id.</p>
+named <code>thinedge/{device_id}/td</code> where {device_id} is the Thin Edge device id.</p>
 </li>
 <li>
 <p><code>aws/cmd/#</code> - Use this topic to subscribe for the messages that were sent from cloud to device. Any message published
 by AWS on one the subtopics of <code>thinedge/{device_id}/cmd/#</code> is republished here.</p>
 </li>
 <li>
-<p><code>aws/shadow/#</code> Use this topic to interact with unnamed and named shadows of the device. It's mapped to <code>$aws/things/{device_id}/shadow</code>.</p>
+<p><code>aws/shadow/#</code> Use this topic to interact with unnamed and named shadows of the device. It's mapped to
+<code>$aws/things/{device_id}/shadow</code>.</p>
 </li>
 </ul>
 <h2 id="collectd-topics"><a class="header" href="#collectd-topics">Collectd topics</a></h2>

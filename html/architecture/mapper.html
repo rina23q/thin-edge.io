@@ -150,7 +150,7 @@ The messages that arrive in the mapper should be formed in the <a href="thin-edg
 The mapper verifies whether the arrived messages are correctly formatted,
 in case the verification fails, the mapper publishes a corresponded error message
 on the topic <code>tedge/errors</code> with the QoS level 1 (at least once).</p>
-<p>When the mapper receives a correctly formatted message, 
+<p>When the mapper receives a correctly formatted message,
 the message will be translated into a cloud-specific format.</p>
 <h2 id="cumulocity-mapper"><a class="header" href="#cumulocity-mapper">Cumulocity mapper</a></h2>
 <p>The Cumulocity mapper translates <a href="thin-edge-json.html">Thin Edge JSON</a> into Cumulocity's <a href="https://cumulocity.com/guides/device-sdk/mqtt/#json">JSON via MQTT</a>.
@@ -257,7 +257,7 @@ The mapper keeps 1 KB as a buffer for the strings added by Azure.</li>
 <h2 id="aws-mapper"><a class="header" href="#aws-mapper">AWS mapper</a></h2>
 <p>The AWS mapper takes messages formatted in the <a href="thin-edge-json.html">Thin Edge JSON</a> as input.
 It validates if the incoming message is correctly formatted Thin Edge JSON, then outputs the message.
-The validated messages are published on the topic <code>aws/messages/</code> from where they are forwarded to AWS.
+The validated messages are published on the topic <code>aws/td/#</code> from where they are forwarded to AWS.
 This mapper is launched by the <code>tedge connect aws</code> command, and stopped by the <code>tedge disconnect aws</code> command.</p>
 <h2 id="error-cases"><a class="header" href="#error-cases">Error cases</a></h2>
 <p>When some error occurs in a mapper process, the mapper publishes a corresponded error message
