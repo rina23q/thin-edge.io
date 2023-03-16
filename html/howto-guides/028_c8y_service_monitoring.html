@@ -175,6 +175,21 @@ In case of child device <code>&lt;device-name&gt;_&lt;child-id&gt;_&lt;service-n
 <blockquote>
 <p>Note: <code>102</code> is the <code>smartrest</code> template number for the service monitoring message.</p>
 </blockquote>
+<h2 id="configuring-the-default-service-type"><a class="header" href="#configuring-the-default-service-type">Configuring the default service type</a></h2>
+<p>The <code>default service type</code> can be configured using the <code>tedge</code> cli.</p>
+<p>The example below shows how one can set the default service type to <code>systemd</code>.</p>
+<pre><code>tedge config set service.type systemd
+
+</code></pre>
+<blockquote>
+<p>Note: When the <code>service type</code> was not sent with the <code>health status</code> message, then the configured default value will be used by
+the mapper while translating the <code>health status</code> message to <code>service status</code> message.</p>
+</blockquote>
+<p>To clear the configured default service type one can use the command below.
+This will set the <code>service.type</code> to <code>service</code>.</p>
+<pre><code>tedge config unset service.type
+
+</code></pre>
 <h1 id="references"><a class="header" href="#references">References</a></h1>
 <p>More info about the service monitoring can be found in the below link</p>
 <p><a href="https://cumulocity.com/guides/reference/smartrest-two/#service-creation-102">Service monitoring Cumulocity IoT</a></p>

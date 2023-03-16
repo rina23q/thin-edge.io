@@ -1020,22 +1020,16 @@ This is a self-signed certificate.
 To use a certificate signed by your Certificate Authority,
 see the reference guide of <a href="tutorials/../references/tedge-cert.html"><code>tedge cert</code></a>.</p>
 <h2 id="register-the-device-on-aws-iot-hub"><a class="header" href="#register-the-device-on-aws-iot-hub">Register the device on AWS IoT Hub</a></h2>
-<p>For a device to be trusted by AWS, one needs to add the self-signed certificate to the AWS IoT Core (generated when
-using the <code>tedge cert create</code> command). In the AWS IoT Core, navigate to &quot;Security&quot;-&gt;&quot;Certificates&quot; then click on &quot;Add
-certificate&quot;-&gt;&quot;Register certificates&quot;. Select the option &quot;CA is not registered with AWS IoT&quot; as we are using a self
-signed certificate. Click &quot;Upload&quot; and select either the device certificate or certificate signing request, then click
-&quot;Register&quot;. If you navigate to &quot;Security&quot;-&gt;&quot;Certificates&quot; you should now see the certificate listed. Click on the new
-certificate, then under the &quot;Actions&quot; dropdown click &quot;Activate&quot;.</p>
-<p>A policy needs to be attached to the device certificate in AWS IoT Core. AWS IoT Core policies determine what an
+<p>For a device to be trusted by AWS, one needs a device certificate and the <code>tedge cert create</code> command is the simplest way to get one.
+Also a policy needs to be attached to the device certificate in AWS IoT Core. AWS IoT Core policies determine what an
 authenticated identity can do (here the authenticated identity is the device being connected). More info on AWS IoT Core
 policies can be found <a href="https://docs.aws.amazon.com/iot/latest/developerguide/iot-policies.html">here</a>.</p>
-<p>An example policy template for connecting a device running thin-edge can be found <a href="tutorials/./aws-example-policy.json">here</a>.
-To create a new policy, head over to the AWS IoT Core and navigate to &quot;Security&quot;-&gt;&quot;Policies&quot; then click &quot;Create policy&quot;.
-Give the policy a name, then under &quot;Policy document&quot; click &quot;JSON&quot;, paste in the entire contents of the example policy
-and click &quot;Create&quot;. Be sure to replace <code>&lt;region&gt;</code>, <code>&lt;account-id&gt;</code>, etc. with correct values for your tenant.</p>
-<p>The final step is to attach the policy to the certificate. Navigate to &quot;Security&quot;-&gt;&quot;Certificates&quot;
-and click on the certificate that was uploaded previously. Click on &quot;Attach policies&quot; then select the policy that you
-created and click &quot;Attach policies&quot;.</p>
+<p>To create a new policy, head over to the AWS IoT Core and navigate to <em><strong>Security -&gt; Policies -&gt; Create policy -&gt; Policy properties -&gt; Policy name -&gt; Enter the name of your policy (e.g.tedge)</strong></em></p>
+<p>On the Policy statements tab click on <em><strong>JSON</strong></em> and enter the policy in the <em><strong>Policy document</strong></em> (an example policy can be found <a href="tutorials/./aws-example-policy.json">here</a>) then click <em><strong>Create</strong></em></p>
+<p>In the AWS IoT Core, navigate to <em><strong>Manage -&gt; All devices -&gt; Things -&gt; Create things -&gt; Create Single thing -&gt; Next</strong></em>. Enter the Thing name which can be obtained from the device with: <code>tedge config get device.id</code></p>
+<p>In the Device Shadow section which allows connected devices to sync states with AWS choose <em><strong>Unnamed shadow (classic)</strong></em> and click <em><strong>Next</strong></em> and <em><strong>Configure device certificate - optional</strong></em> page opens.</p>
+<p>At <em><strong>Device certificate</strong></em> choose <em><strong>Use my certificate -&gt; CA is not registered with AWS IoT</strong></em> then <em><strong>Choose file</strong></em> and select your tedge-certificate.pem file, click on <em><strong>Open -&gt; Next</strong></em>.</p>
+<p>The last step needed is to attach previously created policy to your certificate, <em><strong>Attach policies to certificate -optional</strong></em> -&gt; Select your created policy <em><strong>-&gt; Create thing</strong></em>.</p>
 <h2 id="configure-the-device-2"><a class="header" href="#configure-the-device-2">Configure the device</a></h2>
 <p>To connect the device to the AWS IoT Hub, one needs to set the URL of the IoT Hub and the root certificate of the IoT
 Hub as below.</p>
@@ -2188,8 +2182,7 @@ If it exits with a non-zero code, a failure message with the stderr content will
 and add layers, containing software that you need on your image. In this tutorial, we will add Thin Edge using the
 <code>meta-tedge</code> layer. For more information, see the <a href="https://www.yoctoproject.org/software-overview/">getting started document on Yocto Project
 website</a>.</p>
-<p><code>meta-tedge</code> is supported for <strong>Yocto version 3.4 &quot;Honister&quot; and 4.0 &quot;Kirkstone&quot;</strong>. Additionally, we will depend on
-<code>meta-openembedded</code> layer for Mosquitto.</p>
+<p>The <code>meta-tedge</code> is supported for <strong>Yocto version 3.4 &quot;Honister&quot; and 4.0 &quot;Kirkstone&quot;</strong>. It depends on <code>meta-networking</code>, <code>meta-python</code> and <code>meta-oe</code> layers, which are part of <code>meta-openembedded</code> layer. Since version 0.9.0, the layer requires <code>meta-rust</code> to meet the requirements of the rust version of thin-edge. </p>
 <h2 id="installation"><a class="header" href="#installation">Installation</a></h2>
 <p>If you are not familiar with building Yocto distribution or you have not configured your build host yet, we strongly
 recommend to look into <a href="https://docs.yoctoproject.org/brief-yoctoprojectqs/index.html">official yocto documentation</a>
@@ -2282,10 +2275,11 @@ command must be run from <code>build</code> directory.</p>
 </ul>
 <p>In the following steps, we will edit these files to customize our image.</p>
 <h3 id="add-layers"><a class="header" href="#add-layers">Add layers</a></h3>
-<p><code>oe-init-build-env</code> moved us to the <code>build</code> directory. <code>cd</code> back to the working directory and clone the <code>meta-tedge</code> and
+<p><code>oe-init-build-env</code> moved us to the <code>build</code> directory. <code>cd</code> back to the working directory and clone the <code>meta-tedge</code>, <code>meta-rust</code> and
 <code>meta-openembedded</code> repositories:</p>
 <pre><code class="language-bash">cd ../../
 git clone https://github.com/thin-edge/meta-tedge
+git clone https://github.com/meta-rust/meta-rust.git
 git clone --branch=kirkstone git://git.openembedded.org/meta-openembedded
 </code></pre>
 <blockquote>
@@ -2297,6 +2291,7 @@ versions, Honister and Kirkstone on the main branch, so there's no need to chang
 <p>Resulting in the following directory structure:</p>
 <pre><code>.
 ├── meta-openembedded
+├── meta-rust
 ├── meta-tedge
 └── poky
 </code></pre>
@@ -2311,6 +2306,7 @@ layer, but a collection of many layers. We need to run it from the <code>build</
 bitbake-layers add-layer /home/yocto/meta-openembedded/meta-oe
 bitbake-layers add-layer /home/yocto/meta-openembedded/meta-python
 bitbake-layers add-layer /home/yocto/meta-openembedded/meta-networking
+bitbake-layers add-layer /home/yocto/meta-rust
 bitbake-layers add-layer /home/yocto/meta-tedge
 </code></pre>
 <p><code>bitbake-layers</code> tool adds the layer to our build by modyfying <code>poky/build/conf/bblayers.conf</code> file. You can verify the
@@ -2331,6 +2327,7 @@ BBLAYERS ?= &quot; \
   /home/yocto/meta-openembedded/meta-oe \
   /home/yocto/meta-openembedded/meta-python \
   /home/yocto/meta-openembedded/meta-networking \
+  /home/yocto/meta-rust \
   /home/yocto/meta-tedge \
   &quot;
 </code></pre>
@@ -2373,8 +2370,8 @@ PACKAGE_CLASSES ?= &quot;package_deb&quot;
 </code></pre>
 <h3 id="build-and-run"><a class="header" href="#build-and-run">Build and run</a></h3>
 <p>Finally, build the image and run it in the emulator.</p>
-<p>Build <code>tedge-full-image</code> by running following command, from any directory:</p>
-<pre><code class="language-bash">bitbake tedge-full-image
+<p>Build <code>core-image-tedge</code> by running following command, from any directory:</p>
+<pre><code class="language-bash">bitbake core-image-tedge
 </code></pre>
 <p>Bitbake tool will begin the building process, and all build artifacts will be put in <code>poky/build/tmp</code> directory.</p>
 <p>When the build it complete, run it with qemu from any directory. It will automatically run the latest image built. We'll
@@ -2397,8 +2394,8 @@ previously:</p>
 </code></pre>
 <p>According to the <code>meta-raspberrypi/README.md</code>, we have all the dependencies added to the layer except <code>meta-multimedia</code>
 that we need to add with <code>add-layer</code> subcommand. After that, we can add <code>meta-raspberrypi</code> itself:</p>
-<pre><code class="language-bash">bitbake-layers add-layer ~/yocto-thinedge/meta-openembedded/meta-networking
-bitbake-layers add-layer ~/yocto-thinedge/meta-raspberrypi
+<pre><code class="language-bash">bitbake-layers add-layer /home/yocto/meta-openembedded/meta-multimedia
+bitbake-layers add-layer /home/yocto/meta-raspberrypi
 </code></pre>
 <p>Next, we open up <code>poky/build/conf/local.conf</code> and find this line:</p>
 <pre><code>MACHINE ??= &quot;qemux86-64&quot;
@@ -2414,8 +2411,8 @@ enable/disable/modify functionality of a device, e.g to access a shell via the U
 <code>poky/build/conf/local.conf</code> file:</p>
 <pre><code>ENABLE_UART = &quot;1&quot;
 </code></pre>
-<p>After we finish the configuration, we can build an image using <code>tedge-full-image</code>:</p>
-<pre><code class="language-bash">bitbake tedge-full-image
+<p>After we finish the configuration, we can build an image using <code>core-image-tedge</code>:</p>
+<pre><code class="language-bash">bitbake core-image-tedge
 </code></pre>
 <p>Once the build is complete, the image will be located in <code>/tmp/deploy/images/$MACHINE/</code> directory where <code>$MACHINE</code>
 denotes your target platform. Copy the image to the SD card and run your device.</p>
@@ -4553,6 +4550,21 @@ In case of child device <code>&lt;device-name&gt;_&lt;child-id&gt;_&lt;service-n
 <blockquote>
 <p>Note: <code>102</code> is the <code>smartrest</code> template number for the service monitoring message.</p>
 </blockquote>
+<h2 id="configuring-the-default-service-type"><a class="header" href="#configuring-the-default-service-type">Configuring the default service type</a></h2>
+<p>The <code>default service type</code> can be configured using the <code>tedge</code> cli.</p>
+<p>The example below shows how one can set the default service type to <code>systemd</code>.</p>
+<pre><code>tedge config set service.type systemd
+
+</code></pre>
+<blockquote>
+<p>Note: When the <code>service type</code> was not sent with the <code>health status</code> message, then the configured default value will be used by
+the mapper while translating the <code>health status</code> message to <code>service status</code> message.</p>
+</blockquote>
+<p>To clear the configured default service type one can use the command below.
+This will set the <code>service.type</code> to <code>service</code>.</p>
+<pre><code>tedge config unset service.type
+
+</code></pre>
 <h1 id="references-2"><a class="header" href="#references-2">References</a></h1>
 <p>More info about the service monitoring can be found in the below link</p>
 <p><a href="https://cumulocity.com/guides/reference/smartrest-two/#service-creation-102">Service monitoring Cumulocity IoT</a></p>
@@ -6922,7 +6934,7 @@ Alternatively, you can use <code>cargo</code> to build and run executable in a s
 <li><a href="references/./thin-edge-config-files.html">Thin-edge.io configuration files</a></li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="the-tedge-command"><a class="header" href="#the-tedge-command">The <code>tedge</code> command</a></h1>
-<pre><code>tedge 0.9.0
+<pre><code class="language-console">tedge 0.9.0
 tedge is the cli tool for thin-edge.io
 
 USAGE:
@@ -6944,7 +6956,7 @@ SUBCOMMANDS:
     reconnect     Reconnect command, calls disconnect followed by connect
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="the-tedge-config-command"><a class="header" href="#the-tedge-config-command">The <code>tedge config</code> command</a></h1>
-<pre><code>tedge-config 
+<pre><code class="language-console">tedge-config 
 Configure Thin Edge
 
 USAGE:
@@ -6961,7 +6973,7 @@ SUBCOMMANDS:
     unset    Unset the provided configuration key
 </code></pre>
 <h2 id="get"><a class="header" href="#get">Get</a></h2>
-<pre><code>tedge-config-get 
+<pre><code class="language-console">tedge-config-get 
 Get the value of the provided configuration key
 
 USAGE:
@@ -6974,7 +6986,7 @@ OPTIONS:
     -h, --help    Print help information
 </code></pre>
 <h2 id="set"><a class="header" href="#set">Set</a></h2>
-<pre><code>tedge-config-set 
+<pre><code class="language-console">tedge-config-set 
 Set or update the provided configuration key with the given value
 
 USAGE:
@@ -6988,7 +7000,7 @@ OPTIONS:
     -h, --help    Print help information
 </code></pre>
 <h2 id="list-2"><a class="header" href="#list-2">List</a></h2>
-<pre><code>tedge-config-list 
+<pre><code class="language-console">tedge-config-list 
 Print the configuration keys and their values
 
 USAGE:
@@ -7000,7 +7012,7 @@ OPTIONS:
     -h, --help    Print help information
 </code></pre>
 <h2 id="unset"><a class="header" href="#unset">Unset</a></h2>
-<pre><code>tedge-config-unset 
+<pre><code class="language-console">tedge-config-unset 
 Unset the provided configuration key
 
 USAGE:
@@ -7013,7 +7025,7 @@ OPTIONS:
     -h, --help    Print help information
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="the-tedge-cert-command"><a class="header" href="#the-tedge-cert-command">The <code>tedge cert</code> command</a></h1>
-<pre><code>tedge-cert 
+<pre><code class="language-console">tedge-cert 
 Create and manage device certificate
 
 USAGE:
@@ -7030,7 +7042,7 @@ SUBCOMMANDS:
     upload    Upload root certificate
 </code></pre>
 <h2 id="create"><a class="header" href="#create">Create</a></h2>
-<pre><code>tedge-cert-create 
+<pre><code class="language-console">tedge-cert-create 
 Create a self-signed device certificate
 
 USAGE:
@@ -7041,7 +7053,7 @@ OPTIONS:
     -h, --help              Print help information
 </code></pre>
 <h2 id="show"><a class="header" href="#show">Show</a></h2>
-<pre><code>tedge-cert-show 
+<pre><code class="language-console">tedge-cert-show 
 Show the device certificate, if any
 
 USAGE:
@@ -7051,7 +7063,7 @@ OPTIONS:
     -h, --help    Print help information
 </code></pre>
 <h2 id="remove-2"><a class="header" href="#remove-2">Remove</a></h2>
-<pre><code>tedge-cert-remove 
+<pre><code class="language-console">tedge-cert-remove 
 Remove the device certificate
 
 USAGE:
@@ -7061,7 +7073,7 @@ OPTIONS:
     -h, --help    Print help information
 </code></pre>
 <h2 id="upload"><a class="header" href="#upload">Upload</a></h2>
-<pre><code>tedge-cert-upload 
+<pre><code class="language-console">tedge-cert-upload 
 Upload root certificate
 
 USAGE:
@@ -7075,7 +7087,7 @@ SUBCOMMANDS:
     help    Print this message or the help of the given subcommand(s)
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="the-tedge-connect-command"><a class="header" href="#the-tedge-connect-command">The <code>tedge connect</code> command</a></h1>
-<pre><code>tedge-connect 
+<pre><code class="language-console">tedge-connect 
 Connect to connector provider
 
 USAGE:
@@ -7085,12 +7097,29 @@ OPTIONS:
     -h, --help    Print help information
 
 SUBCOMMANDS:
+    aws     Create connection to AWS
     az      Create connection to Azure
     c8y     Create connection to Cumulocity
     help    Print this message or the help of the given subcommand(s)
 </code></pre>
+<h2 id="aws"><a class="header" href="#aws">AWS</a></h2>
+<pre><code class="language-console">tedge-connect-aws 
+Create connection to AWS
+
+The command will create config and start edge relay from the device to AWS instance
+
+USAGE:
+    tedge connect aws [OPTIONS]
+
+OPTIONS:
+    -h, --help
+            Print help information
+
+        --test
+            Test connection to AWS
+</code></pre>
 <h2 id="azure-1"><a class="header" href="#azure-1">Azure</a></h2>
-<pre><code>tedge-connect-az 
+<pre><code class="language-console">tedge-connect-az 
 Create connection to Azure
 
 The command will create config and start edge relay from the device to az instance
@@ -7105,24 +7134,8 @@ OPTIONS:
         --test
             Test connection to Azure
 </code></pre>
-<h2 id="aws"><a class="header" href="#aws">AWS</a></h2>
-<pre><code>tedge-connect-aws
-Create connection to AWS
-
-The command will create config and start edge relay from the device to aws instance
-
-USAGE:
-    tedge connect aws [OPTIONS]
-
-OPTIONS:
-    -h, --help
-            Print help information
-
-        --test
-            Test connection to AWS
-</code></pre>
 <h2 id="cumulocity-1"><a class="header" href="#cumulocity-1">Cumulocity</a></h2>
-<pre><code>tedge-connect-c8y 
+<pre><code class="language-console">tedge-connect-c8y 
 Create connection to Cumulocity
 
 The command will create config and start edge relay from the device to c8y instance
@@ -7138,7 +7151,7 @@ OPTIONS:
             Test connection to Cumulocity
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="the-tedge-disconnect-command"><a class="header" href="#the-tedge-disconnect-command">The <code>tedge disconnect</code> command</a></h1>
-<pre><code>tedge-disconnect 
+<pre><code class="language-console">tedge-disconnect 
 Remove bridge connection for a provider
 
 USAGE:
@@ -7148,23 +7161,13 @@ OPTIONS:
     -h, --help    Print help information
 
 SUBCOMMANDS:
-    az      Remove bridge connection to Azure
     aws     Remove bridge connection to AWS
+    az      Remove bridge connection to Azure
     c8y     Remove bridge connection to Cumulocity
     help    Print this message or the help of the given subcommand(s)
 </code></pre>
-<h2 id="azure-2"><a class="header" href="#azure-2">Azure</a></h2>
-<pre><code>tedge-disconnect-az 
-Remove bridge connection to Azure
-
-USAGE:
-    tedge disconnect az
-
-OPTIONS:
-    -h, --help    Print help information
-</code></pre>
 <h2 id="aws-1"><a class="header" href="#aws-1">AWS</a></h2>
-<pre><code>tedge-disconnect-aws
+<pre><code class="language-console">tedge-disconnect-aws 
 Remove bridge connection to AWS
 
 USAGE:
@@ -7173,8 +7176,18 @@ USAGE:
 OPTIONS:
     -h, --help    Print help information
 </code></pre>
+<h2 id="azure-2"><a class="header" href="#azure-2">Azure</a></h2>
+<pre><code class="language-console">tedge-disconnect-az 
+Remove bridge connection to Azure
+
+USAGE:
+    tedge disconnect az
+
+OPTIONS:
+    -h, --help    Print help information
+</code></pre>
 <h2 id="cumulocity-2"><a class="header" href="#cumulocity-2">Cumulocity</a></h2>
-<pre><code>tedge-disconnect-c8y 
+<pre><code class="language-console">tedge-disconnect-c8y 
 Remove bridge connection to Cumulocity
 
 USAGE:
@@ -7184,7 +7197,7 @@ OPTIONS:
     -h, --help    Print help information
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="the-tedge-mqtt-command"><a class="header" href="#the-tedge-mqtt-command">The <code>tedge mqtt</code> command</a></h1>
-<pre><code>tedge-mqtt 
+<pre><code class="language-console">tedge-mqtt 
 Publish a message on a topic and subscribe a topic
 
 USAGE:
@@ -7199,7 +7212,7 @@ SUBCOMMANDS:
     sub     Subscribe a MQTT topic
 </code></pre>
 <h2 id="pub"><a class="header" href="#pub">Pub</a></h2>
-<pre><code>tedge-mqtt-pub 
+<pre><code class="language-console">tedge-mqtt-pub 
 Publish a MQTT message on a topic
 
 USAGE:
@@ -7215,7 +7228,7 @@ OPTIONS:
     -r, --retain       Retain flag
 </code></pre>
 <h2 id="sub"><a class="header" href="#sub">Sub</a></h2>
-<pre><code>tedge-mqtt-sub 
+<pre><code class="language-console">tedge-mqtt-sub 
 Subscribe a MQTT topic
 
 USAGE:

@@ -140,8 +140,7 @@
 and add layers, containing software that you need on your image. In this tutorial, we will add Thin Edge using the
 <code>meta-tedge</code> layer. For more information, see the <a href="https://www.yoctoproject.org/software-overview/">getting started document on Yocto Project
 website</a>.</p>
-<p><code>meta-tedge</code> is supported for <strong>Yocto version 3.4 &quot;Honister&quot; and 4.0 &quot;Kirkstone&quot;</strong>. Additionally, we will depend on
-<code>meta-openembedded</code> layer for Mosquitto.</p>
+<p>The <code>meta-tedge</code> is supported for <strong>Yocto version 3.4 &quot;Honister&quot; and 4.0 &quot;Kirkstone&quot;</strong>. It depends on <code>meta-networking</code>, <code>meta-python</code> and <code>meta-oe</code> layers, which are part of <code>meta-openembedded</code> layer. Since version 0.9.0, the layer requires <code>meta-rust</code> to meet the requirements of the rust version of thin-edge. </p>
 <h2 id="installation"><a class="header" href="#installation">Installation</a></h2>
 <p>If you are not familiar with building Yocto distribution or you have not configured your build host yet, we strongly
 recommend to look into <a href="https://docs.yoctoproject.org/brief-yoctoprojectqs/index.html">official yocto documentation</a>
@@ -234,10 +233,11 @@ command must be run from <code>build</code> directory.</p>
 </ul>
 <p>In the following steps, we will edit these files to customize our image.</p>
 <h3 id="add-layers"><a class="header" href="#add-layers">Add layers</a></h3>
-<p><code>oe-init-build-env</code> moved us to the <code>build</code> directory. <code>cd</code> back to the working directory and clone the <code>meta-tedge</code> and
+<p><code>oe-init-build-env</code> moved us to the <code>build</code> directory. <code>cd</code> back to the working directory and clone the <code>meta-tedge</code>, <code>meta-rust</code> and
 <code>meta-openembedded</code> repositories:</p>
 <pre><code class="language-bash">cd ../../
 git clone https://github.com/thin-edge/meta-tedge
+git clone https://github.com/meta-rust/meta-rust.git
 git clone --branch=kirkstone git://git.openembedded.org/meta-openembedded
 </code></pre>
 <blockquote>
@@ -249,6 +249,7 @@ versions, Honister and Kirkstone on the main branch, so there's no need to chang
 <p>Resulting in the following directory structure:</p>
 <pre><code>.
 ├── meta-openembedded
+├── meta-rust
 ├── meta-tedge
 └── poky
 </code></pre>
@@ -263,6 +264,7 @@ layer, but a collection of many layers. We need to run it from the <code>build</
 bitbake-layers add-layer /home/yocto/meta-openembedded/meta-oe
 bitbake-layers add-layer /home/yocto/meta-openembedded/meta-python
 bitbake-layers add-layer /home/yocto/meta-openembedded/meta-networking
+bitbake-layers add-layer /home/yocto/meta-rust
 bitbake-layers add-layer /home/yocto/meta-tedge
 </code></pre>
 <p><code>bitbake-layers</code> tool adds the layer to our build by modyfying <code>poky/build/conf/bblayers.conf</code> file. You can verify the
@@ -283,6 +285,7 @@ BBLAYERS ?= &quot; \
   /home/yocto/meta-openembedded/meta-oe \
   /home/yocto/meta-openembedded/meta-python \
   /home/yocto/meta-openembedded/meta-networking \
+  /home/yocto/meta-rust \
   /home/yocto/meta-tedge \
   &quot;
 </code></pre>
@@ -325,8 +328,8 @@ PACKAGE_CLASSES ?= &quot;package_deb&quot;
 </code></pre>
 <h3 id="build-and-run"><a class="header" href="#build-and-run">Build and run</a></h3>
 <p>Finally, build the image and run it in the emulator.</p>
-<p>Build <code>tedge-full-image</code> by running following command, from any directory:</p>
-<pre><code class="language-bash">bitbake tedge-full-image
+<p>Build <code>core-image-tedge</code> by running following command, from any directory:</p>
+<pre><code class="language-bash">bitbake core-image-tedge
 </code></pre>
 <p>Bitbake tool will begin the building process, and all build artifacts will be put in <code>poky/build/tmp</code> directory.</p>
 <p>When the build it complete, run it with qemu from any directory. It will automatically run the latest image built. We'll
@@ -349,8 +352,8 @@ previously:</p>
 </code></pre>
 <p>According to the <code>meta-raspberrypi/README.md</code>, we have all the dependencies added to the layer except <code>meta-multimedia</code>
 that we need to add with <code>add-layer</code> subcommand. After that, we can add <code>meta-raspberrypi</code> itself:</p>
-<pre><code class="language-bash">bitbake-layers add-layer ~/yocto-thinedge/meta-openembedded/meta-networking
-bitbake-layers add-layer ~/yocto-thinedge/meta-raspberrypi
+<pre><code class="language-bash">bitbake-layers add-layer /home/yocto/meta-openembedded/meta-multimedia
+bitbake-layers add-layer /home/yocto/meta-raspberrypi
 </code></pre>
 <p>Next, we open up <code>poky/build/conf/local.conf</code> and find this line:</p>
 <pre><code>MACHINE ??= &quot;qemux86-64&quot;
@@ -366,8 +369,8 @@ enable/disable/modify functionality of a device, e.g to access a shell via the U
 <code>poky/build/conf/local.conf</code> file:</p>
 <pre><code>ENABLE_UART = &quot;1&quot;
 </code></pre>
-<p>After we finish the configuration, we can build an image using <code>tedge-full-image</code>:</p>
-<pre><code class="language-bash">bitbake tedge-full-image
+<p>After we finish the configuration, we can build an image using <code>core-image-tedge</code>:</p>
+<pre><code class="language-bash">bitbake core-image-tedge
 </code></pre>
 <p>Once the build is complete, the image will be located in <code>/tmp/deploy/images/$MACHINE/</code> directory where <code>$MACHINE</code>
 denotes your target platform. Copy the image to the SD card and run your device.</p>
