@@ -1,6 +1,7 @@
 use c8y_config_manager::ConfigManagerBuilder;
 use c8y_config_manager::ConfigManagerConfig;
 use c8y_firmware_manager::FirmwareManagerBuilder;
+use c8y_firmware_manager::FirmwareManagerConfig;
 use c8y_http_proxy::credentials::C8YJwtRetriever;
 use c8y_http_proxy::C8YHttpProxyBuilder;
 use c8y_log_manager::LogManagerBuilder;
@@ -75,7 +76,10 @@ async fn main() -> anyhow::Result<()> {
 
     // Connect other actor instances to firmware manager actor
     firmware_actor.with_c8y_http_proxy(&mut c8y_http_proxy_actor)?;
-    firmware_actor.with_mqtt_connection(&mut mqtt_actor)?;
+    // TODO: Question. What's the difference?
+    firmware_actor.set_connection(&mut mqtt_actor);
+    // firmware_actor.with_mqtt_connection(&mut mqtt_actor)?;
+    firmware_actor.set_connection(&mut timer_actor);
 
     // Shutdown on SIGINT
     signal_actor.register_peer(NoConfig, runtime.get_handle().get_sender());
