@@ -1,13 +1,13 @@
 use crate::error::AgentError;
-use crate::http_rest::HttpConfig;
-use crate::http_server::HttpServerBuilder;
-use crate::restart_operation_handler::restart_operation;
-use crate::state::AgentStateRepository;
-use crate::state::RestartOperationStatus;
-use crate::state::SoftwareOperationVariants;
-use crate::state::State;
-use crate::state::StateRepository;
-use crate::state::StateStatus;
+use crate::http_server::actor::HttpServerBuilder;
+use crate::http_server::http_rest::HttpConfig;
+use crate::restart_manager::restart_operation_handler::restart_operation;
+use crate::state_repository::state::AgentStateRepository;
+use crate::state_repository::state::RestartOperationStatus;
+use crate::state_repository::state::SoftwareOperationVariants;
+use crate::state_repository::state::State;
+use crate::state_repository::state::StateRepository;
+use crate::state_repository::state::StateStatus;
 use camino::Utf8Path;
 use camino::Utf8PathBuf;
 use flockfile::check_another_instance_is_not_running;
@@ -376,9 +376,11 @@ impl SmAgent {
         let http_config = self.config.http_config.clone();
 
         // spawning file transfer server
+        // --this block is actorized --
         let http_server_builder = HttpServerBuilder::new(http_config);
         let mut http_server_actor = http_server_builder.build();
         tokio::spawn(async move { http_server_actor.run().await });
+        // --end--
 
         while let Err(error) = self
             .process_subscribed_messages(&mut mqtt.received, &mut mqtt.published, &plugins)
