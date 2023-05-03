@@ -9,6 +9,7 @@ use tedge_actors::Builder;
 use tedge_actors::DynError;
 use tedge_actors::MessageReceiver;
 use tedge_actors::Sender;
+use tedge_actors::ServiceConsumer;
 use tedge_actors::SimpleMessageBox;
 use tedge_actors::SimpleMessageBoxBuilder;
 use tedge_api::OperationStatus;
@@ -98,10 +99,8 @@ async fn spawn_restart_manager(
         tmp_dir.utf8_path_buf(),
     );
 
-    let restart_actor_builder = RestartManagerBuilder::new(
-        config,
-        &mut converter_builder, //,&mut state_builder
-    );
+    let mut restart_actor_builder = RestartManagerBuilder::new(config);
+    converter_builder.set_connection(&mut restart_actor_builder);
 
     let converter_box = converter_builder.build().with_timeout(TEST_TIMEOUT_MS);
 

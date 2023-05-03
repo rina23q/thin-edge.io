@@ -9,13 +9,13 @@ use crate::state_repository::state::StateStatus;
 use async_trait::async_trait;
 use camino::Utf8PathBuf;
 use tedge_actors::Actor;
-use tedge_actors::MessageReceiver;
-
 use tedge_actors::DynSender;
 use tedge_actors::LoggingReceiver;
-
+use tedge_actors::MessageReceiver;
 use tedge_actors::RuntimeError;
 use tedge_actors::Sender;
+use tedge_actors::SimpleMessageBox;
+use tedge_actors::SimpleMessageBoxBuilder;
 use tedge_api::OperationStatus;
 use tedge_api::RestartOperationRequest;
 use tedge_api::RestartOperationResponse;
@@ -55,8 +55,9 @@ impl RestartManagerConfig {
 pub struct RestartManagerActor {
     config: RestartManagerConfig,
     state_repository: AgentStateRepository,
-    input_receiver: LoggingReceiver<RestartOperationRequest>,
-    converter_sender: DynSender<RestartOperationResponse>,
+    message_box: SimpleMessageBox<RestartOperationRequest, RestartOperationResponse>,
+    // input_receiver: LoggingReceiver<RestartOperationRequest>,
+    // converter_sender: DynSender<RestartOperationResponse>,
 }
 
 #[async_trait]
@@ -69,8 +70,11 @@ impl Actor for RestartManagerActor {
         // kind of 'init'
         self.process_pending_restart_operation().await?;
 
-        while let Some(_request) = self.input_receiver.recv().await {
-            self.handle_restart_operation().await.unwrap();
+        while let Some(request) = self.message_box.recv().await {
+            if let Err(err) = self.handle_restart_operation(&request).await {
+                error!("{:?}", err);
+                self.handle_error(&request).await?;
+            }
         }
         Ok(())
     }
@@ -79,15 +83,13 @@ impl Actor for RestartManagerActor {
 impl RestartManagerActor {
     pub fn new(
         config: RestartManagerConfig,
-        input_receiver: LoggingReceiver<RestartOperationRequest>,
-        converter_sender: DynSender<RestartOperationResponse>,
+        message_box: SimpleMessageBox<RestartOperationRequest, RestartOperationResponse>,
     ) -> Self {
         let state_repository = AgentStateRepository::new(config.tedge_root_path.clone());
         Self {
             config,
             state_repository,
-            input_receiver,
-            converter_sender,
+            message_box,
         }
     }
 
@@ -123,7 +125,7 @@ impl RestartManagerActor {
                     unimplemented!()
                 }
             };
-            self.converter_sender
+            self.message_box
                 .send(RestartOperationResponse { id, status })
                 .await
                 .unwrap();
@@ -131,18 +133,20 @@ impl RestartManagerActor {
         Ok(())
     }
 
-    async fn handle_restart_operation(&mut self) -> Result<(), RestartManagerError> {
-        // Update state repository
+    async fn handle_restart_operation(
+        &mut self,
+        request: &RestartOperationRequest,
+    ) -> Result<(), RestartManagerError> {
         self.state_repository
-            .update(&StateStatus::Restart(RestartOperationStatus::Restarting))
+            .store(&State {
+                operation_id: Some(request.id.clone()),
+                operation: Some(StateStatus::Restart(RestartOperationStatus::Restarting)),
+            })
             .await?;
 
         // Send 'executing'
         let executing_response = RestartOperationResponse::new(&RestartOperationRequest::default());
-        self.converter_sender
-            .send(executing_response)
-            .await
-            .unwrap();
+        self.message_box.send(executing_response).await.unwrap();
 
         create_tmp_restart_file(&self.config.tmp_dir)?;
 
@@ -160,6 +164,17 @@ impl RestartManagerActor {
             }
         }
 
+        Ok(())
+    }
+
+    async fn handle_error(
+        &mut self,
+        request: &RestartOperationRequest,
+    ) -> Result<(), RestartManagerError> {
+        self.state_repository.clear().await?;
+        let status = OperationStatus::Failed;
+        let response = RestartOperationResponse::new(&request).with_status(status);
+        self.message_box.send(response).await?;
         Ok(())
     }
 
