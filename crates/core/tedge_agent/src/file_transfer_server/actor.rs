@@ -32,7 +32,7 @@ impl Actor for FileTransferServerActor {
         tokio::select! {
             result = server => {
                 info!("Done");
-                return Ok(result.map_err(|err| FileTransferError::FromHyperError(err))?);
+                return Ok(result.map_err(FileTransferError::FromHyperError)?);
             }
             Some(RuntimeRequest::Shutdown) = self.signal_receiver.next() => {
                 info!("Shutdown");
