@@ -1,7 +1,6 @@
 use crate::error::FirmwareManagementError;
 
 use c8y_api::http_proxy::C8yEndPoint;
-use c8y_api::smartrest::topic::C8yTopic;
 use log::info;
 use std::path::Path;
 use std::path::PathBuf;
@@ -57,7 +56,7 @@ impl FirmwareManagerConfig {
         let file_transfer_dir = data_dir.join("file-transfer");
         let firmware_dir = data_dir.join("firmware");
 
-        let c8y_request_topics = C8yTopic::SmartRestRequest.into();
+        let c8y_request_topics = TopicFilter::new_unchecked("firmware/update");
         let health_check_topics = health_check_topics(PLUGIN_SERVICE_NAME);
         let firmware_update_response_topics =
             TopicFilter::new_unchecked(FIRMWARE_UPDATE_RESPONSE_TOPICS);
