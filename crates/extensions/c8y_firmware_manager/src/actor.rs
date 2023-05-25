@@ -12,6 +12,7 @@ use std::path::Path;
 use std::path::PathBuf;
 use tedge_actors::fan_in_message_type;
 use tedge_actors::Actor;
+use tedge_actors::ChannelError;
 use tedge_actors::DynSender;
 use tedge_actors::LoggingReceiver;
 use tedge_actors::MessageReceiver;
@@ -32,15 +33,16 @@ use tedge_utils::file::move_file;
 use tedge_utils::file::PermissionEntry;
 
 use crate::config::FirmwareManagerConfig;
-use crate::error::FirmwareManagementError;
-use crate::json::FirmwareInfo;
+use crate::error::DirectoryError;
+use crate::error::JwtRetrievalError;
 use crate::json::NewFirmwareRequest;
-use crate::json::OperationPayload;
+use crate::json::OperationStatusPayload;
 use crate::message::FirmwareOperationRequest;
 use crate::message::FirmwareOperationResponse;
-use crate::operation::ActiveOperationState;
+use crate::operation::CacheAvailability;
 use crate::operation::FirmwareOperationEntry;
 use crate::operation::OperationKey;
+use crate::operation::RequestKind;
 
 pub type OperationSetTimeout = SetTimeout<OperationKey>;
 pub type OperationTimeout = Timeout<OperationKey>;
@@ -54,7 +56,6 @@ fan_in_message_type!(FirmwareOutput[MqttMessage, OperationSetTimeout, IdDownload
 
 pub struct FirmwareManagerActor {
     config: FirmwareManagerConfig,
-    active_child_ops: HashMap<OperationKey, ActiveOperationState>,
     reqs_pending_download: HashMap<String, NewFirmwareRequest>,
     message_box: FirmwareManagerMessageBox,
 }
@@ -66,7 +67,14 @@ impl Actor for FirmwareManagerActor {
     }
 
     async fn run(&mut self) -> Result<(), RuntimeError> {
-        self.resend_operations_to_child_device().await?;
+        match self.get_operations_in_progress() {
+            Ok(ops) => {
+                self.resend_operations_to_child_device(ops).await?;
+            }
+            Err(err) => {
+                error!("Directory error {err:?}")
+            }
+        }
 
         info!("Ready to serve firmware requests.");
         while let Some(event) = self.message_box.recv().await {
@@ -90,20 +98,15 @@ impl FirmwareManagerActor {
     pub fn new(config: FirmwareManagerConfig, message_box: FirmwareManagerMessageBox) -> Self {
         Self {
             config,
-            active_child_ops: HashMap::new(),
             reqs_pending_download: HashMap::new(),
             message_box,
         }
     }
 
     // Based on the topic name, process either a new firmware update operation from the cloud or a response from child device.
-    pub async fn process_mqtt_message(
-        &mut self,
-        message: MqttMessage,
-    ) -> Result<(), FirmwareManagementError> {
+    pub async fn process_mqtt_message(&mut self, message: MqttMessage) -> Result<(), ChannelError> {
         if self.config.c8y_request_topics.accept(&message) {
-            // "firmware/update" topic
-            self.handle_firmware_update_json_request(message).await;
+            self.handle_firmware_update_json_request(message).await?;
         } else if self.config.firmware_update_response_topics.accept(&message) {
             self.handle_child_device_firmware_operation_response(message.clone())
                 .await?;
@@ -116,69 +119,99 @@ impl FirmwareManagerActor {
         Ok(())
     }
 
-    pub async fn handle_firmware_update_json_request(&mut self, message: MqttMessage) {
+    pub async fn handle_firmware_update_json_request(
+        &mut self,
+        message: MqttMessage,
+    ) -> Result<(), ChannelError> {
         match NewFirmwareRequest::try_from(message.clone()) {
             Ok(request) => {
-                match self.handle_firmware_download_request(request).await {
-                    Ok(_) => {
-                        // Successfully created a new download request
-                    }
-                    Err(err) => {
-                        error!("Handling of operation: '{message:?}' failed with {err}");
-                    }
+                info!("Handling c8y_Firmware operation: {request:?}");
+
+                if request.device == self.config.tedge_device_id {
+                    warn!("c8y-firmware-plugin does not support firmware operation for the main tedge device. \
+                        Please define a custom operation handler for the c8y_Firmware operation.");
+                    return Ok(());
                 }
+
+                self.handle_firmware_download_request(request).await?;
             }
             Err(_) => {
                 error!("Incorrect Firmware Request payload: {message:?}");
             }
         }
+        Ok(())
     }
 
     async fn handle_firmware_download_request(
         &mut self,
         request: NewFirmwareRequest,
-    ) -> Result<(), FirmwareManagementError> {
-        info!("Handling c8y_Firmware operation: {request:?}");
-
-        if request.device == self.config.tedge_device_id {
-            warn!("c8y-firmware-plugin does not support firmware operation for the main tedge device. \
-            Please define a custom operation handler for the c8y_Firmware operation.");
-            return Ok(());
-        }
-
-        let child_id = request.device.as_str();
+    ) -> Result<(), ChannelError> {
         let op_id = request.id.as_str();
 
-        if let Err(err) = self.validate_same_request_in_progress(op_id).await {
-            return match err {
-                FirmwareManagementError::RequestAlreadyAddressed => {
-                    warn!("Skip the received c8y_Firmware operation as the same operation is already in progress.");
-                    Ok(())
+        match self.validate_same_request_in_progress(op_id) {
+            Ok(RequestKind::New) => {
+                match self.is_firmware_already_in_cache(request.clone()) {
+                    Ok(CacheAvailability::New(path)) => {
+                        match self
+                            .create_firmware_download_request(request.clone(), path)
+                            .await
+                        {
+                            Ok((id, download_request)) => {
+                                // Send firmware download request
+                                self.message_box
+                                    .download_sender
+                                    .send((id.clone(), download_request))
+                                    .await?;
+                                self.reqs_pending_download.insert(id, request);
+                            }
+                            Err(JwtRetrievalError::FromChannelError(err)) => return Err(err),
+                            Err(JwtRetrievalError::NoJwtToken) => {
+                                error!("Failed to get JWT token.")
+                            }
+                        }
+                    }
+                    Ok(CacheAvailability::AlreadyInCache(path)) => {
+                        info!(
+                            "Hit the file cache={}. File download is skipped.",
+                            path.display()
+                        );
+                        match self
+                            .handle_firmware_update_request_with_downloaded_file(request, &path)
+                            .await
+                        {
+                            Ok((mqtt_message, set_timeout)) => {
+                                self.message_box.mqtt_publisher.send(mqtt_message).await?;
+                                self.message_box.timer_sender.send(set_timeout).await?;
+                            }
+                            Err(err) => {
+                                error!("Directory error: {err:?}");
+                            }
+                        }
+                    }
+                    Err(err) => {
+                        self.fail_operation_in_cloud(op_id, &err.to_string())
+                            .await?;
+                    }
                 }
-                _ => {
-                    self.fail_operation_in_cloud(child_id, op_id, &err.to_string())
-                        .await?;
-                    Err(err)
-                }
-            };
-        }
-
-        match self
-            .handle_firmware_download_request_child_device(request.clone())
-            .await
-        {
-            Ok(_) => Ok(()),
+            }
+            Ok(RequestKind::AlreadyAddressed(mqtt_message, set_timeout)) => {
+                warn!("Skip the received firmware operation as the same operation is already in progress.");
+                self.message_box.mqtt_publisher.send(mqtt_message).await?;
+                self.message_box.timer_sender.send(set_timeout).await?;
+            }
             Err(err) => {
-                self.fail_operation_in_cloud(child_id, op_id, &err.to_string())
-                    .await
+                self.fail_operation_in_cloud(op_id, &err.to_string())
+                    .await?;
             }
         }
+
+        Ok(())
     }
 
-    async fn handle_firmware_download_request_child_device(
+    fn is_firmware_already_in_cache(
         &mut self,
         request: NewFirmwareRequest,
-    ) -> Result<(), FirmwareManagementError> {
+    ) -> Result<CacheAvailability, DirectoryError> {
         let firmware_url = request.firmware.url.as_str();
         let file_cache_key = digest(firmware_url);
         let cache_file_path = self
@@ -186,44 +219,36 @@ impl FirmwareManagerActor {
             .validate_and_get_cache_dir_path()?
             .join(&file_cache_key);
 
-        let operation_id = request.id.as_str();
-
         if cache_file_path.is_file() {
-            info!(
-                "Hit the file cache={}. File download is skipped.",
-                cache_file_path.display()
-            );
-            // Publish a firmware update request to child device.
-            self.handle_firmware_update_request_with_downloaded_file(request, &cache_file_path)
-                .await?;
+            Ok(CacheAvailability::AlreadyInCache(cache_file_path))
         } else {
-            info!("Awaiting firmware download for op_id: {operation_id} from url: {firmware_url}");
-
-            let auth = if self
-                .config
-                .c8y_end_point
-                .url_is_in_my_tenant_domain(firmware_url)
-            {
-                if let Ok(token) = self.message_box.jwt_retriever.await_response(()).await? {
-                    Some(Auth::new_bearer(&token))
-                } else {
-                    return Err(FirmwareManagementError::NoJwtToken);
-                }
-            } else {
-                None
-            };
-
-            // Send a request to the Downloader to download the file asynchronously.
-            let download_request = DownloadRequest::new(firmware_url, &cache_file_path, auth);
-
-            self.message_box
-                .download_sender
-                .send((operation_id.to_string(), download_request))
-                .await?;
-            self.reqs_pending_download
-                .insert(operation_id.to_string(), request);
+            Ok(CacheAvailability::New(cache_file_path))
         }
-        Ok(())
+    }
+
+    async fn create_firmware_download_request(
+        &mut self,
+        request: NewFirmwareRequest,
+        cache_file_path: PathBuf,
+    ) -> Result<IdDownloadRequest, JwtRetrievalError> {
+        let auth = if self
+            .config
+            .c8y_end_point
+            .url_is_in_my_tenant_domain(&request.firmware.url)
+        {
+            match self.message_box.jwt_retriever.await_response(()).await? {
+                Ok(token) => Some(Auth::new_bearer(&token)),
+                Err(_) => {
+                    return Err(JwtRetrievalError::NoJwtToken);
+                }
+            }
+        } else {
+            None
+        };
+
+        let download_request = DownloadRequest::new(&request.firmware.url, &cache_file_path, auth);
+
+        Ok((request.id, download_request))
     }
 
     // This function is called on receiving a DownloadResult from the DownloaderActor or when the firmware file is already available in the cache.
@@ -233,10 +258,8 @@ impl FirmwareManagerActor {
         &mut self,
         operation_id: &str,
         download_result: DownloadResult,
-    ) -> Result<(), FirmwareManagementError> {
+    ) -> Result<(), ChannelError> {
         if let Some(request) = self.reqs_pending_download.remove(operation_id) {
-            let child_id = request.device.clone();
-
             match download_result {
                 Ok(response) => {
                     match self
@@ -246,9 +269,12 @@ impl FirmwareManagerActor {
                         )
                         .await
                     {
-                        Ok(_) => {} // Firmware upload request is sent to child device successfully
+                        Ok((mqtt_message, set_timeout)) => {
+                            self.message_box.mqtt_publisher.send(mqtt_message).await?;
+                            self.message_box.timer_sender.send(set_timeout).await?;
+                        }
                         Err(err) => {
-                            self.fail_operation_in_cloud(&child_id, operation_id, &err.to_string())
+                            self.fail_operation_in_cloud(operation_id, &err.to_string())
                                 .await?;
                         }
                     }
@@ -256,7 +282,7 @@ impl FirmwareManagerActor {
                 Err(err) => {
                     let firmware_url = request.firmware.url;
                     let failure_reason = format!("Download from {firmware_url} failed with {err}");
-                    self.fail_operation_in_cloud(&child_id, operation_id, &failure_reason)
+                    self.fail_operation_in_cloud(operation_id, &failure_reason)
                         .await?;
                 }
             }
@@ -272,7 +298,7 @@ impl FirmwareManagerActor {
         &mut self,
         request: NewFirmwareRequest,
         downloaded_firmware: &Path,
-    ) -> Result<(), FirmwareManagementError> {
+    ) -> Result<(MqttMessage, SetTimeout<OperationKey>), DirectoryError> {
         let op_id = request.id.as_str();
         let child_id = request.device.as_str();
         let firmware_url = request.firmware.url.as_str();
@@ -311,226 +337,246 @@ impl FirmwareManagerActor {
 
         operation_entry.create_status_file(&self.config.firmware_dir)?;
 
-        self.publish_firmware_update_request(operation_entry)
-            .await?;
+        let mqtt_message = self.get_firmware_update_request(operation_entry)?;
+        let set_timeout =
+            SetTimeout::new(self.config.timeout_sec, OperationKey::new(child_id, op_id));
 
-        let operation_key = OperationKey::new(child_id, op_id);
-        self.active_child_ops
-            .insert(operation_key.clone(), ActiveOperationState::Pending);
-
-        // Start timer
-        self.message_box
-            .timer_sender
-            .send(SetTimeout::new(self.config.timeout_sec, operation_key))
-            .await?;
-
-        Ok(())
+        Ok((mqtt_message, set_timeout))
     }
 
     // This is the start point function when receiving a firmware response from child device.
     async fn handle_child_device_firmware_operation_response(
         &mut self,
         message: MqttMessage,
-    ) -> Result<(), FirmwareManagementError> {
+    ) -> Result<(), ChannelError> {
         let topic_name = &message.topic.name;
-        let child_id = get_child_id_from_child_topic(topic_name).ok_or(
-            FirmwareManagementError::InvalidTopicFromChildOperation {
-                topic: topic_name.to_string(),
-            },
-        )?;
 
-        match FirmwareOperationResponse::try_from(&message) {
-            Ok(response) => {
-                if let Err(err) =
-                    // Address the received response depending on the payload.
-                    self
-                        .handle_child_device_firmware_update_response(&response)
-                        .await
-                {
-                    self.fail_operation_in_cloud(
-                        &child_id,
-                        response.get_payload().operation_id.as_str(),
-                        &err.to_string(),
-                    )
-                    .await?;
+        match get_child_id_from_child_topic(topic_name) {
+            Some(child_id) => {
+                match FirmwareOperationResponse::try_from(&message) {
+                    Ok(response) => {
+                        match self.handle_child_device_firmware_update_response(&response) {
+                            Ok((mqtt_message, maybe_set_timeout)) => {
+                                self.message_box.mqtt_publisher.send(mqtt_message).await?;
+                                if let Some(set_timeout) = maybe_set_timeout {
+                                    self.message_box.timer_sender.send(set_timeout).await?;
+                                }
+                            }
+                            Err(err) => {
+                                self.fail_operation_in_cloud(
+                                    response.get_payload().operation_id.as_str(),
+                                    &err.to_string(),
+                                )
+                                .await?;
+                            }
+                        }
+                    }
+                    Err(err) => {
+                        // Ignore bad responses. Eventually, timeout will fail an operation.
+                        error!("Received a firmware update response with invalid payload for child {child_id}. Error: {err}");
+                    }
                 }
             }
-            Err(err) => {
-                // Ignore bad responses. Eventually, timeout will fail an operation.
-                error!("Received a firmware update response with invalid payload for child {child_id}. Error: {err}");
+            None => {
+                error!("Invalid topic received from child device: {topic_name}")
             }
         }
         Ok(())
     }
 
-    async fn handle_child_device_firmware_update_response(
+    fn handle_child_device_firmware_update_response(
         &mut self,
         response: &FirmwareOperationResponse,
-    ) -> Result<(), FirmwareManagementError> {
+    ) -> Result<(MqttMessage, Option<SetTimeout<OperationKey>>), DirectoryError> {
         let child_device_payload = response.get_payload();
         let child_id = response.get_child_id();
         let operation_id = child_device_payload.operation_id.as_str();
         let received_status = child_device_payload.status;
+
         info!("Firmware update response received. Details: id={operation_id}, child={child_id}, status={received_status:?}");
 
-        let operation_key = OperationKey::new(&child_id, operation_id);
-        let current_operation_state = self.active_child_ops.get(&operation_key);
-
-        match current_operation_state {
-            Some(&ActiveOperationState::Executing) => {}
-            Some(&ActiveOperationState::Pending) => {
-                self.publish_operation_executing_message(operation_id, &child_id)
-                    .await?;
-                self.active_child_ops
-                    .insert(operation_key.clone(), ActiveOperationState::Executing);
-            }
-            None => {
-                info!("Received a response from {child_id} for unknown request {operation_id}.");
-                return Ok(());
-            }
-        }
-
-        match received_status {
+        let (mqtt_message, maybe_set_timeout) = match received_status {
             OperationStatus::Successful => {
-                let status_file_path = self.config.firmware_dir.join(operation_id);
-                let operation_entry =
-                    FirmwareOperationEntry::read_from_file(status_file_path.as_path())?;
-
-                self.publish_installed_firmware_info(&operation_entry)
-                    .await?;
-                self.publish_operation_successful_message(operation_id, &child_id)
-                    .await?;
-
-                self.remove_status_file(operation_id)?;
-                self.remove_entry_from_active_operations(&operation_key);
+                let mqtt_message = self.create_operation_successful_message(operation_id)?;
+                (mqtt_message, None)
             }
             OperationStatus::Failed => {
-                self.publish_operation_failed_message(
-                    operation_id,
-                    &child_id,
-                    "No failure reason provided by child device.",
-                )
-                .await?;
-                self.remove_status_file(operation_id)?;
-                self.remove_entry_from_active_operations(&operation_key);
+                let reason = response.get_reason();
+                let mqtt_message = self.create_failed_operation_message(operation_id, &reason)?;
+                (mqtt_message, None)
             }
             OperationStatus::Executing => {
-                // Starting timer again means extending the timer.
-                self.message_box
-                    .timer_sender
-                    .send(SetTimeout::new(self.config.timeout_sec, operation_key))
-                    .await?;
+                let mqtt_message = self.create_operation_executing_message(operation_id)?;
+                let set_timeout = SetTimeout::new(
+                    self.config.timeout_sec,
+                    OperationKey::new(&child_id, operation_id),
+                );
+                (mqtt_message, Some(set_timeout))
             }
-        }
+        };
 
-        Ok(())
+        Ok((mqtt_message, maybe_set_timeout))
     }
 
     // Called when timeout occurred.
     async fn process_operation_timeout(
         &mut self,
         timeout: OperationTimeout,
-    ) -> Result<(), FirmwareManagementError> {
+    ) -> Result<(), ChannelError> {
         let child_id = timeout.event.child_id;
         let operation_id = timeout.event.operation_id;
 
-        if let Some(_operation_state) = self
-            .active_child_ops
-            .get(&OperationKey::new(&child_id, &operation_id))
-        {
-            self.fail_operation_in_cloud(
-                &child_id,
-                &operation_id,
-                &format!("Child device {child_id} did not respond within the timeout interval of {}sec. Operation ID={operation_id}", self.config.timeout_sec.as_secs()),
-            ).await
-        } else {
-            // Ignore the timeout as the operation has already completed.
-            Ok(())
+        self.fail_operation_in_cloud(
+            &operation_id,
+            &format!("Child device {child_id} did not respond within the timeout interval of {}sec. Operation ID={operation_id}", self.config.timeout_sec.as_secs()),
+        ).await
+    }
+
+    fn validate_same_request_in_progress(
+        &mut self,
+        op_id: &str,
+    ) -> Result<RequestKind, DirectoryError> {
+        let firmware_dir_path = self.config.validate_and_get_firmware_dir_path()?;
+        let entry_file_path = firmware_dir_path.join(op_id);
+
+        match FirmwareOperationEntry::read_from_file(&entry_file_path.as_path()) {
+            Ok(old_entry) => {
+                info!("The same operation as the received c8y_Firmware operation is already in progress.");
+
+                let new_operation_entry = old_entry.increment_attempt();
+                new_operation_entry.overwrite_file(&firmware_dir_path)?;
+
+                let set_timeout = SetTimeout::new(
+                    self.config.timeout_sec,
+                    OperationKey::new(
+                        &new_operation_entry.child_id,
+                        &new_operation_entry.operation_id,
+                    ),
+                );
+                let mqtt_message = self.get_firmware_update_request(new_operation_entry)?;
+
+                Ok(RequestKind::AlreadyAddressed(mqtt_message, set_timeout))
+            }
+            Err(_) => Ok(RequestKind::New),
         }
     }
 
-    async fn validate_same_request_in_progress(
+    async fn fail_operation_in_cloud(
         &mut self,
-        op_id: &str,
-    ) -> Result<(), FirmwareManagementError> {
-        let firmware_dir_path = self.config.validate_and_get_firmware_dir_path()?;
+        operation_id: &str,
+        failure_reason: &str,
+    ) -> Result<(), ChannelError> {
+        error!("{failure_reason}");
 
-        for entry in fs::read_dir(firmware_dir_path.clone())? {
-            match entry {
-                Ok(file_path) => match FirmwareOperationEntry::read_from_file(&file_path.path()) {
-                    Ok(recorded_entry) => {
-                        if recorded_entry.operation_id == op_id {
-                            info!("The same operation as the received c8y_Firmware operation is already in progress.");
-
-                            // Resend a firmware request with incremented attempt.
-                            let new_operation_entry = recorded_entry.increment_attempt();
-                            let operation_key = OperationKey::new(
-                                &new_operation_entry.child_id,
-                                &new_operation_entry.operation_id,
-                            );
-
-                            new_operation_entry.overwrite_file(&firmware_dir_path)?;
-                            self.publish_firmware_update_request(new_operation_entry)
-                                .await?;
-
-                            // Add operation to hashmap
-                            self.active_child_ops
-                                .insert(operation_key.clone(), ActiveOperationState::Pending);
-
-                            // Start timer
-                            self.message_box
-                                .timer_sender
-                                .send(SetTimeout::new(self.config.timeout_sec, operation_key))
-                                .await?;
-
-                            return Err(FirmwareManagementError::RequestAlreadyAddressed);
-                        }
-                    }
-                    Err(err) => {
-                        warn!("Error: {err} while reading the contents of persistent store directory {}",
-                            firmware_dir_path.display());
-                        continue;
-                    }
-                },
-                Err(err) => {
-                    warn!(
-                        "Error: {err} while reading the contents of persistent store directory {}",
-                        firmware_dir_path.display()
-                    );
-                    continue;
-                }
+        match self.create_failed_operation_message(operation_id, failure_reason) {
+            Ok(failed_message) => {
+                self.message_box.mqtt_publisher.send(failed_message).await?;
+            }
+            Err(err) => {
+                error!("Error occurred while working on operation entry {err:?}")
             }
         }
         Ok(())
     }
 
-    async fn fail_operation_in_cloud(
+    fn create_failed_operation_message(
         &mut self,
-        child_id: &str,
         operation_id: &str,
         failure_reason: &str,
-    ) -> Result<(), FirmwareManagementError> {
-        error!("{}", failure_reason);
+    ) -> Result<MqttMessage, DirectoryError> {
+        let file_path = self.config.firmware_dir.join(operation_id);
+        let entry = FirmwareOperationEntry::read_from_file(&file_path)?;
+
+        let topic = Topic::new_unchecked(&format!(
+            "tedge/{}/commands/firmware_update/done/failed",
+            &entry.child_id
+        ));
+
+        let payload = OperationStatusPayload::new(
+            operation_id,
+            &entry.child_id,
+            &entry.name,
+            &entry.server_url,
+            &entry.version,
+        )
+        .with_reason(failure_reason);
+
+        let mqtt_message = MqttMessage::new(&topic, payload.to_string());
+
         self.remove_status_file(operation_id)?;
-        let op_state =
-            self.remove_entry_from_active_operations(&OperationKey::new(child_id, operation_id));
 
-        if op_state == ActiveOperationState::Pending {
-            self.publish_operation_executing_message(operation_id, child_id)
-                .await?;
+        Ok(mqtt_message)
+    }
+
+    fn create_operation_executing_message(
+        &mut self,
+        operation_id: &str,
+    ) -> Result<MqttMessage, DirectoryError> {
+        let file_path = self.config.firmware_dir.join(operation_id);
+        let entry = FirmwareOperationEntry::read_from_file(&file_path)?;
+
+        let topic = Topic::new_unchecked(&format!(
+            "tedge/{}/commands/firmware_update/executing",
+            entry.child_id
+        ));
+        let payload = OperationStatusPayload::new(
+            &entry.operation_id,
+            &entry.child_id,
+            &entry.name,
+            &entry.server_url,
+            &entry.version,
+        );
+        let mqtt_message = MqttMessage::new(&topic, payload.to_string());
+
+        Ok(mqtt_message)
+    }
+
+    fn create_operation_successful_message(
+        &mut self,
+        operation_id: &str,
+    ) -> Result<MqttMessage, DirectoryError> {
+        let file_path = self.config.firmware_dir.join(operation_id);
+        let entry = FirmwareOperationEntry::read_from_file(&file_path)?;
+
+        let topic = Topic::new_unchecked(&format!(
+            "tedge/{}/commands/firmware_update/done/successful",
+            &entry.child_id
+        ));
+        let payload = OperationStatusPayload::new(
+            &entry.operation_id,
+            &entry.child_id,
+            &entry.name,
+            &entry.server_url,
+            &entry.version,
+        );
+        let mqtt_message = MqttMessage::new(&topic, payload.to_string());
+
+        self.remove_status_file(operation_id)?;
+
+        Ok(mqtt_message)
+    }
+
+    async fn resend_operations_to_child_device(
+        &mut self,
+        ops: Vec<(MqttMessage, SetTimeout<OperationKey>)>,
+    ) -> Result<(), ChannelError> {
+        for (mqtt_message, set_timeout) in ops {
+            self.message_box.mqtt_publisher.send(mqtt_message).await?;
+            self.message_box.timer_sender.send(set_timeout).await?;
         }
-        self.publish_operation_failed_message(operation_id, child_id, failure_reason)
-            .await?;
-
         Ok(())
     }
 
-    async fn resend_operations_to_child_device(&mut self) -> Result<(), FirmwareManagementError> {
+    fn get_operations_in_progress(
+        &mut self,
+    ) -> Result<Vec<(MqttMessage, SetTimeout<OperationKey>)>, DirectoryError> {
         let firmware_dir_path = self.config.firmware_dir.clone();
         if !firmware_dir_path.is_dir() {
             // Do nothing if the persistent store directory does not exist yet.
-            return Ok(());
+            return Ok(vec![]);
         }
+
+        let mut ops_in_progress = Vec::new();
 
         for entry in fs::read_dir(&firmware_dir_path)? {
             let file_path = entry?.path();
@@ -541,24 +587,17 @@ impl FirmwareManagerActor {
                     OperationKey::new(&operation_entry.child_id, &operation_entry.operation_id);
 
                 operation_entry.overwrite_file(&firmware_dir_path)?;
-                self.publish_firmware_update_request(operation_entry)
-                    .await?;
 
-                // Add operation to hashmap
-                self.active_child_ops
-                    .insert(operation_key.clone(), ActiveOperationState::Pending);
+                let mqtt_message = self.get_firmware_update_request(operation_entry)?;
+                let set_timeout = SetTimeout::new(self.config.timeout_sec, operation_key);
 
-                // Start timer
-                self.message_box
-                    .timer_sender
-                    .send(SetTimeout::new(self.config.timeout_sec, operation_key))
-                    .await?;
+                ops_in_progress.push((mqtt_message, set_timeout));
             }
         }
-        Ok(())
+        Ok(ops_in_progress)
     }
 
-    fn remove_status_file(&mut self, operation_id: &str) -> Result<(), FirmwareManagementError> {
+    fn remove_status_file(&mut self, operation_id: &str) -> Result<(), DirectoryError> {
         let status_file_path = self
             .config
             .validate_and_get_firmware_dir_path()?
@@ -569,89 +608,13 @@ impl FirmwareManagerActor {
         Ok(())
     }
 
-    async fn publish_firmware_update_request(
+    fn get_firmware_update_request(
         &mut self,
         operation_entry: FirmwareOperationEntry,
-    ) -> Result<(), FirmwareManagementError> {
+    ) -> Result<MqttMessage, serde_json::Error> {
         let mqtt_message: MqttMessage =
             FirmwareOperationRequest::from(operation_entry.clone()).try_into()?;
-        self.message_box.mqtt_publisher.send(mqtt_message).await?;
-        info!(
-            "Firmware update request is sent. operation_id={}, child={}",
-            operation_entry.operation_id, operation_entry.child_id
-        );
-        Ok(())
-    }
-
-    async fn publish_operation_executing_message(
-        &mut self,
-        op_id: &str,
-        device_name: &str,
-    ) -> Result<(), FirmwareManagementError> {
-        let topic = Topic::new_unchecked("operation/status");
-        let payload = OperationPayload::new(op_id, device_name, OperationStatus::Executing);
-        let executing_msg = MqttMessage::new(&topic, payload.to_string());
-
-        self.message_box.mqtt_publisher.send(executing_msg).await?;
-        Ok(())
-    }
-
-    async fn publish_operation_successful_message(
-        &mut self,
-        op_id: &str,
-        device_name: &str,
-    ) -> Result<(), FirmwareManagementError> {
-        let topic = Topic::new_unchecked("operation/status");
-        let payload = OperationPayload::new(op_id, device_name, OperationStatus::Successful);
-        let successful_msg = MqttMessage::new(&topic, payload.to_string());
-
-        self.message_box.mqtt_publisher.send(successful_msg).await?;
-        Ok(())
-    }
-
-    async fn publish_operation_failed_message(
-        &mut self,
-        op_id: &str,
-        device_name: &str,
-        failure_reason: &str,
-    ) -> Result<(), FirmwareManagementError> {
-        let topic = Topic::new_unchecked("operation/status");
-        let payload = OperationPayload::new(op_id, device_name, OperationStatus::Failed)
-            .with_reason(failure_reason);
-        let failed_msg = MqttMessage::new(&topic, payload.to_string());
-
-        self.message_box.mqtt_publisher.send(failed_msg).await?;
-        Ok(())
-    }
-
-    async fn publish_installed_firmware_info(
-        &mut self,
-        operation_entry: &FirmwareOperationEntry,
-    ) -> Result<(), FirmwareManagementError> {
-        let topic = Topic::new_unchecked("firmware/data");
-        let firmware_info = FirmwareInfo::new(
-            &operation_entry.name,
-            &operation_entry.server_url,
-            &operation_entry.version,
-        );
-        let installed_firmware_message = MqttMessage::new(&topic, firmware_info.to_string());
-
-        self.message_box
-            .mqtt_publisher
-            .send(installed_firmware_message)
-            .await?;
-        Ok(())
-    }
-
-    fn remove_entry_from_active_operations(
-        &mut self,
-        operation_key: &OperationKey,
-    ) -> ActiveOperationState {
-        if let Some(operation_state) = self.active_child_ops.remove(operation_key) {
-            operation_state
-        } else {
-            ActiveOperationState::Pending
-        }
+        Ok(mqtt_message)
     }
 
     // The symlink path should be <tedge-data-dir>/file-transfer/<child-id>/firmware_update/<file_cache_key>
@@ -660,7 +623,7 @@ impl FirmwareManagerActor {
         child_id: &str,
         file_cache_key: &str,
         original_file_path: &Path,
-    ) -> Result<PathBuf, FirmwareManagementError> {
+    ) -> Result<PathBuf, DirectoryError> {
         let file_transfer_dir_path = self.config.validate_and_get_file_transfer_dir_path()?;
 
         let symlink_dir_path = file_transfer_dir_path

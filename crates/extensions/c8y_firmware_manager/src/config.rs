@@ -1,4 +1,4 @@
-use crate::error::FirmwareManagementError;
+use crate::error::DirNotFound;
 
 use c8y_api::http_proxy::C8yEndPoint;
 use log::info;
@@ -20,6 +20,7 @@ use tedge_config::TmpPathSetting;
 use tedge_config::DEFAULT_FILE_TRANSFER_DIR_NAME;
 use tedge_mqtt_ext::TopicFilter;
 use tedge_utils::file::create_directory_with_user_group;
+use tedge_utils::file::FileError;
 
 const PLUGIN_SERVICE_NAME: &str = "c8y-firmware-plugin";
 const FIRMWARE_UPDATE_RESPONSE_TOPICS: &str = "tedge/+/commands/res/firmware_update";
@@ -56,7 +57,8 @@ impl FirmwareManagerConfig {
         let file_transfer_dir = data_dir.join("file-transfer");
         let firmware_dir = data_dir.join("firmware");
 
-        let c8y_request_topics = TopicFilter::new_unchecked("firmware/update");
+        let c8y_request_topics =
+            TopicFilter::new_unchecked("tedge/+/commands/firmware_update/start");
         let health_check_topics = health_check_topics(PLUGIN_SERVICE_NAME);
         let firmware_update_response_topics =
             TopicFilter::new_unchecked(FIRMWARE_UPDATE_RESPONSE_TOPICS);
@@ -103,27 +105,25 @@ impl FirmwareManagerConfig {
     }
 
     // It checks the directory exists in the system
-    pub fn validate_and_get_cache_dir_path(&self) -> Result<PathBuf, FirmwareManagementError> {
+    pub fn validate_and_get_cache_dir_path(&self) -> Result<PathBuf, DirNotFound> {
         validate_dir_exists(self.cache_dir.as_path())?;
         Ok(self.cache_dir.clone())
     }
 
     // It checks the directory exists in the system
-    pub fn validate_and_get_file_transfer_dir_path(
-        &self,
-    ) -> Result<PathBuf, FirmwareManagementError> {
+    pub fn validate_and_get_file_transfer_dir_path(&self) -> Result<PathBuf, DirNotFound> {
         validate_dir_exists(self.file_transfer_dir.as_path())?;
         Ok(self.file_transfer_dir.clone())
     }
 
     // It checks the directory exists in the system
-    pub fn validate_and_get_firmware_dir_path(&self) -> Result<PathBuf, FirmwareManagementError> {
+    pub fn validate_and_get_firmware_dir_path(&self) -> Result<PathBuf, DirNotFound> {
         validate_dir_exists(self.firmware_dir.as_path())?;
         Ok(self.firmware_dir.clone())
     }
 }
 
-pub fn create_directories(data_dir: PathBuf) -> Result<(), FirmwareManagementError> {
+pub fn create_directories(data_dir: PathBuf) -> Result<(), FileError> {
     info!("Creating required directories for c8y-firmware-plugin.");
     create_directory_with_user_group(data_dir.join("cache"), "tedge", "tedge", 0o755)?;
     create_directory_with_user_group(
@@ -136,11 +136,11 @@ pub fn create_directories(data_dir: PathBuf) -> Result<(), FirmwareManagementErr
     Ok(())
 }
 
-fn validate_dir_exists(dir_path: &Path) -> Result<(), FirmwareManagementError> {
+fn validate_dir_exists(dir_path: &Path) -> Result<(), DirNotFound> {
     if dir_path.is_dir() {
         Ok(())
     } else {
-        Err(FirmwareManagementError::DirectoryNotFound {
+        Err(DirNotFound::DirectoryNotFound {
             path: dir_path.to_path_buf(),
         })
     }

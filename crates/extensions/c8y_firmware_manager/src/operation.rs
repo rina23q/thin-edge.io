@@ -1,7 +1,10 @@
-use crate::error::FirmwareManagementError;
+use crate::error::DirectoryError;
 
 use std::fs;
 use std::path::Path;
+use std::path::PathBuf;
+use tedge_mqtt_ext::MqttMessage;
+use tedge_timer_ext::SetTimeout;
 use tedge_utils::file::create_file_with_mode;
 use tedge_utils::file::overwrite_file;
 
@@ -19,17 +22,17 @@ pub struct FirmwareOperationEntry {
 }
 
 impl FirmwareOperationEntry {
-    pub fn create_status_file(&self, firmware_dir: &Path) -> Result<(), FirmwareManagementError> {
+    pub fn create_status_file(&self, firmware_dir: &Path) -> Result<(), DirectoryError> {
         let path = firmware_dir.join(&self.operation_id);
         let content = serde_json::to_string(self)?;
         create_file_with_mode(path, Some(content.as_str()), 0o644)
-            .map_err(FirmwareManagementError::FromFileError)
+            .map_err(DirectoryError::FromFileError)
     }
 
-    pub fn overwrite_file(&self, firmware_dir: &Path) -> Result<(), FirmwareManagementError> {
+    pub fn overwrite_file(&self, firmware_dir: &Path) -> Result<(), DirectoryError> {
         let path = firmware_dir.join(&self.operation_id);
         let content = serde_json::to_string(self)?;
-        overwrite_file(&path, &content).map_err(FirmwareManagementError::FromFileError)
+        overwrite_file(&path, &content).map_err(DirectoryError::FromFileError)
     }
 
     pub fn increment_attempt(self) -> Self {
@@ -39,9 +42,9 @@ impl FirmwareOperationEntry {
         }
     }
 
-    pub fn read_from_file(path: &Path) -> Result<Self, FirmwareManagementError> {
+    pub fn read_from_file(path: &Path) -> Result<Self, DirectoryError> {
         let bytes = fs::read(path)?;
-        serde_json::from_slice(&bytes).map_err(FirmwareManagementError::FromSerdeJsonError)
+        serde_json::from_slice(&bytes).map_err(DirectoryError::FromSerdeJsonError)
     }
 }
 
@@ -60,10 +63,15 @@ impl OperationKey {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Copy, Clone)]
-pub enum ActiveOperationState {
-    Pending,
-    Executing,
+// Name...
+pub enum RequestKind {
+    AlreadyAddressed(MqttMessage, SetTimeout<OperationKey>),
+    New,
+}
+
+pub enum CacheAvailability {
+    AlreadyInCache(PathBuf),
+    New(PathBuf),
 }
 
 #[cfg(test)]

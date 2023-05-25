@@ -78,9 +78,12 @@ impl FirmwareManagerBuilder {
     }
 
     pub fn subscriptions() -> TopicFilter {
-        vec!["firmware/update", "tedge/+/commands/res/firmware_update"]
-            .try_into()
-            .expect("Infallible")
+        vec![
+            "tedge/+/commands/firmware_update/start",
+            "tedge/+/commands/res/firmware_update",
+        ]
+        .try_into()
+        .expect("Infallible")
     }
 }
 
