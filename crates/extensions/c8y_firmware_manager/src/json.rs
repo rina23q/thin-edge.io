@@ -9,6 +9,8 @@ pub struct FirmwareInfo {
     pub name: String,
     pub url: String,
     pub version: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub sha256: Option<String>,
 }
 
 impl FirmwareInfo {
@@ -17,6 +19,14 @@ impl FirmwareInfo {
             name: name.to_string(),
             url: url.to_string(),
             version: version.to_string(),
+            sha256: None,
+        }
+    }
+
+    pub fn with_sha256(self, sha256: &str) -> Self {
+        Self {
+            sha256: Some(sha256.into()),
+            ..self
         }
     }
 }
@@ -65,12 +75,13 @@ impl OperationStatusPayload {
         name: &str,
         url: &str,
         version: &str,
+        sha256: &str,
     ) -> Self {
         Self {
             id: id.into(),
             status,
             device: device.to_string(),
-            firmware: FirmwareInfo::new(name, url, version),
+            firmware: FirmwareInfo::new(name, url, version).with_sha256(sha256),
             reason: None,
         }
     }
@@ -106,6 +117,7 @@ mod tests {
             "name",
             "url",
             "version",
+            "token",
         );
         let json = serde_json::to_string(&operation).unwrap();
         dbg!(&json);
@@ -120,6 +132,7 @@ mod tests {
             "name",
             "url",
             "version",
+            "token",
         )
         .with_reason("aaa");
         let json = operation.to_string();
@@ -136,10 +149,25 @@ mod tests {
     "url": "https://t6352.basic.stage.c8y.io/inventory/binaries/11203",
     "device": "87aa0422-ccb0-4435-a497-117b2f00ea67",
     "unknown": "aaaa",
-    "sha256": "aaaaaaaaa",
-    "layer": {
+    "unknown_layer": {
         "one": "one"
     }
+}"#;
+        let value: NewFirmwareRequest = serde_json::from_str(data).unwrap();
+
+        dbg!(&value);
+    }
+
+    #[test]
+    fn deserialize_firmware_request_with_sha256() {
+        let data = r#"
+{
+    "id": "50203",
+    "name": "simple text",
+    "version": "2.0",
+    "url": "https://t6352.basic.stage.c8y.io/inventory/binaries/11203",
+    "device": "87aa0422-ccb0-4435-a497-117b2f00ea67",
+    "sha256": "aaaaaaaaa"
 }"#;
         let value: NewFirmwareRequest = serde_json::from_str(data).unwrap();
 

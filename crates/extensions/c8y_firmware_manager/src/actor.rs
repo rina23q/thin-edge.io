@@ -146,9 +146,9 @@ impl FirmwareManagerActor {
         &mut self,
         request: NewFirmwareRequest,
     ) -> Result<(), ChannelError> {
-        let op_id = request.id.as_str();
+        let op_id = request.id.clone();
 
-        match self.validate_same_request_in_progress(op_id) {
+        match self.validate_same_request_in_progress(&op_id) {
             Ok(RequestKind::New) => {
                 match self.is_firmware_already_in_cache(request.clone()) {
                     Ok(CacheAvailability::New(path)) => {
@@ -166,7 +166,11 @@ impl FirmwareManagerActor {
                             }
                             Err(JwtRetrievalError::FromChannelError(err)) => return Err(err),
                             Err(JwtRetrievalError::NoJwtToken) => {
-                                error!("Failed to get JWT token.")
+                                self.fail_operation_in_cloud(
+                                    &op_id,
+                                    &JwtRetrievalError::NoJwtToken.to_string(),
+                                )
+                                .await?;
                             }
                         }
                     }
@@ -184,12 +188,13 @@ impl FirmwareManagerActor {
                                 self.message_box.timer_sender.send(set_timeout).await?;
                             }
                             Err(err) => {
-                                error!("Directory error: {err:?}");
+                                self.fail_operation_in_cloud(&op_id, &err.to_string())
+                                    .await?;
                             }
                         }
                     }
                     Err(err) => {
-                        self.fail_operation_in_cloud(op_id, &err.to_string())
+                        self.fail_operation_in_cloud(&op_id, &err.to_string())
                             .await?;
                     }
                 }
@@ -200,7 +205,7 @@ impl FirmwareManagerActor {
                 self.message_box.timer_sender.send(set_timeout).await?;
             }
             Err(err) => {
-                self.fail_operation_in_cloud(op_id, &err.to_string())
+                self.fail_operation_in_cloud(&op_id, &err.to_string())
                     .await?;
             }
         }
@@ -336,6 +341,13 @@ impl FirmwareManagerActor {
         };
 
         operation_entry.create_status_file(&self.config.firmware_dir)?;
+
+        // This check must be after file creation, otherwise error message cannot read other data.
+        if let Some(sha256) = request.firmware.sha256 {
+            if sha256 != file_sha256 {
+                return Err(DirectoryError::MismatchedSha256);
+            }
+        }
 
         let mqtt_message = self.get_firmware_update_request(operation_entry)?;
         let set_timeout =
@@ -499,6 +511,7 @@ impl FirmwareManagerActor {
             &entry.name,
             &entry.server_url,
             &entry.version,
+            &entry.sha256,
         )
         .with_reason(failure_reason);
 
@@ -527,6 +540,7 @@ impl FirmwareManagerActor {
             &entry.name,
             &entry.server_url,
             &entry.version,
+            &entry.sha256,
         );
         let mqtt_message = MqttMessage::new(&topic, payload.to_string());
 
@@ -551,6 +565,7 @@ impl FirmwareManagerActor {
             &entry.name,
             &entry.server_url,
             &entry.version,
+            &entry.sha256,
         );
         let mqtt_message = MqttMessage::new(&topic, payload.to_string());
 

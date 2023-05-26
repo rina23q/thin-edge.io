@@ -19,6 +19,10 @@ pub enum DirectoryError {
 
     #[error(transparent)]
     FromFileError(#[from] tedge_utils::file::FileError),
+
+    // Consider to improve
+    #[error("The given sha256 is mismatched with downloaded file")]
+    MismatchedSha256,
 }
 
 #[derive(thiserror::Error, Debug)]
