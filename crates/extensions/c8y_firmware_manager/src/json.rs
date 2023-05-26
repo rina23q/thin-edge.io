@@ -1,6 +1,7 @@
 use crate::error::FirmwareRequestResponseError;
 use serde::Deserialize;
 use serde::Serialize;
+use tedge_api::OperationStatus;
 use tedge_mqtt_ext::MqttMessage;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -48,6 +49,7 @@ impl TryFrom<MqttMessage> for NewFirmwareRequest {
 #[derive(Serialize, Debug)]
 pub struct OperationStatusPayload {
     pub id: String,
+    pub status: OperationStatus,
     pub device: String,
     #[serde(flatten)]
     pub firmware: FirmwareInfo,
@@ -56,9 +58,17 @@ pub struct OperationStatusPayload {
 }
 
 impl OperationStatusPayload {
-    pub fn new(id: &str, device: &str, name: &str, url: &str, version: &str) -> Self {
+    pub fn new(
+        id: &str,
+        status: OperationStatus,
+        device: &str,
+        name: &str,
+        url: &str,
+        version: &str,
+    ) -> Self {
         Self {
             id: id.into(),
+            status,
             device: device.to_string(),
             firmware: FirmwareInfo::new(name, url, version),
             reason: None,
@@ -89,15 +99,29 @@ mod tests {
 
     #[test]
     fn serialize_operation_payload() {
-        let operation = OperationStatusPayload::new("id", "device", "name", "url", "version");
+        let operation = OperationStatusPayload::new(
+            "id",
+            OperationStatus::Executing,
+            "device",
+            "name",
+            "url",
+            "version",
+        );
         let json = serde_json::to_string(&operation).unwrap();
         dbg!(&json);
     }
 
     #[test]
     fn serialize_operation_payload_with_reason() {
-        let operation = OperationStatusPayload::new("id", "device", "name", "url", "version")
-            .with_reason("aaa");
+        let operation = OperationStatusPayload::new(
+            "id",
+            OperationStatus::Executing,
+            "device",
+            "name",
+            "url",
+            "version",
+        )
+        .with_reason("aaa");
         let json = operation.to_string();
         dbg!(&json);
     }
@@ -110,7 +134,12 @@ mod tests {
     "name": "simple text",
     "version": "2.0",
     "url": "https://t6352.basic.stage.c8y.io/inventory/binaries/11203",
-    "device": "87aa0422-ccb0-4435-a497-117b2f00ea67"
+    "device": "87aa0422-ccb0-4435-a497-117b2f00ea67",
+    "unknown": "aaaa",
+    "sha256": "aaaaaaaaa",
+    "layer": {
+        "one": "one"
+    }
 }"#;
         let value: NewFirmwareRequest = serde_json::from_str(data).unwrap();
 

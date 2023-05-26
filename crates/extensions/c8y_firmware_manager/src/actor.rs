@@ -494,6 +494,7 @@ impl FirmwareManagerActor {
 
         let payload = OperationStatusPayload::new(
             operation_id,
+            OperationStatus::Failed,
             &entry.child_id,
             &entry.name,
             &entry.server_url,
@@ -521,6 +522,7 @@ impl FirmwareManagerActor {
         ));
         let payload = OperationStatusPayload::new(
             &entry.operation_id,
+            OperationStatus::Executing,
             &entry.child_id,
             &entry.name,
             &entry.server_url,
@@ -544,6 +546,7 @@ impl FirmwareManagerActor {
         ));
         let payload = OperationStatusPayload::new(
             &entry.operation_id,
+            OperationStatus::Successful,
             &entry.child_id,
             &entry.name,
             &entry.server_url,

@@ -252,7 +252,7 @@ mod tests {
         let result = FirmwareOperationResponse::try_from(&message);
         assert_matches!(
             result.unwrap_err(),
-            FirmwareManagementError::FromSerdeJsonError { .. }
+            FirmwareRequestResponseError::FromSerdeJsonError { .. }
         );
     }
 
@@ -270,7 +270,7 @@ mod tests {
         let result = FirmwareOperationResponse::try_from(&message);
         assert_matches!(
             result.unwrap_err(),
-            FirmwareManagementError::FromSerdeJsonError { .. }
+            FirmwareRequestResponseError::FromSerdeJsonError { .. }
         );
     }
 
@@ -288,7 +288,7 @@ mod tests {
         let result = FirmwareOperationResponse::try_from(&message);
         assert_matches!(
             result.unwrap_err(),
-            FirmwareManagementError::FromSerdeJsonError { .. }
+            FirmwareRequestResponseError::FromSerdeJsonError { .. }
         );
     }
 
@@ -306,7 +306,7 @@ mod tests {
         let result = FirmwareOperationResponse::try_from(&message);
         assert_matches!(
             result.unwrap_err(),
-            FirmwareManagementError::FromSerdeJsonError { .. }
+            FirmwareRequestResponseError::FromSerdeJsonError { .. }
         );
     }
 }
