@@ -166,8 +166,8 @@ impl FirmwareManagerActor {
                             }
                             Err(JwtRetrievalError::FromChannelError(err)) => return Err(err),
                             Err(JwtRetrievalError::NoJwtToken) => {
-                                self.fail_operation_in_cloud(
-                                    &op_id,
+                                self.fail_operation_in_cloud_by_request(
+                                    &request,
                                     &JwtRetrievalError::NoJwtToken.to_string(),
                                 )
                                 .await?;
@@ -180,7 +180,10 @@ impl FirmwareManagerActor {
                             path.display()
                         );
                         match self
-                            .handle_firmware_update_request_with_downloaded_file(request, &path)
+                            .handle_firmware_update_request_with_downloaded_file(
+                                request.clone(),
+                                &path,
+                            )
                             .await
                         {
                             Ok((mqtt_message, set_timeout)) => {
@@ -188,13 +191,13 @@ impl FirmwareManagerActor {
                                 self.message_box.timer_sender.send(set_timeout).await?;
                             }
                             Err(err) => {
-                                self.fail_operation_in_cloud(&op_id, &err.to_string())
+                                self.fail_operation_in_cloud_by_request(&request, &err.to_string())
                                     .await?;
                             }
                         }
                     }
                     Err(err) => {
-                        self.fail_operation_in_cloud(&op_id, &err.to_string())
+                        self.fail_operation_in_cloud_by_request(&request, &err.to_string())
                             .await?;
                     }
                 }
@@ -205,7 +208,7 @@ impl FirmwareManagerActor {
                 self.message_box.timer_sender.send(set_timeout).await?;
             }
             Err(err) => {
-                self.fail_operation_in_cloud(&op_id, &err.to_string())
+                self.fail_operation_in_cloud_by_request(&request, &err.to_string())
                     .await?;
             }
         }
@@ -269,7 +272,7 @@ impl FirmwareManagerActor {
                 Ok(response) => {
                     match self
                         .handle_firmware_update_request_with_downloaded_file(
-                            request,
+                            request.clone(),
                             &response.file_path,
                         )
                         .await
@@ -279,15 +282,15 @@ impl FirmwareManagerActor {
                             self.message_box.timer_sender.send(set_timeout).await?;
                         }
                         Err(err) => {
-                            self.fail_operation_in_cloud(operation_id, &err.to_string())
+                            self.fail_operation_in_cloud_by_request(&request, &err.to_string())
                                 .await?;
                         }
                     }
                 }
                 Err(err) => {
-                    let firmware_url = request.firmware.url;
-                    let failure_reason = format!("Download from {firmware_url} failed with {err}");
-                    self.fail_operation_in_cloud(operation_id, &failure_reason)
+                    let url = request.firmware.url.clone();
+                    let failure_reason = format!("Download from {url} failed with {err}");
+                    self.fail_operation_in_cloud_by_request(&request, &failure_reason)
                         .await?;
                 }
             }
@@ -329,6 +332,12 @@ impl FirmwareManagerActor {
         );
         let file_sha256 = try_digest(symlink_path.as_path())?;
 
+        if let Some(sha256) = request.firmware.sha256 {
+            if sha256 != file_sha256 {
+                return Err(DirectoryError::MismatchedSha256);
+            }
+        }
+
         let operation_entry = FirmwareOperationEntry {
             operation_id: op_id.to_string(),
             child_id: child_id.to_string(),
@@ -342,14 +351,7 @@ impl FirmwareManagerActor {
 
         operation_entry.create_status_file(&self.config.firmware_dir)?;
 
-        // This check must be after file creation, otherwise error message cannot read other data.
-        if let Some(sha256) = request.firmware.sha256 {
-            if sha256 != file_sha256 {
-                return Err(DirectoryError::MismatchedSha256);
-            }
-        }
-
-        let mqtt_message = self.get_firmware_update_request(operation_entry)?;
+        let mqtt_message = create_firmware_update_request(operation_entry)?;
         let set_timeout =
             SetTimeout::new(self.config.timeout_sec, OperationKey::new(child_id, op_id));
 
@@ -375,7 +377,7 @@ impl FirmwareManagerActor {
                                 }
                             }
                             Err(err) => {
-                                self.fail_operation_in_cloud(
+                                self.fail_operation_in_cloud_with_file_deletion(
                                     response.get_payload().operation_id.as_str(),
                                     &err.to_string(),
                                 )
@@ -414,7 +416,8 @@ impl FirmwareManagerActor {
             }
             OperationStatus::Failed => {
                 let reason = response.get_reason();
-                let mqtt_message = self.create_failed_operation_message(operation_id, &reason)?;
+                let mqtt_message = self
+                    .create_failed_operation_message_from_operation_file(operation_id, &reason)?;
                 (mqtt_message, None)
             }
             OperationStatus::Executing => {
@@ -438,7 +441,7 @@ impl FirmwareManagerActor {
         let child_id = timeout.event.child_id;
         let operation_id = timeout.event.operation_id;
 
-        self.fail_operation_in_cloud(
+        self.fail_operation_in_cloud_with_file_deletion(
             &operation_id,
             &format!("Child device {child_id} did not respond within the timeout interval of {}sec. Operation ID={operation_id}", self.config.timeout_sec.as_secs()),
         ).await
@@ -465,7 +468,7 @@ impl FirmwareManagerActor {
                         &new_operation_entry.operation_id,
                     ),
                 );
-                let mqtt_message = self.get_firmware_update_request(new_operation_entry)?;
+                let mqtt_message = create_firmware_update_request(new_operation_entry)?;
 
                 Ok(RequestKind::AlreadyAddressed(mqtt_message, set_timeout))
             }
@@ -473,14 +476,15 @@ impl FirmwareManagerActor {
         }
     }
 
-    async fn fail_operation_in_cloud(
+    async fn fail_operation_in_cloud_with_file_deletion(
         &mut self,
         operation_id: &str,
         failure_reason: &str,
     ) -> Result<(), ChannelError> {
         error!("{failure_reason}");
 
-        match self.create_failed_operation_message(operation_id, failure_reason) {
+        match self.create_failed_operation_message_from_operation_file(operation_id, failure_reason)
+        {
             Ok(failed_message) => {
                 self.message_box.mqtt_publisher.send(failed_message).await?;
             }
@@ -491,21 +495,35 @@ impl FirmwareManagerActor {
         Ok(())
     }
 
-    fn create_failed_operation_message(
+    async fn fail_operation_in_cloud_by_request(
+        &mut self,
+        request: &NewFirmwareRequest,
+        failure_reason: &str,
+    ) -> Result<(), ChannelError> {
+        error!("{failure_reason}");
+
+        let operation_status_payload =
+            OperationStatusPayload::from_firmware_request(request, OperationStatus::Failed)
+                .with_reason(&failure_reason);
+
+        let mqtt_message = create_failed_operation_message(operation_status_payload);
+
+        self.message_box.mqtt_publisher.send(mqtt_message).await?;
+
+        Ok(())
+    }
+
+    fn create_failed_operation_message_from_operation_file(
         &mut self,
         operation_id: &str,
         failure_reason: &str,
     ) -> Result<MqttMessage, DirectoryError> {
         let file_path = self.config.firmware_dir.join(operation_id);
         let entry = FirmwareOperationEntry::read_from_file(&file_path)?;
-
-        let topic = Topic::new_unchecked(&format!(
-            "tedge/{}/commands/firmware_update/done/failed",
-            &entry.child_id
-        ));
+        self.remove_status_file(operation_id)?;
 
         let payload = OperationStatusPayload::new(
-            operation_id,
+            &entry.operation_id,
             OperationStatus::Failed,
             &entry.child_id,
             &entry.name,
@@ -515,9 +533,7 @@ impl FirmwareManagerActor {
         )
         .with_reason(failure_reason);
 
-        let mqtt_message = MqttMessage::new(&topic, payload.to_string());
-
-        self.remove_status_file(operation_id)?;
+        let mqtt_message = create_failed_operation_message(payload);
 
         Ok(mqtt_message)
     }
@@ -606,7 +622,7 @@ impl FirmwareManagerActor {
 
                 operation_entry.overwrite_file(&firmware_dir_path)?;
 
-                let mqtt_message = self.get_firmware_update_request(operation_entry)?;
+                let mqtt_message = create_firmware_update_request(operation_entry)?;
                 let set_timeout = SetTimeout::new(self.config.timeout_sec, operation_key);
 
                 ops_in_progress.push((mqtt_message, set_timeout));
@@ -624,15 +640,6 @@ impl FirmwareManagerActor {
             fs::remove_file(status_file_path)?;
         }
         Ok(())
-    }
-
-    fn get_firmware_update_request(
-        &mut self,
-        operation_entry: FirmwareOperationEntry,
-    ) -> Result<MqttMessage, serde_json::Error> {
-        let mqtt_message: MqttMessage =
-            FirmwareOperationRequest::from(operation_entry.clone()).try_into()?;
-        Ok(mqtt_message)
     }
 
     // The symlink path should be <tedge-data-dir>/file-transfer/<child-id>/firmware_update/<file_cache_key>
@@ -655,6 +662,22 @@ impl FirmwareManagerActor {
         }
         Ok(symlink_path)
     }
+}
+
+fn create_firmware_update_request(
+    operation_entry: FirmwareOperationEntry,
+) -> Result<MqttMessage, serde_json::Error> {
+    let mqtt_message: MqttMessage =
+        FirmwareOperationRequest::from(operation_entry.clone()).try_into()?;
+    Ok(mqtt_message)
+}
+
+fn create_failed_operation_message(payload: OperationStatusPayload) -> MqttMessage {
+    let topic = Topic::new_unchecked(&format!(
+        "tedge/{}/commands/firmware_update/done/failed",
+        &payload.device
+    ));
+    MqttMessage::new(&topic, payload.to_string())
 }
 
 pub struct FirmwareManagerMessageBox {

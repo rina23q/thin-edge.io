@@ -92,6 +92,16 @@ impl OperationStatusPayload {
             ..self
         }
     }
+
+    pub fn from_firmware_request(request: &NewFirmwareRequest, status: OperationStatus) -> Self {
+        Self {
+            id: request.id.clone(),
+            status,
+            device: request.device.clone(),
+            firmware: request.firmware.clone(),
+            reason: None,
+        }
+    }
 }
 
 impl ToString for OperationStatusPayload {
