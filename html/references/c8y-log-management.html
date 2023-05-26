@@ -1,0 +1,289 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Log Management - thin-edge.io docs</title>
+        <!-- Custom HTML head -->
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../././mdbook-admonish.css">
+        <link rel="stylesheet" href="../theme/pagetoc.css">
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var html = document.querySelector('html');
+            var sidebar = null;
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item "><a href="../001_overview.html"><strong aria-hidden="true">1.</strong> Overview</a></li><li class="chapter-item "><a href="../tutorials/getting-started.html"><strong aria-hidden="true">2.</strong> Getting started</a></li><li class="chapter-item "><a href="../architecture/architecture.html"><strong aria-hidden="true">3.</strong> Concepts</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../architecture/faq.html"><strong aria-hidden="true">3.1.</strong> Architecture FAQ</a></li><li class="chapter-item "><a href="../architecture/thin-edge-json.html"><strong aria-hidden="true">3.2.</strong> Thin Edge Json</a></li><li class="chapter-item "><a href="../architecture/mapper.html"><strong aria-hidden="true">3.3.</strong> The Mapper</a></li><li class="chapter-item "><a href="../architecture/software-management.html"><strong aria-hidden="true">3.4.</strong> Software Management</a></li></ol></li><li class="chapter-item "><a href="../tutorials/tutorials.html"><strong aria-hidden="true">4.</strong> Tutorial</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../tutorials/connect-c8y.html"><strong aria-hidden="true">4.1.</strong> Connect my device to Cumulocity IoT</a></li><li class="chapter-item "><a href="../tutorials/connect-azure.html"><strong aria-hidden="true">4.2.</strong> Connect my device to Azure IoT</a></li><li class="chapter-item "><a href="../tutorials/connect-aws.html"><strong aria-hidden="true">4.3.</strong> Connect my device to AWS IoT</a></li><li class="chapter-item "><a href="../tutorials/send-thin-edge-data.html"><strong aria-hidden="true">4.4.</strong> Send measurements</a></li><li class="chapter-item "><a href="../tutorials/raise-alarm.html"><strong aria-hidden="true">4.5.</strong> Raise alarms</a></li><li class="chapter-item "><a href="../tutorials/send-events.html"><strong aria-hidden="true">4.6.</strong> Send events</a></li><li class="chapter-item "><a href="../tutorials/device-monitoring.html"><strong aria-hidden="true">4.7.</strong> Monitor my device</a></li><li class="chapter-item "><a href="../tutorials/software-management.html"><strong aria-hidden="true">4.8.</strong> Manage my device software</a></li><li class="chapter-item "><a href="../tutorials/child-device-config-management.html"><strong aria-hidden="true">4.9.</strong> Configuration management on child-devices</a></li><li class="chapter-item "><a href="../tutorials/supported_operations.html"><strong aria-hidden="true">4.10.</strong> Supported Operations Management for Cumulocity IoT</a></li><li class="chapter-item "><a href="../tutorials/write-my-software-management-plugin.html"><strong aria-hidden="true">4.11.</strong> Write my software management plugin</a></li><li class="chapter-item "><a href="../tutorials/yocto-linux.html"><strong aria-hidden="true">4.12.</strong> Build Thin Edge for a Yocto Linux distribution</a></li></ol></li><li class="chapter-item "><a href="../howto-guides/howto-guides.html"><strong aria-hidden="true">5.</strong> How-to Guides</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../howto-guides/002_installation.html"><strong aria-hidden="true">5.1.</strong> How to install thin-edge.io?</a></li><li class="chapter-item "><a href="../howto-guides/015_installation_without_deb_support.html"><strong aria-hidden="true">5.2.</strong> How to install thin-edge.io on any Linux OS (no deb support)?</a></li><li class="chapter-item "><a href="../howto-guides/026_how_to_install_thin_edge_manually.html"><strong aria-hidden="true">5.3.</strong> How to install thin-edge manually with openrc</a></li><li class="chapter-item "><a href="../howto-guides/012_install_and_enable_software_management.html"><strong aria-hidden="true">5.4.</strong> How to install and enable software management?</a></li><li class="chapter-item "><a href="../howto-guides/006_config.html"><strong aria-hidden="true">5.5.</strong> How to configure thin-edge.io?</a></li><li class="chapter-item "><a href="../howto-guides/008_config_local_mqtt_bind_address_and_port.html"><strong aria-hidden="true">5.6.</strong> How to configure the local mqtt bind address and port?</a></li><li class="chapter-item "><a href="../howto-guides/010_add_self_signed_trusted.html"><strong aria-hidden="true">5.7.</strong> How to add self-signed certificate root to trusted certificates list?</a></li><li class="chapter-item "><a href="../howto-guides/019_how_to_use_preferred_init_system.html"><strong aria-hidden="true">5.8.</strong> How to use thin-edge.io with your preferred init system</a></li><li class="chapter-item "><a href="../howto-guides/021_enable_tedge_watchdog_using_systemd.html"><strong aria-hidden="true">5.9.</strong> How to enable watchdog using systemd?</a></li><li class="chapter-item "><a href="../howto-guides/018_update_config_paths.html"><strong aria-hidden="true">5.10.</strong> How to change temp path</a></li><li class="chapter-item "><a href="../howto-guides/003_registration.html"><strong aria-hidden="true">5.11.</strong> How to create a test certificate?</a></li><li class="chapter-item "><a href="../howto-guides/004_connect.html"><strong aria-hidden="true">5.12.</strong> How to connect a cloud end-point?</a></li><li class="chapter-item "><a href="../howto-guides/007_test_connection.html"><strong aria-hidden="true">5.13.</strong> How to test the cloud connection?</a></li><li class="chapter-item "><a href="../howto-guides/014_thin_edge_logs.html"><strong aria-hidden="true">5.14.</strong> How to access the logs on the device?</a></li><li class="chapter-item "><a href="../howto-guides/016_restart_device_operation.html"><strong aria-hidden="true">5.15.</strong> How to restart your thin-edge.io device</a></li><li class="chapter-item "><a href="../howto-guides/005_pub_sub.html"><strong aria-hidden="true">5.16.</strong> How to use tedge mqtt module?</a></li><li class="chapter-item "><a href="../howto-guides/013_connect_external_device.html"><strong aria-hidden="true">5.17.</strong> How to connect an external device?</a></li><li class="chapter-item "><a href="../howto-guides/020_monitor_tedge_health.html"><strong aria-hidden="true">5.18.</strong> How to monitor health of tedge daemons</a></li><li class="chapter-item "><a href="../howto-guides/009_trouble_shooting_monitoring.html"><strong aria-hidden="true">5.19.</strong> How to trouble shoot device monitoring?</a></li><li class="chapter-item "><a href="../howto-guides/022_c8y_fragments.html"><strong aria-hidden="true">5.20.</strong> How to add custom fragments to Cumulocity</a></li><li class="chapter-item "><a href="../howto-guides/023_c8y_log_plugin.html"><strong aria-hidden="true">5.21.</strong> How to retrieve logs with the log plugin</a></li><li class="chapter-item "><a href="../howto-guides/024_smartrest_templates.html"><strong aria-hidden="true">5.22.</strong> How to add C8Y SmartRest Templates</a></li><li class="chapter-item "><a href="../howto-guides/025_config_management_plugin.html"><strong aria-hidden="true">5.23.</strong> How to manage configuration files with Cumulocity</a></li><li class="chapter-item "><a href="../howto-guides/child_device_config_management_agent.html"><strong aria-hidden="true">5.24.</strong> How to enable configuration management on child devices</a></li><li class="chapter-item "><a href="../howto-guides/child_device_firmware_management.html"><strong aria-hidden="true">5.25.</strong> How to enable firmware management on child devices</a></li><li class="chapter-item "><a href="../howto-guides/027_remote_access_with_cumulocity.html"><strong aria-hidden="true">5.26.</strong> How to remotely connect to your thin-edge.io device via SSH/VNC/Telnet with Cumulocity remote access</a></li><li class="chapter-item "><a href="../howto-guides/028_c8y_service_monitoring.html"><strong aria-hidden="true">5.27.</strong> How to monitor a service from Cumulocity</a></li><li class="chapter-item "><a href="../howto-guides/017_apama_software_management_plugin.html"><strong aria-hidden="true">5.28.</strong> How to manage Apama software artifacts with Apama plugin?</a></li><li class="chapter-item "><a href="../howto-guides/011_retrieve_jwt_token_from_cumulocity.html"><strong aria-hidden="true">5.29.</strong> How to retrieve JWT token from Cumulocity?</a></li></ol></li><li class="chapter-item expanded "><a href="../references/references.html"><strong aria-hidden="true">6.</strong> Reference</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../supported-platforms.html"><strong aria-hidden="true">6.1.</strong> Supported platforms</a></li><li class="chapter-item "><a href="../references/thin-edge-config-files.html"><strong aria-hidden="true">6.2.</strong> Thin-edge.io configuration files</a></li><li class="chapter-item "><a href="../references/bridged-topics.html"><strong aria-hidden="true">6.3.</strong> MQTT bridge configuration</a></li><li class="chapter-item "><a href="../references/init-system-config.html"><strong aria-hidden="true">6.4.</strong> Init System Configuration File</a></li><li class="chapter-item "><a href="../references/tedge.html"><strong aria-hidden="true">6.5.</strong> tedge command</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../references/tedge-cert.html"><strong aria-hidden="true">6.5.1.</strong> tedge cert command</a></li><li class="chapter-item "><a href="../references/tedge-config.html"><strong aria-hidden="true">6.5.2.</strong> tedge config command</a></li><li class="chapter-item "><a href="../references/tedge-connect.html"><strong aria-hidden="true">6.5.3.</strong> tedge connect command</a></li><li class="chapter-item "><a href="../references/tedge-disconnect.html"><strong aria-hidden="true">6.5.4.</strong> tedge disconnect command</a></li><li class="chapter-item "><a href="../references/tedge-mqtt.html"><strong aria-hidden="true">6.5.5.</strong> tedge mqtt command</a></li></ol></li><li class="chapter-item "><a href="../architecture/domain-model.html"><strong aria-hidden="true">6.6.</strong> Domain Model</a></li><li class="chapter-item "><a href="../architecture/data-model.html"><strong aria-hidden="true">6.7.</strong> Data Model</a></li><li class="chapter-item "><a href="../BUILDING.html"><strong aria-hidden="true">6.8.</strong> Building</a></li><li class="chapter-item "><a href="../references/plugin-api.html"><strong aria-hidden="true">6.9.</strong> Plugin API</a></li><li class="chapter-item expanded "><a href="../references/c8y-log-management.html" class="active"><strong aria-hidden="true">6.10.</strong> Log Management</a></li><li class="chapter-item "><a href="../references/c8y-configuration-management.html"><strong aria-hidden="true">6.11.</strong> Configuration Management</a></li><li class="chapter-item "><a href="../references/tedge-file-transfer-service.html"><strong aria-hidden="true">6.12.</strong> Thin Edge File Transfer Service</a></li></ol></li><li class="chapter-item "><a href="../SUMMARY.html"><strong aria-hidden="true">7.</strong> Index</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">thin-edge.io docs</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main><div class="sidetoc"><nav class="pagetoc"></nav></div>
+                        <h1 id="log-file-management-from-cumulocity"><a class="header" href="#log-file-management-from-cumulocity">Log file management from Cumulocity</a></h1>
+<p>Thin-edge provides an operation plugin to <a href="https://cumulocity.com/guides/users-guide/device-management/#logs">fetch log files from the device on to Cumulocity</a>.</p>
+<ul>
+<li>Log file management from Cumulocity is provided with a <code>c8y-log-plugin</code> which runs as a daemon on thin-edge.</li>
+<li>The device owner can define the list of log files that can be retrieved from Cumulocity,
+in the plugin's configuration file named <code>c8y-log-plugin.toml</code>.</li>
+<li>Each entry in the the <code>c8y-log-plugin.toml</code> file contains a log <code>type</code> and a <code>path</code> pattern,
+where the <code>type</code> is used to represent the logical group of log files matching the <code>path</code> pattern.</li>
+<li>On receipt of a log file request for a given <code>type</code>, 
+the log files for that type are retrieved using the <code>path</code> pattern defined in this <code>c8y-log-plugin.toml</code>,
+matched against the requested time range, search text and maximum line count.</li>
+<li>The list of managed log files in <code>c8y-log-plugin.toml</code> can be updated both locally as well as from Cumulocity cloud,
+using the configuration management feature of Cumulocity, combined with the <code>c8y-configuration-plugin</code> of thin-edge.</li>
+</ul>
+<h2 id="installation"><a class="header" href="#installation">Installation</a></h2>
+<p>As part of this plugin installation:</p>
+<ul>
+<li>The <code>--init</code> command of the plugin is executed, which creates an empty file at <code>/etc/tedge/operations/c8y/c8y_LogfileRequest</code> indicating that this device supports <code>c8y_LogfileRequest</code> operation from Cumulocity.</li>
+<li>On systemd enabled devices, the service definition file for this <code>c8y-log-plugin</code> daemon is also installed as part of this plugin installation.</li>
+</ul>
+<p>Once installed, the <code>c8y-log-plugin</code> is run as a daemon on the device listening to log requests from Cumulocity on <code>c8y/s/us</code> MQTT topic.
+On startup, it reports all the log file types that it manages, defined in the <code>c8y-log-plugin.toml</code></p>
+<h2 id="configuration"><a class="header" href="#configuration">Configuration</a></h2>
+<p>The <code>c8y-log-plugin</code> configuration is stored by default under <code>/etc/tedge/c8y/c8y-log-plugin.toml</code>.</p>
+<p>This <a href="https://toml.io/en/">TOML</a> file defines the list of log files that can be retrieved from the cloud tenant.
+The paths to these files can be represented using <a href="https://en.wikipedia.org/wiki/Glob_(programming)">glob</a> patterns.
+The <code>type</code> given to these paths are used as the log type when they are reported to Cumulocity.</p>
+<pre><code class="language-toml">files = [
+    { type = &quot;mosquitto&quot;, path = '/var/log/mosquitto/mosquitto.log' },
+    { type = &quot;software-management&quot;, path = '/var/log/tedge/agent/software-*' },
+    { type = &quot;c8y_CustomOperation&quot;, path = '/var/log/tedge/agent/c8y_CustomOperation/*' }
+]
+</code></pre>
+<p>The <code>c8y-log-plugin</code> parses this configuration file on startup for all the <code>type</code> values specified,
+and sends the supported log types message(SmartREST <code>118</code>) to Cumulocity on <code>c8y/s/us</code> topic as follows:</p>
+<pre><code class="language-csv">118,mosquitto,software-management,c8y_LogRequest,c8y_CustomOperation
+</code></pre>
+<p>The plugin continuously watches this configuration file for any changes and resends the <code>118</code> message with the <code>type</code>s in this file,
+whenever it is updated.</p>
+<p>Note: If the file <code>/etc/tedge/c8y/c8y-log-plugin.toml</code> is ill-formed or cannot be read,
+then an empty <code>118</code> message is sent, indicating no log files are tracked.</p>
+<h2 id="handling-log-requests-from-cumulocity"><a class="header" href="#handling-log-requests-from-cumulocity">Handling log requests from Cumulocity</a></h2>
+<p>This plugin subscribes to <code>c8y/s/ds</code> topic, listening for <code>c8y_LogfileRequest</code> messages (SmartREST <code>522</code>) from Cumulocity, like this one:</p>
+<pre><code class="language-csv">522,&lt;device-id&gt;,mosquitto,2013-06-22T17:03:14.000+02:00,2013-06-22T18:03:14.000+02:00,ERROR,1000
+</code></pre>
+<p>The plugin then checks the <code>c8y-log-plugin.toml</code> file for the log type in the incoming message (<code>mosquitto</code>),
+retrieves the log files using the <code>target</code> glob pattern provided in the plugin config file,
+including only the ones modified within the date range(<code>2013-06-22T17:03:14.000+02:00</code> to <code>2013-06-22T18:03:14.000+02:00</code>),
+with the content filtered by the search text(<code>ERROR</code>) and the maximum line count(<code>1000</code>).
+This filtered content is then uploaded to Cumulocity as an event with the log <code>type</code> as the event <code>type</code>.</p>
+<p>During this process, Cumulocity is notified of the progress of the <code>c8y_LogfileRequest</code> operation
+with SmartREST messages <code>501</code>(executing), <code>502</code>(failed) or <code>503</code>(successful) on <code>c8y/s/us</code> topic.</p>
+<h2 id="updating-supported-log-files-from-cumulocity"><a class="header" href="#updating-supported-log-files-from-cumulocity">Updating supported log files from Cumulocity</a></h2>
+<p>The supported log files list defined in the <code>c8y-log-plugin.toml</code> can be updated both locally as well as from Cumulocity cloud.
+Updates from Cumulocity can be achieved simply by listing this log plugin's config file(<code>c8y-log-plugin.toml</code>) 
+in the configuration file of the <code>c8y-configuration-plugin</code>.
+This will enable the <code>c8y-log-plugin.toml</code> to be tracked and managed by the <code>c8y-configuration-plugin</code>.</p>
+<h2 id="usage"><a class="header" href="#usage">Usage</a></h2>
+<pre><code class="language-shell">c8y-log-plugin 0.11.0
+Thin-edge device log file retriever for Cumulocity
+
+USAGE:
+    c8y-log-plugin [OPTIONS]
+
+OPTIONS:
+        --config-dir &lt;CONFIG_DIR&gt;
+            [default: /etc/tedge]
+
+        --debug
+            Turn-on the debug log level.
+            
+            If off only reports ERROR, WARN, and INFO If on also reports DEBUG and TRACE
+
+    -h, --help
+            Print help information
+
+    -i, --init
+            Create supported operation files
+
+    -V, --version
+            Print version information
+
+On start, `c8y-log-plugin` notifies the cloud tenant of the log types listed in the `CONFIG_FILE`,
+sending this list with a `118` on `c8y/s/us`.
+`c8y-log-plugin` subscribes then to `c8y/s/ds` listening for logfile operation requests (`522`)
+notifying the Cumulocity tenant of their progress (messages `501`, `502` and `503`).
+
+The thin-edge `CONFIG_DIR` is used to store:
+  * c8y-log-plugin.toml - the configuration file that specifies which logs to be retrieved
+</code></pre>
+<h2 id="logging"><a class="header" href="#logging">Logging</a></h2>
+<p>The <code>c8y-log-plugin</code> reports progress and errors to the OS journal which can be retrieved using <code>journalctl</code>.</p>
+<h2 id="future-enhancements"><a class="header" href="#future-enhancements">Future enhancements</a></h2>
+<p>To support retrieval of logs that are not available as physical files on the file system,
+but can retrieved using other tools like <code>journalctl</code>, <code>docker logs</code> etc,
+the log entries in <code>c8y-log-plugin.toml</code> can be enhanced to support retrieval of logs using any <code>command</code> execution.</p>
+<p>Here is how the config for such logs retrieved using commands would look like:</p>
+<pre><code class="language-toml">files = [
+    { type = &quot;mosquitto&quot;, path = '/var/log/mosquitto/mosquitto.log' },
+    { type = &quot;tedge-agent&quot;, command = '/usr/bin/journalctl --unit=tedge-agent --since=$FROM --until=$TO | grep $FILTER_TEXT' },
+    { type = &quot;&lt;container id&gt;&quot;, command = '/docker/log/script --target=$TARGET --from=$FROM --to=$TO --filter-text=$TEXT --line-count=$COUNT' }
+]
+</code></pre>
+<p>The placeholders like <code>$TYPE</code>, <code>$FROM</code>, <code>$TO</code> etc in the <code>command</code> will be replaced with corresponding values in the SmartREST message.
+If the logs can't be retrieved with a direct native command, scripts that takes the same inputs can also be written.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../references/plugin-api.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                            <a rel="next" href="../references/c8y-configuration-management.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../references/plugin-api.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                    <a rel="next" href="../references/c8y-configuration-management.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../mermaid.min.js"></script>
+        <script src="../mermaid-init.js"></script>
+        <script src="../theme/pagetoc.js"></script>
+    </div>
+    </body>
+</html>
