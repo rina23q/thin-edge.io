@@ -1,6 +1,6 @@
-use crate::error::FirmwareManagementError;
 use crate::operation::FirmwareOperationEntry;
 
+use crate::error::FirmwareRequestResponseError;
 use c8y_api::smartrest::error::SmartRestSerializerError;
 use c8y_api::smartrest::smartrest_serializer::CumulocitySupportedOperations;
 use c8y_api::smartrest::smartrest_serializer::SmartRest;
@@ -62,7 +62,7 @@ impl From<FirmwareOperationEntry> for FirmwareOperationRequest {
 }
 
 impl TryInto<MqttMessage> for FirmwareOperationRequest {
-    type Error = FirmwareManagementError;
+    type Error = serde_json::Error;
 
     fn try_into(self) -> Result<MqttMessage, Self::Error> {
         let message = MqttMessage::new(&self.get_topic(), self.get_json_payload()?);
@@ -92,15 +92,23 @@ impl FirmwareOperationResponse {
     pub fn get_payload(&self) -> &ResponsePayload {
         &self.payload
     }
+
+    pub fn get_reason(&self) -> String {
+        self.payload
+            .reason
+            .as_ref()
+            .map(|s| s.clone())
+            .unwrap_or(String::from("No failure reason provided by child device."))
+    }
 }
 
 impl TryFrom<&MqttMessage> for FirmwareOperationResponse {
-    type Error = FirmwareManagementError;
+    type Error = FirmwareRequestResponseError;
 
     fn try_from(message: &MqttMessage) -> Result<Self, Self::Error> {
         let topic = &message.topic.name;
         let child_id = get_child_id_from_child_topic(topic).ok_or(
-            FirmwareManagementError::InvalidTopicFromChildOperation {
+            FirmwareRequestResponseError::InvalidTopicFromChildOperation {
                 topic: topic.into(),
             },
         )?;
@@ -244,7 +252,7 @@ mod tests {
         let result = FirmwareOperationResponse::try_from(&message);
         assert_matches!(
             result.unwrap_err(),
-            FirmwareManagementError::FromSerdeJsonError { .. }
+            FirmwareRequestResponseError::FromSerdeJsonError { .. }
         );
     }
 
@@ -262,7 +270,7 @@ mod tests {
         let result = FirmwareOperationResponse::try_from(&message);
         assert_matches!(
             result.unwrap_err(),
-            FirmwareManagementError::FromSerdeJsonError { .. }
+            FirmwareRequestResponseError::FromSerdeJsonError { .. }
         );
     }
 
@@ -280,7 +288,7 @@ mod tests {
         let result = FirmwareOperationResponse::try_from(&message);
         assert_matches!(
             result.unwrap_err(),
-            FirmwareManagementError::FromSerdeJsonError { .. }
+            FirmwareRequestResponseError::FromSerdeJsonError { .. }
         );
     }
 
@@ -298,7 +306,7 @@ mod tests {
         let result = FirmwareOperationResponse::try_from(&message);
         assert_matches!(
             result.unwrap_err(),
-            FirmwareManagementError::FromSerdeJsonError { .. }
+            FirmwareRequestResponseError::FromSerdeJsonError { .. }
         );
     }
 }

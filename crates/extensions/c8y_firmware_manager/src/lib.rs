@@ -1,8 +1,10 @@
 mod actor;
 mod config;
 mod error;
+mod json;
 mod message;
 mod operation;
+
 #[cfg(test)]
 mod tests;
 
@@ -76,9 +78,12 @@ impl FirmwareManagerBuilder {
     }
 
     pub fn subscriptions() -> TopicFilter {
-        vec!["c8y/s/ds", "tedge/+/commands/res/firmware_update"]
-            .try_into()
-            .expect("Infallible")
+        vec![
+            "tedge/+/commands/firmware_update/start",
+            "tedge/+/commands/res/firmware_update",
+        ]
+        .try_into()
+        .expect("Infallible")
     }
 }
 
