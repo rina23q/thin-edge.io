@@ -1,0 +1,4 @@
+[exec]
+topic = "c8y/s/dc/e2024"
+on_message = "1001"
+command = "/etc/tedge/operations/tedge_delete_child.sh"
