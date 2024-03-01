@@ -351,6 +351,13 @@ impl EntityStore {
             .ok_or_else(|| Error::UnknownEntity(external_id.into()))
     }
 
+    /// Remove!
+    pub fn try_remove(&mut self, entity_topic_id: &EntityTopicId) -> Result<EntityMetadata, Error> {
+        self.entities
+            .remove(entity_topic_id)
+            .ok_or_else(|| Error::UnknownEntity(entity_topic_id.to_string()))
+    }
+
     /// Returns the MQTT identifier of the main device.
     ///
     /// The main device is an entity with `@type: "device"`.

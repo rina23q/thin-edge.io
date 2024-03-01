@@ -49,6 +49,10 @@ impl C8yEndPoint {
         self.devices_internal_id.insert(device_id, internal_id);
     }
 
+    pub fn remove_internal_id(&mut self, device_id: String) {
+        self.devices_internal_id.remove(&device_id);
+    }
+
     fn get_base_url(&self) -> String {
         let mut url_get_id = String::new();
         if !self.c8y_host.starts_with("http") {

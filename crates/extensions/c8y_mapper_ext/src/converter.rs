@@ -963,6 +963,17 @@ impl CumulocityConverter {
                         }
                         Ok(_) => {}
                     }
+                } else {
+                    // Clearing device should come here
+                    if let Some(metadata) = self.entity_store.get(&source) {
+                        // Send HTTP message
+                        self.http_proxy
+                            .delete_managed_object(metadata.external_id.as_ref().to_string())
+                            .await?;
+
+                        // Remove from in-memory entity store
+                        self.entity_store.try_remove(&source)?;
+                    }
                 }
             }
             _ => {

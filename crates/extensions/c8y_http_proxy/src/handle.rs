@@ -3,6 +3,7 @@ use crate::messages::C8YRestRequest;
 use crate::messages::C8YRestResponse;
 use crate::messages::C8YRestResult;
 use crate::messages::CreateEvent;
+use crate::messages::DeleteManagedObject;
 use crate::messages::GetFreshJwtToken;
 use crate::messages::GetJwtToken;
 use crate::messages::SoftwareListResponse;
@@ -72,6 +73,18 @@ impl C8YHttpProxy {
         match self.c8y.await_response(request).await? {
             Ok(C8YRestResponse::Unit(_)) => Ok(()),
             unexpected => Err(unexpected.into()),
+        }
+    }
+
+    pub async fn delete_managed_object(&mut self, device_id: String) -> Result<(), C8YRestError> {
+        let request: C8YRestRequest = DeleteManagedObject { device_id }.into();
+
+        match self.c8y.await_response(request).await? {
+            Ok(C8YRestResponse::Unit(_)) => Ok(()),
+            unexpected => {
+                dbg!(&unexpected);
+                Err(unexpected.into())
+            }
         }
     }
 

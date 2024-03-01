@@ -6,6 +6,7 @@ use crate::messages::C8YRestError;
 use crate::messages::C8YRestRequest;
 use crate::messages::C8YRestResult;
 use crate::messages::CreateEvent;
+use crate::messages::DeleteManagedObject;
 use crate::messages::DownloadFile;
 use crate::messages::EventId;
 use crate::messages::SoftwareListResponse;
@@ -105,6 +106,11 @@ impl Actor for C8YHttpProxyActor {
 
                 C8YRestRequest::SoftwareListResponse(request) => self
                     .send_software_list_http(request)
+                    .await
+                    .map(|response| response.into()),
+
+                C8YRestRequest::DeleteManagedObject(request) => self
+                    .delete_managed_object(request)
                     .await
                     .map(|response| response.into()),
 
@@ -260,7 +266,7 @@ impl C8YHttpProxyActor {
         let resp = self.peers.http.await_response(request).await?;
         match resp {
             Ok(response) => match response.status() {
-                StatusCode::OK | StatusCode::CREATED => Ok(Ok(response)),
+                StatusCode::OK | StatusCode::CREATED | StatusCode::NO_CONTENT => Ok(Ok(response)),
                 StatusCode::UNAUTHORIZED | StatusCode::FORBIDDEN => {
                     self.try_request_with_fresh_token(build_request).await
                 }
@@ -366,6 +372,36 @@ impl C8YHttpProxyActor {
 
         let http_result = self.execute(device_id.clone(), build_request).await?;
         http_result.error_for_status()?;
+        Ok(())
+    }
+
+    async fn delete_managed_object(
+        &mut self,
+        delete_mo: DeleteManagedObject,
+    ) -> Result<Unit, C8YRestError> {
+        let device_id = delete_mo.device_id;
+
+        // Get and set child device internal id
+        if device_id.ne(&self.end_point.device_id)
+            && self.end_point.get_internal_id(device_id.clone()).is_err()
+        {
+            self.get_and_set_internal_id(device_id.clone()).await?;
+        }
+
+        let build_request = |end_point: &C8yEndPoint| {
+            let internal_id = end_point
+                .get_internal_id(device_id.clone())
+                .map_err(|e| C8YRestError::CustomError(e.to_string()));
+            let url = internal_id.map(|id| end_point.get_url_for_sw_list(id));
+            async { Ok::<_, C8YRestError>(HttpRequestBuilder::delete(url?)) }
+        };
+
+        let http_result = self.execute(device_id.clone(), build_request).await?;
+        http_result.error_for_status()?;
+
+        // Remove the entry from hashmap
+        self.end_point.remove_internal_id(device_id);
+
         Ok(())
     }
 

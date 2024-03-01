@@ -19,6 +19,7 @@ mod certificate;
 mod common;
 pub mod config;
 mod connect;
+mod device;
 mod disconnect;
 mod init;
 mod mqtt;
@@ -112,6 +113,10 @@ pub enum TEdgeOpt {
     /// Publish a message on a topic and subscribe a topic.
     #[clap(subcommand)]
     Mqtt(mqtt::TEdgeMqttCli),
+
+    /// Manage child devices
+    #[clap(subcommand)]
+    Device(device::TEdgeDeviceCli),
 }
 
 fn styles() -> clap::builder::Styles {
@@ -172,6 +177,7 @@ impl BuildCommand for TEdgeOpt {
             TEdgeOpt::RefreshBridges => RefreshBridgesCmd::new(&context).map(Command::into_boxed),
             TEdgeOpt::Mqtt(opt) => opt.build_command(context),
             TEdgeOpt::Reconnect(opt) => opt.build_command(context),
+            TEdgeOpt::Device(opt) => opt.build_command(context),
         }
     }
 }

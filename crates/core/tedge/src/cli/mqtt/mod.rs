@@ -1,5 +1,7 @@
 pub use self::cli::TEdgeMqttCli;
 pub use self::error::MqttError;
+// Added
+pub use self::subscribe::MqttSubscribeCommand;
 
 mod cli;
 mod error;
