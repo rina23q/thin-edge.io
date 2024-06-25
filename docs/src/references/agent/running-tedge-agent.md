@@ -36,7 +36,7 @@ tedge-agent --mqtt-device-topic-id device/child-007//
 
 ## Using a custom identifier schema
 
-If using a [custom identifier schema](/contribute/design/mqtt-topic-design.md#using-custom-identifier-schemas),
+If using a [custom identifier schema](../../contribute/design/mqtt-topic-design.md#using-custom-identifier-schemas),
 then the device topic identifier has to be configured even for the main device.
 
 ```sh title="running tedge-agent when using a custom identifier schema"

@@ -1,7 +1,7 @@
 # Coding Guidelines
 
 ## Code Style
-Follow [Rust coding guidelines](https://github.com/rust-dev-tools/fmt-rfcs/blob/master/guide/guide.md).
+Follow [Rust coding guidelines](https://github.com/rust-lang/rust/tree/HEAD/src/doc/style-guide/src).
 When adding new feature or adding an API try to adhere to [Rust API Guidelines](https://rust-lang.github.io/api-guidelines/about.html).
 Avoid using unsafe code.
 
