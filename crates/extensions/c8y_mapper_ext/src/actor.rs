@@ -163,16 +163,34 @@ impl C8yMapperActor {
     }
 
     async fn process_mqtt_message(&mut self, message: MqttMessage) -> Result<(), RuntimeError> {
-        let converted_messages = self.converter.convert(&message).await;
+        let pending_entities = self
+            .converter
+            .pending_entities_from_incoming_message(&message);
 
-        for converted_message in converted_messages.into_iter() {
-            self.mqtt_publisher.send(converted_message).await?;
-        }
-        if let Ok((_, channel)) = self.converter.mqtt_schema.entity_channel_of(&message.topic) {
-            if let Some(message_handler) = self.message_handlers.get_mut(&channel.into()) {
-                for sender in message_handler {
-                    sender.send(message.clone()).await?;
+        for pending_entity in pending_entities {
+            let c8y_reg_messages = self
+                .converter
+                .try_convert_entity_registration(&pending_entity.reg_message)
+                .unwrap();
+            for c8y_reg_message in c8y_reg_messages {
+                self.mqtt_publisher.send(c8y_reg_message).await?;
+            }
+
+            if let Ok((_, channel)) = self.converter.mqtt_schema.entity_channel_of(&message.topic) {
+                if let Some(message_handler) = self.message_handlers.get_mut(&channel.into()) {
+                    for sender in message_handler {
+                        sender.send(message.clone()).await?;
+                    }
                 }
+            }
+
+            for data_message in pending_entity.data_messages {
+                self.mqtt_publisher.send(data_message).await?;
+            }
+
+            let converted_messages = self.converter.convert(&message).await;
+            for converted_message in converted_messages.into_iter() {
+                self.mqtt_publisher.send(converted_message).await?;
             }
         }
 

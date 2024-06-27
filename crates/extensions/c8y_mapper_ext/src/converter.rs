@@ -976,6 +976,52 @@ impl CumulocityConverter {
         }
     }
 
+    pub fn pending_entities_from_incoming_message(
+        &mut self,
+        message: &MqttMessage,
+    ) -> Vec<PendingEntityData> {
+        let mut collected_pending_entities: Vec<PendingEntityData> = Vec::new();
+
+        match self.mqtt_schema.entity_channel_of(&message.topic) {
+            Ok((source, channel)) => match &channel {
+                Channel::EntityMetadata => match EntityRegistrationMessage::try_from(message) {
+                    Ok(register_message) => {
+                        match self.entity_store.update(register_message.clone()) {
+                            Err(e) => error!("Entity registration failed: {e}"),
+                            Ok((affected_entities, mut pending_entities))
+                                if !affected_entities.is_empty() =>
+                            {
+                                collected_pending_entities.append(&mut pending_entities);
+                            }
+                            Ok(_) => {}
+                        }
+                    }
+                    Err(_) => warn!(
+                        "Invalid entity registration message received on topic: {}",
+                        message.topic.name
+                    ),
+                },
+                _ => {
+                    if self.entity_store.get(&source).is_none() {
+                        if self.config.enable_auto_register && source.matches_default_topic_scheme()
+                        {
+                            let mut auto_registered_entities = self
+                                .try_auto_register_entity(&source)
+                                .unwrap()
+                                .iter()
+                                .map(|msg| msg.clone().into())
+                                .collect();
+                            collected_pending_entities.append(&mut auto_registered_entities);
+                        }
+                    }
+                }
+            },
+            Err(_) => {}
+        }
+
+        collected_pending_entities
+    }
+
     async fn try_convert_te_topics(
         &mut self,
         source: EntityTopicId,
@@ -997,6 +1043,7 @@ impl CumulocityConverter {
             }
             _ => {
                 let mut converted_messages: Vec<MqttMessage> = vec![];
+
                 // if the target entity is unregistered, try to register it first using auto-registration
                 if self.entity_store.get(&source).is_none() {
                     // On receipt of an unregistered entity data message with custom topic scheme OR
@@ -1009,9 +1056,9 @@ impl CumulocityConverter {
                         return Ok(vec![]);
                     }
 
-                    let auto_registered_entities = self.try_auto_register_entity(&source)?;
-                    converted_messages = self
-                        .try_convert_auto_registered_entities(auto_registered_entities, &channel)?;
+                    // let auto_registered_entities = self.try_auto_register_entity(&source)?;
+                    // converted_messages = self
+                    //     .try_convert_auto_registered_entities(auto_registered_entities, &channel)?;
                 }
 
                 let result = self
@@ -1037,9 +1084,9 @@ impl CumulocityConverter {
             Ok((affected_entities, pending_entities)) if !affected_entities.is_empty() => {
                 for pending_entity in pending_entities {
                     // Register and convert the entity registration first
-                    let mut c8y_message =
-                        self.try_convert_entity_registration(&pending_entity.reg_message)?;
-                    mapped_messages.append(&mut c8y_message);
+                    // let mut c8y_message =
+                    //     self.try_convert_entity_registration(&pending_entity.reg_message)?;
+                    // mapped_messages.append(&mut c8y_message);
 
                     // Republish the metadata message with @id if it's not given
                     let mut updated_metadata_message =
