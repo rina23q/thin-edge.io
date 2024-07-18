@@ -17,6 +17,7 @@ RUN apt-get -y update \
     nginx \
     netcat-openbsd \
     iputils-ping \
+    socat \
     net-tools
 
 # Install more recent version of mosquitto >= 2.0.18 from debian backports to avoid mosquitto following bugs:

@@ -1,0 +1,4 @@
+[exec]
+command = "/usr/bin/publish_to_socket.sh --socket /run/c8y-remote-access-plugin.sock --response-ok CONNECTED --response-fail STOPPING"
+topic = "c8y/s/ds"
+on_message = "530"
