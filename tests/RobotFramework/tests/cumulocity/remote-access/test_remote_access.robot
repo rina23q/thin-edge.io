@@ -30,7 +30,7 @@ Remote access session is independent from mapper
     Should Contain    ${stdout}    Successfully restarted tedge-mapper-c8y via remote access
 
     # Restart agent
-    ${stdout}=    Execute Remote Access Command    command=systemctl restart tedge-mapper-c8y && sleep 2 && echo Successfully restarted tedge-agent via remote access    exp_exit_code=0    user=root    key_file=${KEY_FILE}
+    ${stdout}=    Execute Remote Access Command    command=systemctl restart tedge-agent && sleep 2 && echo Successfully restarted tedge-agent via remote access    exp_exit_code=0    user=root    key_file=${KEY_FILE}
     Should Contain    ${stdout}    Successfully restarted tedge-agent via remote access
 
     # Uninstall most components (this is a bit over the top...but used to check how independent is the process)
