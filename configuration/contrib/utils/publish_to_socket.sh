@@ -86,7 +86,7 @@ echo "Writing message ($MESSAGE) to socket ($SOCAT_PREFIX$SOCKET)" >&2
 
 # Write to the socket and read the response until an expected response text is found
 RESPONSE=$(
-    echo "$MESSAGE" | socat - "$SOCAT_PREFIX$SOCKET" | while read -r line; do
+    echo "$MESSAGE" | socat -t15 - "$SOCAT_PREFIX$SOCKET" | while read -r line; do
         echo "socket recv: $line" >&2
         case "$line" in
             "$RESPONSE_OK")
