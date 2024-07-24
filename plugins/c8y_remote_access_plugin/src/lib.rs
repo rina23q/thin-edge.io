@@ -6,12 +6,16 @@ use input::parse_arguments;
 use miette::miette;
 use miette::Context;
 use miette::IntoDiagnostic;
+use std::io;
 use std::process::Stdio;
 use tedge_config::TEdgeConfig;
 use tedge_utils::file::create_directory_with_user_group;
 use tedge_utils::file::create_file_with_user_group;
 use tokio::io::AsyncBufReadExt;
+use tokio::io::AsyncReadExt;
+use tokio::io::AsyncWriteExt;
 use tokio::io::BufReader;
+use tokio::net::UnixStream;
 use url::Url;
 
 use crate::auth::Jwt;
@@ -24,6 +28,8 @@ mod auth;
 mod csv;
 mod input;
 mod proxy;
+
+const UNIX_SOCKFILE: &str = "/run/c8y-remote-access-plugin.sock";
 
 pub async fn run(opt: C8yRemoteAccessPluginOpt) -> miette::Result<()> {
     let config_dir = opt.get_config_location();
@@ -45,6 +51,20 @@ pub async fn run(opt: C8yRemoteAccessPluginOpt) -> miette::Result<()> {
         }
         Command::Connect(command) => proxy(command, tedge_config).await,
         Command::SpawnChild(command) => spawn_child(command, config_dir.tedge_config_root_path()).await,
+        Command::TryConnectUnixSocket(command) => {
+           match UnixStream::connect(UNIX_SOCKFILE).await {
+               Ok(mut unix_stream) => {
+                   println!("sock: Connected to Unix socket at {UNIX_SOCKFILE}");
+                   write_request_and_shutdown(&mut unix_stream, command).await?;
+                   read_from_stream(&mut unix_stream).await?;
+                   Ok(())
+               }
+               Err(_e) => {
+                   eprintln!("sock: Could not connect to Unix socket at {UNIX_SOCKFILE}. Falling back to spawning a child process");
+                   spawn_child(command, config_dir.tedge_config_root_path()).await
+               }
+           }
+        },
     }
 }
 
@@ -152,6 +172,93 @@ async fn spawn_child(command: String, config_dir: &Utf8Path) -> miette::Result<(
         }
         Err(Either::Right((e, _))) => Err(Unreachable(e, "waiting for the process to exit").into()),
     }
+}
+
+#[derive(miette::Diagnostic, Debug, thiserror::Error)]
+#[error("Failed while {1}")]
+#[diagnostic(help("Check if Unix Socket is readable and writable."))]
+struct UnixSocketError<E: std::error::Error + 'static>(#[source] E, &'static str);
+
+async fn write_request_and_shutdown(
+    unix_stream: &mut UnixStream,
+    command: String,
+) -> miette::Result<()> {
+    loop {
+        unix_stream
+            .writable()
+            .await
+            .into_diagnostic()
+            .context("sock: Socket is not writable")?;
+
+        // Try to write data, this may still fail with `WouldBlock` if the readiness event is a false positive.
+        match unix_stream.try_write(command.as_bytes()) {
+            Ok(_) => {
+                println!("sock: Message sent ({command})");
+                break;
+            }
+            Err(ref e) if e.kind() == io::ErrorKind::WouldBlock => {
+                eprintln!("sock: WouldBlock error, continue reading");
+                continue;
+            }
+            Err(e) => {
+                return Err(UnixSocketError(e, "writing to socket").into());
+            }
+        }
+    }
+
+    println!("sock: Shutting down writing on the stream, waiting for response...");
+    unix_stream
+        .shutdown()
+        .await
+        .into_diagnostic()
+        .context("sock: Could not shutdown writing on the stream")?;
+
+    println!("sock: Shut down successful");
+    Ok(())
+}
+
+async fn read_from_stream(unix_stream: &mut UnixStream) -> miette::Result<()> {
+    unix_stream
+        .readable()
+        .await
+        .into_diagnostic()
+        .context("sock: Socket is not readable")?;
+
+    println!("sock: Reading response...");
+    let mut response = String::new();
+    unix_stream
+        .read_to_string(&mut response)
+        .await
+        .into_diagnostic()
+        .context("sock: Failed at reading the unix stream")?;
+
+    println!("sock: Received response:\n{response}");
+
+    for line in response.lines() {
+        match line {
+            "CONNECTED" => {
+                println!("sock: Detected successful response");
+                return Ok(());
+            }
+            "STOPPING" => {
+                return Err(UnixSocketError(
+                    io::Error::new(io::ErrorKind::Other, "sock: Detected error response"),
+                    "checking the response from the unix socket",
+                )
+                .into());
+            }
+            _ => continue,
+        }
+    }
+
+    Err(UnixSocketError(
+        io::Error::new(
+            io::ErrorKind::Other,
+            "sock: Did not receive expected response from socket. Expected = 'CONNECTED'",
+        ),
+        "checking the response from the unix socket",
+    )
+    .into())
 }
 
 async fn proxy(command: RemoteAccessConnect, config: TEdgeConfig) -> miette::Result<()> {
