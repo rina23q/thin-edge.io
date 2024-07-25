@@ -107,7 +107,6 @@ impl From<BridgeConfigC8yParams> for BridgeConfig {
                 format!(r#"q/ul/# out 2 {topic_prefix}/ """#),
                 format!(r#"c/ul/# out 2 {topic_prefix}/ """#),
                 format!(r#"s/dl/# in 2 {topic_prefix}/ """#),
-                format!(r#"s/ol/# in 2 {topic_prefix}/ """#),
             ]);
 
             let templates_set = smartrest_one_templates

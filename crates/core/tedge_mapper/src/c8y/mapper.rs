@@ -20,6 +20,7 @@ use tedge_downloader_ext::DownloaderActor;
 use tedge_file_system_ext::FsWatchActorBuilder;
 use tedge_http_ext::HttpActor;
 use tedge_mqtt_bridge::rumqttc::LastWill;
+use tedge_mqtt_bridge::use_credentials;
 use tedge_mqtt_bridge::use_key_and_cert;
 use tedge_mqtt_bridge::BridgeConfig;
 use tedge_mqtt_bridge::MqttBridgeActorBuilder;
@@ -45,7 +46,15 @@ impl TEdgeComponent for CumulocityMapper {
         let mqtt_config = tedge_config.mqtt_config()?;
         let c8y_mapper_config = C8yMapperConfig::from_tedge_config(cfg_dir, &tedge_config)?;
         if tedge_config.mqtt.bridge.built_in {
-            let custom_topics = tedge_config
+            let smartrest_1_topics = tedge_config
+                .c8y
+                .smartrest1
+                .templates
+                .0
+                .iter()
+                .map(|id| Cow::Owned(format!("s/dl/{id}")));
+
+            let smartrest_2_topics = tedge_config
                 .c8y
                 .smartrest
                 .templates
@@ -53,17 +62,26 @@ impl TEdgeComponent for CumulocityMapper {
                 .iter()
                 .map(|id| Cow::Owned(format!("s/dc/{id}")));
 
+            // Topics are defined as a tuple to make it easier to include/exclude topics.
+            // Tuple format is: (topic, should_include)
             let cloud_topics = [
-                "s/dt",
-                "s/dat",
-                "s/ds",
-                "s/e",
-                "devicecontrol/notifications",
-                "error",
+                ("s/dt", true),
+                ("s/ds", true),
+                ("s/dat", !tedge_config.use_legacy_auth()),
+                ("s/e", true),
+                ("devicecontrol/notifications", true),
+                ("error", true),
             ]
             .into_iter()
-            .map(Cow::Borrowed)
-            .chain(custom_topics);
+            .filter_map(|(topic, active)| {
+                if active {
+                    Some(Cow::Borrowed(topic))
+                } else {
+                    None
+                }
+            })
+            .chain(smartrest_1_topics)
+            .chain(smartrest_2_topics);
 
             let mut tc = BridgeConfig::new();
             let local_prefix = format!("{}/", tedge_config.c8y.bridge.topic_prefix.as_str());
@@ -81,6 +99,12 @@ impl TEdgeComponent for CumulocityMapper {
             tc.forward_from_local("t/us/#", local_prefix.clone(), "")?;
             tc.forward_from_local("q/us/#", local_prefix.clone(), "")?;
             tc.forward_from_local("c/us/#", local_prefix.clone(), "")?;
+
+            // SmartREST1
+            tc.forward_from_local("s/ul/#", local_prefix.clone(), "")?;
+            tc.forward_from_local("t/ul/#", local_prefix.clone(), "")?;
+            tc.forward_from_local("q/ul/#", local_prefix.clone(), "")?;
+            tc.forward_from_local("c/ul/#", local_prefix.clone(), "")?;
 
             // SmartREST2
             tc.forward_from_local("s/uc/#", local_prefix.clone(), "")?;
@@ -115,11 +139,20 @@ impl TEdgeComponent for CumulocityMapper {
             // Cumulocity tells us not to not set clean session to false, so don't
             // https://cumulocity.com/docs/device-integration/mqtt/#mqtt-clean-session
             cloud_config.set_clean_session(true);
-            use_key_and_cert(
-                &mut cloud_config,
-                &tedge_config.c8y.root_cert_path,
-                &tedge_config,
-            )?;
+            if tedge_config.use_legacy_auth() {
+                use_credentials(
+                    &mut cloud_config,
+                    &tedge_config.c8y.root_cert_path,
+                    tedge_config.c8y.username.clone(),
+                    tedge_config.c8y.password.clone(),
+                )?;
+            } else {
+                use_key_and_cert(
+                    &mut cloud_config,
+                    &tedge_config.c8y.root_cert_path,
+                    &tedge_config,
+                )?;
+            }
 
             let main_device_xid: EntityExternalId =
                 tedge_config.device.id.try_read(&tedge_config)?.into();
