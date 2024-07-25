@@ -77,9 +77,7 @@ impl TEdgeConfig {
     }
 
     pub fn use_legacy_auth(&self) -> bool {
-        std::env::var("C8Y_DEVICE_TENANT").is_ok()
-            && std::env::var("C8Y_DEVICE_USER").is_ok()
-            && std::env::var("C8Y_DEVICE_PASSWORD").is_ok()
+        !self.c8y.username.is_empty() && !self.c8y.password.is_empty()
     }
 
     pub fn mqtt_config(&self) -> Result<mqtt_channel::Config, CertificateError> {
