@@ -1,0 +1,30 @@
+operation = "log_upload"
+
+[init]
+action = "proceed"
+on_success = "executing"
+
+[executing]
+action = "proceed"
+on_success = "create_tmp_file_path"
+
+[create_tmp_file_path]
+script = "/etc/tedge/operations/log_upload.sh tmppath ${.payload.type} ${.payload.dateFrom} ${.payload.dateTo}"
+on_success = "prepare_log_file"
+on_error = { status = "failed", reason = "creating tmp path failed" }
+
+[prepare_log_file]
+script = "/etc/tedge/operations/log_upload.sh prepare ${.payload.type} ${.payload.dateFrom} ${.payload.dateTo} ${.payload.lines} ${.payload.filePath}"
+on_success = "upload_to_fts"
+on_error = { status = "failed", reason = "retriving log contents failed" }
+
+[upload_to_fts]
+script = "/etc/tedge/operations/log_upload.sh upload ${.payload.tedgeUrl} ${.payload.filePath} ${.payload.logPath}"
+on_sucess = "successful"
+on_error = { status = "failed", reason = "uploading a file to FTS failed" }
+
+[successful]
+action = "cleanup"
+
+[failed]
+action = "cleanup"
