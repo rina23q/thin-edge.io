@@ -226,7 +226,7 @@ fn tungstenite_to_axum(message: tungstenite::Message) -> axum::extract::ws::Mess
 }
 
 async fn connect_to_websocket(
-    token: &str,
+    header_value: &str,
     headers: &HeaderMap<HeaderValue>,
     uri: &str,
     host: &TargetHost,
@@ -235,22 +235,6 @@ async fn connect_to_websocket(
     for (name, value) in headers {
         req = req.header(name.as_str(), value);
     }
-
-    let use_legacy_auth =
-        std::env::var("C8Y_DEVICE_USER").is_ok() && std::env::var("C8Y_DEVICE_PASSWORD").is_ok();
-    let header_value = if use_legacy_auth {
-        format!(
-            "Basic {}",
-            base64::encode(format!(
-                "{}:{}",
-                std::env::var("C8Y_DEVICE_USER").unwrap(),
-                std::env::var("C8Y_DEVICE_PASSWORD").unwrap()
-            ))
-        )
-    } else {
-        format!("Bearer {token}")
-    };
-    info!("Using header | Authorization: {header_value}");
 
     req = req.header("Authorization", header_value);
     let req = req
@@ -404,9 +388,6 @@ where
     Ok(None)
 }
 
-const C8Y_DEVICE_USER_ENV: &str = "C8Y_DEVICE_USER";
-const C8Y_DEVICE_PASSWORD_ENV: &str = "C8Y_DEVICE_PASSWORD";
-
 #[allow(clippy::too_many_arguments)]
 async fn respond_to(
     State(host): State<TargetHost>,
@@ -423,22 +404,14 @@ async fn respond_to(
         Some(Path(p)) => p.as_str(),
         None => "",
     };
-    let use_legacy_auth = std::env::var(C8Y_DEVICE_USER_ENV).is_ok()
-        && std::env::var(C8Y_DEVICE_PASSWORD_ENV).is_ok();
+
     let auth: fn(reqwest::RequestBuilder, &str) -> reqwest::RequestBuilder =
         if headers.contains_key("Authorization") {
             |req, _token| req
-        } else if use_legacy_auth {
-            |req: reqwest::RequestBuilder, _token| {
-                let username = std::env::var(C8Y_DEVICE_USER_ENV).unwrap();
-                let password = std::env::var(C8Y_DEVICE_PASSWORD_ENV).unwrap();
-                info!("Using basic auth: username={username}, password={password}");
-                req.basic_auth(username, Some(password))
-            }
         } else {
             |req, token| {
-                info!("Using bearer auth: token={token}");
-                req.bearer_auth(token)
+                info!("Using auth: header_value={token}");
+                req.header("Authorization", token)
             }
         };
     headers.remove(HOST);
@@ -466,26 +439,12 @@ async fn respond_to(
     let (body, body_clone) = small_body.try_clone();
     if body_clone.is_none() {
         let destination = format!("{}/tenant/currentTenant", host.http);
-        let response = if use_legacy_auth {
-            info!("Making head request with basic auth");
-            client
-                .head(&destination)
-                .basic_auth(
-                    std::env::var(C8Y_DEVICE_USER_ENV).unwrap_or_default(),
-                    Some(std::env::var(C8Y_DEVICE_PASSWORD_ENV).unwrap_or_default()),
-                )
-                .send()
-                .await
-                .with_context(|| format!("making HEAD request to {destination}"))?
-        } else {
-            info!("Making head request with bearer auth");
-            client
-                .head(&destination)
-                .bearer_auth(&token)
-                .send()
-                .await
-                .with_context(|| format!("making HEAD request to {destination}"))?
-        };
+        let response = client
+            .head(&destination)
+            .header("Authorization", token.to_string())
+            .send()
+            .await
+            .with_context(|| format!("making HEAD request to {destination}"))?;
         if response.status() == StatusCode::UNAUTHORIZED {
             token = retrieve_token
                 .not_matching(Some(&token))

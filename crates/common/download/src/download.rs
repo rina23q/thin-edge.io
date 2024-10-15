@@ -50,7 +50,8 @@ fn default_backoff() -> ExponentialBackoff {
 pub struct DownloadInfo {
     pub url: String,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub auth: Option<Auth>,
+    // pub auth: Option<Auth>,
+    pub header: Option<String>,
 }
 
 impl From<&str> for DownloadInfo {
@@ -64,14 +65,21 @@ impl DownloadInfo {
     pub fn new(url: &str) -> Self {
         Self {
             url: url.into(),
-            auth: None,
+            header: None,
         }
     }
 
     /// Creates new [`DownloadInfo`] from a URL with authentication.
-    pub fn with_auth(self, auth: Auth) -> Self {
+    // pub fn with_auth(self, auth: Auth) -> Self {
+    //     Self {
+    //         auth: Some(auth),
+    //         ..self
+    //     }
+    // }
+
+    pub fn with_header(self, header_value: String) -> Self {
         Self {
-            auth: Some(auth),
+            header: Some(header_value),
             ..self
         }
     }
@@ -86,25 +94,25 @@ impl DownloadInfo {
 }
 
 /// Possible authentication schemes
-#[derive(Debug, Clone, Deserialize, PartialEq, Eq, Serialize)]
-#[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
-pub enum Auth {
-    /// HTTP Bearer authentication
-    Bearer(String),
-    /// HTTP Basic authentication (username and password)
-    Basic(String, String),
-}
-
-impl Auth {
-    pub fn new_bearer(token: &str) -> Self {
-        Self::Bearer(token.into())
-    }
-
-    pub fn new_basic(username: &str, password: &str) -> Self {
-        Self::Basic(username.to_string(), password.to_string())
-    }
-}
+// #[derive(Debug, Clone, Deserialize, PartialEq, Eq, Serialize)]
+// #[serde(rename_all = "camelCase")]
+// #[serde(deny_unknown_fields)]
+// pub enum Auth {
+//     /// HTTP Bearer authentication
+//     Bearer(String),
+//     /// HTTP Basic authentication (username and password)
+//     Basic(String, String),
+// }
+//
+// impl Auth {
+//     pub fn new_bearer(token: &str) -> Self {
+//         Self::Bearer(token.into())
+//     }
+//
+//     pub fn new_basic(username: &str, password: &str) -> Self {
+//         Self::Basic(username.to_string(), password.to_string())
+//     }
+// }
 
 /// A struct which manages file downloads.
 #[derive(Debug)]
@@ -390,10 +398,9 @@ impl Downloader {
 
         let operation = || async {
             let mut request = self.client.get(url.url());
-            if let Some(Auth::Bearer(token)) = &url.auth {
-                request = request.bearer_auth(token)
-            } else if let Some(Auth::Basic(username, password)) = &url.auth {
-                request = request.basic_auth(username, Some(password))
+
+            if let Some(header_value) = &url.header {
+                request = request.header("Authorization", header_value)
             }
 
             if range_start != 0 {

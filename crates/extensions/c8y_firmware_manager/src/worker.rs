@@ -26,7 +26,6 @@ use tedge_actors::ClientMessageBox;
 use tedge_actors::CloneSender;
 use tedge_actors::DynSender;
 use tedge_actors::Sender;
-use tedge_api::Auth;
 use tedge_api::OperationStatus;
 use tedge_downloader_ext::DownloadRequest;
 use tedge_downloader_ext::DownloadResult;
@@ -206,9 +205,9 @@ impl FirmwareManagerWorker {
                 .maybe_tenant_url(firmware_url)
                 .is_some()
             {
-                if let Ok(token) = self.jwt_retriever.await_response(()).await? {
+                if let Ok(header_value) = self.jwt_retriever.await_response(()).await? {
                     DownloadRequest::new(firmware_url, cache_file_path.as_std_path())
-                        .with_auth(Auth::new_bearer(&token))
+                        .with_header(header_value)
                 } else {
                     return Err(FirmwareManagementError::NoJwtToken);
                 }

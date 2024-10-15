@@ -40,9 +40,45 @@ impl Server for C8YJwtRetriever {
     }
 
     async fn handle(&mut self, _request: Self::Request) -> Self::Response {
-        // TODO: Support skipping when using legacy auth
         let response = self.mqtt_retriever.get_jwt_token().await?;
-        Ok(response.token())
+        let auth_value = format!("Bearer {}", response.token());
+        Ok(auth_value)
+    }
+}
+
+/// Return fixed Basic auth value
+pub struct C8YBasicAuthProvider {
+    username: String,
+    password: String,
+}
+
+impl C8YBasicAuthProvider {
+    pub fn builder(
+        username: &str,
+        password: &str,
+    ) -> ServerActorBuilder<C8YBasicAuthProvider, Sequential> {
+        let server = C8YBasicAuthProvider {
+            username: username.into(),
+            password: password.into(),
+        };
+        ServerActorBuilder::new(server, &ServerConfig::default(), Sequential)
+    }
+}
+
+#[async_trait]
+impl Server for C8YBasicAuthProvider {
+    type Request = JwtRequest;
+    type Response = JwtResult;
+
+    fn name(&self) -> &str {
+        "C8YBasicAuthProvider"
+    }
+
+    async fn handle(&mut self, _request: Self::Request) -> Self::Response {
+        Ok(format!(
+            "Basic {}",
+            base64::encode(format!("{}:{}", self.username, self.password))
+        ))
     }
 }
 

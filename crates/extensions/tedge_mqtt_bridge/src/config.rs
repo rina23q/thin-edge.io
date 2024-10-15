@@ -27,8 +27,8 @@ pub fn use_key_and_cert(
 pub fn use_credentials(
     config: &mut MqttOptions,
     root_cert_path: impl AsRef<Path>,
-    username: String,
-    password: String,
+    username: &str,
+    password: &str,
 ) -> anyhow::Result<()> {
     let tls_config = create_tls_config_without_client_cert(root_cert_path)?;
     config.set_transport(Transport::tls_with_config(tls_config.into()));

@@ -184,7 +184,7 @@ async fn handle_request_child_device_with_new_download() -> Result<(), DynError>
         download_request.file_path,
         ttd.path().join("cache").join(DOWNLOADED_FILE_NAME)
     );
-    assert_eq!(download_request.auth, None);
+    assert_eq!(download_request.header, None);
 
     // Simulate downloading a file is completed.
     ttd.dir("cache").file(DOWNLOADED_FILE_NAME);
@@ -298,7 +298,7 @@ async fn create_download_request_with_c8y_auth() -> Result<(), DynError> {
         ttd.path().join("cache").join(digest(c8y_download_url))
     );
     assert_eq!(
-        download_request.auth,
+        download_request.header,
         Some(Auth::Bearer(String::from(token)))
     );
 

@@ -3,6 +3,7 @@ use crate::core::mapper::start_basic_actors;
 use anyhow::Context;
 use async_trait::async_trait;
 use c8y_auth_proxy::actor::C8yAuthProxyBuilder;
+use c8y_http_proxy::credentials::C8YBasicAuthProvider;
 use c8y_http_proxy::credentials::C8YJwtRetriever;
 use c8y_http_proxy::C8YHttpProxyBuilder;
 use c8y_mapper_ext::actor::C8yMapperBuilder;
@@ -67,7 +68,7 @@ impl TEdgeComponent for CumulocityMapper {
             let cloud_topics = [
                 ("s/dt", true),
                 ("s/ds", true),
-                ("s/dat", !tedge_config.use_legacy_auth()),
+                ("s/dat", !tedge_config.c8y.use_legacy_auth),
                 ("s/e", true),
                 ("devicecontrol/notifications", true),
                 ("error", true),
@@ -126,7 +127,7 @@ impl TEdgeComponent for CumulocityMapper {
             tc.forward_from_local("event/events/create/#", local_prefix.clone(), "")?;
             tc.forward_from_local("alarm/alarms/create/#", local_prefix.clone(), "")?;
 
-            if !tedge_config.use_legacy_auth() {
+            if !tedge_config.c8y.use_legacy_auth {
                 tc.forward_from_local("s/uat", local_prefix.clone(), "")?;
             }
 
@@ -139,12 +140,14 @@ impl TEdgeComponent for CumulocityMapper {
             // Cumulocity tells us not to not set clean session to false, so don't
             // https://cumulocity.com/docs/device-integration/mqtt/#mqtt-clean-session
             cloud_config.set_clean_session(true);
-            if tedge_config.use_legacy_auth() {
+            if tedge_config.c8y.use_legacy_auth {
+                let username = tedge_config.c8y.username.or_config_not_set()?;
+                let password = tedge_config.c8y.password.try_read(&tedge_config)?;
                 use_credentials(
                     &mut cloud_config,
                     &tedge_config.c8y.root_cert_path,
-                    tedge_config.c8y.username.clone(),
-                    tedge_config.c8y.password.clone(),
+                    username,
+                    password,
                 )?;
             } else {
                 use_key_and_cert(
@@ -218,16 +221,39 @@ impl TEdgeComponent for CumulocityMapper {
                 )
                 .await?;
         }
-        let mut jwt_actor = C8YJwtRetriever::builder(
-            mqtt_config.clone(),
-            tedge_config.c8y.bridge.topic_prefix.clone(),
-        );
-        let mut http_actor = HttpActor::new(&tedge_config).builder();
-        let c8y_http_config = (&tedge_config).try_into()?;
-        let mut c8y_http_proxy_actor =
-            C8YHttpProxyBuilder::new(c8y_http_config, &mut http_actor, &mut jwt_actor);
-        let c8y_auth_proxy_actor =
-            C8yAuthProxyBuilder::try_from_config(&tedge_config, &mut jwt_actor)?;
+
+        let (mut c8y_http_proxy_actor, c8y_auth_proxy_actor) = {
+            let mut http_actor = HttpActor::new(&tedge_config).builder();
+            let c8y_http_config = (&tedge_config).try_into()?;
+            if tedge_config.c8y.use_legacy_auth {
+                let username = tedge_config.c8y.username.or_config_not_set()?;
+                let password = tedge_config.c8y.password.try_read(&tedge_config)?;
+                let mut basic_auth_actor = C8YBasicAuthProvider::builder(username, password);
+                let c8y_http_proxy_actor = C8YHttpProxyBuilder::new(
+                    c8y_http_config,
+                    &mut http_actor,
+                    &mut basic_auth_actor,
+                );
+                let c8y_auth_proxy_actor =
+                    C8yAuthProxyBuilder::try_from_config(&tedge_config, &mut basic_auth_actor)?;
+                runtime.spawn(basic_auth_actor).await?;
+                runtime.spawn(http_actor).await?;
+
+                (c8y_http_proxy_actor, c8y_auth_proxy_actor)
+            } else {
+                let mut jwt_actor = C8YJwtRetriever::builder(
+                    mqtt_config.clone(),
+                    tedge_config.c8y.bridge.topic_prefix.clone(),
+                );
+                let c8y_http_proxy_actor =
+                    C8YHttpProxyBuilder::new(c8y_http_config, &mut http_actor, &mut jwt_actor);
+                let c8y_auth_proxy_actor =
+                    C8yAuthProxyBuilder::try_from_config(&tedge_config, &mut jwt_actor)?;
+                runtime.spawn(jwt_actor).await?;
+                runtime.spawn(http_actor).await?;
+                (c8y_http_proxy_actor, c8y_auth_proxy_actor)
+            }
+        };
 
         let mut fs_watch_actor = FsWatchActorBuilder::new();
         let mut timer_actor = TimerActor::builder();
@@ -274,8 +300,8 @@ impl TEdgeComponent for CumulocityMapper {
         };
 
         runtime.spawn(mqtt_actor).await?;
-        runtime.spawn(jwt_actor).await?;
-        runtime.spawn(http_actor).await?;
+        // runtime.spawn(jwt_actor).await?;
+        // runtime.spawn(http_actor).await?;
         runtime.spawn(c8y_http_proxy_actor).await?;
         runtime.spawn(c8y_auth_proxy_actor).await?;
         runtime.spawn(fs_watch_actor).await?;

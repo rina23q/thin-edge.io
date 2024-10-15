@@ -1,20 +1,18 @@
-use std::convert::Infallible;
-use std::net::IpAddr;
-
 use axum::async_trait;
-use c8y_http_proxy::credentials::C8YJwtRetriever;
+use c8y_http_proxy::credentials::JwtResult;
 use c8y_http_proxy::credentials::JwtRetriever;
 use camino::Utf8PathBuf;
 use futures::channel::mpsc;
 use futures::StreamExt;
+use std::convert::Infallible;
+use std::net::IpAddr;
 use tedge_actors::Actor;
 use tedge_actors::Builder;
 use tedge_actors::DynSender;
 use tedge_actors::RuntimeError;
 use tedge_actors::RuntimeRequest;
 use tedge_actors::RuntimeRequestSink;
-use tedge_actors::Sequential;
-use tedge_actors::ServerActorBuilder;
+use tedge_actors::Service;
 use tedge_config::TEdgeConfig;
 use tedge_config_macros::OptionalConfig;
 use tracing::info;
@@ -39,7 +37,7 @@ pub struct C8yAuthProxyBuilder {
 impl C8yAuthProxyBuilder {
     pub fn try_from_config(
         config: &TEdgeConfig,
-        jwt: &mut ServerActorBuilder<C8YJwtRetriever, Sequential>,
+        jwt: &mut impl Service<(), JwtResult>,
     ) -> anyhow::Result<Self> {
         let reqwest_client = config.cloud_root_certs().client();
         let app_data = AppData {

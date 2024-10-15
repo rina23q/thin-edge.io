@@ -29,6 +29,7 @@ use serde::Deserialize;
 use std::borrow::Cow;
 use std::fmt;
 use std::fmt::Formatter;
+use std::fs;
 use std::io::Read;
 use std::net::IpAddr;
 use std::net::Ipv4Addr;
@@ -74,10 +75,6 @@ impl std::ops::Deref for TEdgeConfig {
 impl TEdgeConfig {
     pub fn from_dto(dto: &TEdgeConfigDto, location: &TEdgeConfigLocation) -> Self {
         Self(TEdgeConfigReader::from_dto(dto, location))
-    }
-
-    pub fn use_legacy_auth(&self) -> bool {
-        !self.c8y.username.is_empty() && !self.c8y.password.is_empty()
     }
 
     pub fn mqtt_config(&self) -> Result<mqtt_channel::Config, CertificateError> {
@@ -472,15 +469,21 @@ define_tedge_config! {
         #[doku(as = "PathBuf")]
         root_cert_path: Utf8PathBuf,
 
-        /// Cumulocity Username
-        #[tedge_config(note = "The value can be a directory path as well as the path of the certificate file.")]
-        #[tedge_config(example = "t12345/device_tedge001", default(variable = "DEFAULT_ROOT_CERT_PATH"))]
+        /// Cumulocity Username for Basic Authentication
+        #[tedge_config(example = "t12345/device_tedge001")]
         username: String,
 
-        /// Cumulocity Password
-        #[tedge_config(note = "The value can be a directory path as well as the path of the certificate file.")]
-        #[tedge_config(example = "d8aj1d8j1.81", default(variable = "DEFAULT_ROOT_CERT_PATH"))]
-        password: String,
+        /// Cumulocity Password for Basic Authentication
+        #[tedge_config(readonly(
+            write_error = "\
+                The password is read from the environment variable and cannot be set directly.\n\
+                To set 'c8y.username' you can use `export C8Y_DEVICE_PASSWORD=<password>`.",
+            function = "c8y_password",
+        ))]
+        #[tedge_config(example = "d8aj1d8j1.81")]
+        #[tedge_config(note = "This setting is derived from the environment variable 'C8Y_DEVICE_PASSWORD' and is therefore read only.")]
+        #[doku(as = "String")]
+        password: Result<String, ReadError>,
 
         smartrest: {
             /// Set of SmartREST template IDs the device should subscribe to
@@ -512,6 +515,11 @@ define_tedge_config! {
         #[tedge_config(example = "te/+/+/+/+/a/+,te/+/+/+/+/m/+,te/+/+/+/+/e/+")]
         #[tedge_config(default(value = "te/+/+/+/+,te/+/+/+/+/twin/+,te/+/+/+/+/m/+,te/+/+/+/+/e/+,te/+/+/+/+/a/+,te/+/+/+/+/status/health"))]
         topics: TemplatesSet,
+
+        // TODO: Enum or bool? If enum, what are the other items?
+        /// Use basic authentication (username/password) instead of device certificate based authentication
+        #[tedge_config(example = "true", default(value = false))]
+        use_legacy_auth: bool,
 
         enable: {
             /// Enable log_upload feature
@@ -1210,6 +1218,28 @@ fn cert_error_into_config_error(key: Cow<'static, str>, err: CertificateError) -
                 key,
                 cause: format!("{}", err),
             },
+        },
+        _ => ReadError::DerivationFailed {
+            key,
+            cause: format!("{}", err),
+        },
+    }
+}
+
+fn c8y_password(_reader: &TEdgeConfigReader) -> Result<String, ReadError> {
+    // FIXME: very rough solution. /etc/tedge is not configurable from tedge config. Find somewhere better.
+    let password = fs::read_to_string("/etc/tedge/c8y/.password").map_err(|err| {
+        password_error_into_config_error(ReadOnlyKey::C8yPassword.to_cow_str(), err)
+    })?;
+    Ok(password.trim().into())
+}
+
+fn password_error_into_config_error(key: Cow<'static, str>, err: std::io::Error) -> ReadError {
+    dbg!(&err.kind());
+    match &err.kind() {
+        std::io::ErrorKind::NotFound => ReadError::ReadOnlyNotFound {
+            key,
+            message: concat!("/etc/tedge/c8y/.password not found"),
         },
         _ => ReadError::DerivationFailed {
             key,
