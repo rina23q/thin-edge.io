@@ -428,17 +428,11 @@ define_tedge_config! {
     device: {
         /// Identifier of the device within the fleet. It must be globally
         /// unique and is derived from the device certificate.
-        #[tedge_config(readonly(
-            write_error = "\
-                The device id is read from the device certificate and cannot be set directly.\n\
-                To set 'device.id' to some <id>, you can use `tedge cert create --device-id <id>`.",
-            function = "device_id",
-        ))]
         #[tedge_config(example = "Raspberrypi-4d18303a-6d3a-11eb-b1a6-175f6bb72665")]
-        #[tedge_config(note = "This setting is derived from the device certificate and is therefore read only.")]
+        #[tedge_config(note = "This setting is derived from the device certificate.")]
+        #[tedge_config(default(function = "default_device_id"))]
         #[tedge_config(reader(private))]
-        #[doku(as = "String")]
-        id: Result<String, ReadError>,
+        id: String,
 
         /// Path where the device's private key is stored
         #[tedge_config(example = "/etc/tedge/device-certs/tedge-private-key.pem", default(function = "default_device_key"), reader(private))]
@@ -489,16 +483,12 @@ define_tedge_config! {
         device: {
             /// Identifier of the device within the fleet. It must be globally
             /// unique and is derived from the device certificate.
-            #[tedge_config(readonly(
-                write_error = "\
-                    The device id is read from the device certificate and cannot be set directly.\n\
-                    To set 'device.id' to some <id>, you can use `tedge cert create --device-id <id>`.",
-                function = "c8y_device_id",
-            ))]
             #[tedge_config(example = "Raspberrypi-4d18303a-6d3a-11eb-b1a6-175f6bb72665")]
             #[tedge_config(note = "This setting is derived from the device certificate and is therefore read only.")]
-            #[doku(as = "String")]
-            id: Result<String, ReadError>,
+            #[tedge_config(default(from_key = "device.id"))]
+            // #[tedge_config(default(function = "default_c8y_device_id"))]
+            #[tedge_config(reader(private))]
+            id: String,
 
             /// Path where the device's private key is stored
             #[tedge_config(example = "/etc/tedge/device-certs/tedge-private-key.pem", default(from_key = "device.key_path"))]
@@ -685,16 +675,12 @@ define_tedge_config! {
         device: {
             /// Identifier of the device within the fleet. It must be globally
             /// unique and is derived from the device certificate.
-            #[tedge_config(readonly(
-                write_error = "\
-                    The device id is read from the device certificate and cannot be set directly.\n\
-                    To set 'device.id' to some <id>, you can use `tedge cert create --device-id <id>`.",
-                function = "az_device_id",
-            ))]
             #[tedge_config(example = "Raspberrypi-4d18303a-6d3a-11eb-b1a6-175f6bb72665")]
             #[tedge_config(note = "This setting is derived from the device certificate and is therefore read only.")]
-            #[doku(as = "String")]
-            id: Result<String, ReadError>,
+            #[tedge_config(default(from_key = "device.id"))]
+            // #[tedge_config(default(function = "default_az_device_id"))]
+            #[tedge_config(reader(private))]
+            id: String,
 
             /// Path where the device's private key is stored
             #[tedge_config(example = "/etc/tedge/device-certs/tedge-private-key.pem", default(from_key = "device.key_path"))]
@@ -755,16 +741,12 @@ define_tedge_config! {
         device: {
             /// Identifier of the device within the fleet. It must be globally
             /// unique and is derived from the device certificate.
-            #[tedge_config(readonly(
-                write_error = "\
-                    The device id is read from the device certificate and cannot be set directly.\n\
-                    To set 'device.id' to some <id>, you can use `tedge cert create --device-id <id>`.",
-                function = "aws_device_id",
-            ))]
             #[tedge_config(example = "Raspberrypi-4d18303a-6d3a-11eb-b1a6-175f6bb72665")]
             #[tedge_config(note = "This setting is derived from the device certificate and is therefore read only.")]
-            #[doku(as = "String")]
-            id: Result<String, ReadError>,
+            #[tedge_config(default(from_key = "device.id"))]
+            // #[tedge_config(default(function = "default_aws_device_id"))]
+            #[tedge_config(reader(private))]
+            id: String,
 
             /// Path where the device's private key is stored
             #[tedge_config(example = "/etc/tedge/device-certs/tedge-private-key.pem", default(from_key = "device.key_path"))]
@@ -1353,29 +1335,77 @@ fn default_http_bind_address(dto: &TEdgeConfigDto) -> IpAddr {
         .unwrap_or(Ipv4Addr::LOCALHOST.into())
 }
 
+fn default_device_id(dto:&TEdgeConfigDto, location: &TEdgeConfigLocation) -> String {
+    match &dto.device.id {
+        None => {
+            let cert_path = default_device_cert(location);
+            device_id_from_cert(&cert_path).unwrap_or("Set device certificate path or set the value explicitly for basic auth".to_string())
+        }
+        Some(device_id) => device_id.to_string(),
+    }
+}
+
+// fn default_c8y_device_id(dto:&TEdgeConfigDto, location: &TEdgeConfigLocation) -> String {
+//     match &dto.c8y.{
+//         None => {
+//             let cert_path = default_device_cert(location);
+//             device_id_from_cert(&cert_path).unwrap_or("Set device certificate path or set the value explicitly for basic auth".to_string())
+//         }
+//         Some(device_id) => device_id.to_string(),
+//     }
+// }
+//
+// fn default_az_device_id(dto:&TEdgeConfigDto, location: &TEdgeConfigLocation) -> String {
+//     match &dto.az.device.id {
+//         None => {
+//             let cert_path = default_device_cert(location);
+//             device_id_from_cert(&cert_path).unwrap_or("Set device certificate path or set the value explicitly for basic auth".to_string())
+//         }
+//         Some(device_id) => device_id.to_string(),
+//     }
+// }
+//
+// fn default_aws_device_id(dto:&TEdgeConfigDto, location: &TEdgeConfigLocation) -> String {
+//     match &dto.aws.device.id {
+//         None => {
+//             let cert_path = default_device_cert(location);
+//             device_id_from_cert(&cert_path).unwrap_or("Set device certificate path or set the value explicitly for basic auth".to_string())
+//         }
+//         Some(device_id) => device_id.to_string(),
+//     }
+// }
+
+impl TEdgeConfigReaderDevice {
+    pub fn id(&self) -> Result<String, ReadError> {
+        device_id_from_cert(&self.cert_path)
+    }
+}
+
+impl TEdgeConfigReaderC8yDevice {
+    pub fn id(&self) -> Result<String, ReadError> {
+        device_id_from_cert(&self.cert_path)
+    }
+}
+
+impl TEdgeConfigReaderAzDevice {
+    pub fn id(&self) -> Result<String, ReadError> {
+        device_id_from_cert(&self.cert_path)
+    }
+}
+
+impl TEdgeConfigReaderAwsDevice {
+    pub fn id(&self) -> Result<String, ReadError> {
+        device_id_from_cert(&self.cert_path)
+    }
+}
+
 fn device_id_from_cert(cert_path: &Utf8Path) -> Result<String, ReadError> {
     let pem = PemCertificate::from_pem_file(cert_path)
-        .map_err(|err| cert_error_into_config_error(ReadOnlyKey::DeviceId.to_cow_str(), err))?;
+        .map_err(|err| cert_error_into_config_error(ReadableKey::DeviceId.to_cow_str(), err))?;
     let device_id = pem
         .subject_common_name()
-        .map_err(|err| cert_error_into_config_error(ReadOnlyKey::DeviceId.to_cow_str(), err))?;
+        .map_err(|err| cert_error_into_config_error(ReadableKey::DeviceId.to_cow_str(), err))?;
     Ok(device_id)
-}
-
-fn device_id(device: &TEdgeConfigReaderDevice) -> Result<String, ReadError> {
-    device_id_from_cert(&device.cert_path)
-}
-
-fn c8y_device_id(device: &TEdgeConfigReaderC8yDevice) -> Result<String, ReadError> {
-    device_id_from_cert(&device.cert_path)
-}
-
-fn az_device_id(device: &TEdgeConfigReaderAzDevice) -> Result<String, ReadError> {
-    device_id_from_cert(&device.cert_path)
-}
-
-fn aws_device_id(device: &TEdgeConfigReaderAwsDevice) -> Result<String, ReadError> {
-    device_id_from_cert(&device.cert_path)
 }
 
 fn cert_error_into_config_error(key: Cow<'static, str>, err: CertificateError) -> ReadError {
@@ -1447,6 +1477,12 @@ pub enum ReadError {
     DerivationFailed {
         key: Cow<'static, str>,
         cause: String,
+    },
+
+    #[error("Config value {key}, cannot be read: {message} ")]
+    DeviceIdNotFound {
+        key: Cow<'static, str>,
+        message: &'static str,
     },
 }
 
