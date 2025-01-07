@@ -430,7 +430,7 @@ define_tedge_config! {
         /// unique and is derived from the device certificate.
         #[tedge_config(example = "Raspberrypi-4d18303a-6d3a-11eb-b1a6-175f6bb72665")]
         #[tedge_config(note = "This setting is derived from the device certificate.")]
-        #[tedge_config(default(function = "default_device_id"))]
+        // #[tedge_config(default(function = "default_device_id"))]
         #[tedge_config(reader(private))]
         id: String,
 
@@ -485,7 +485,7 @@ define_tedge_config! {
             /// unique and is derived from the device certificate.
             #[tedge_config(example = "Raspberrypi-4d18303a-6d3a-11eb-b1a6-175f6bb72665")]
             #[tedge_config(note = "This setting is derived from the device certificate and is therefore read only.")]
-            #[tedge_config(default(from_key = "device.id"))]
+            // #[tedge_config(default(from_key = "device.id"))]
             // #[tedge_config(default(function = "default_c8y_device_id"))]
             #[tedge_config(reader(private))]
             id: String,
@@ -677,7 +677,7 @@ define_tedge_config! {
             /// unique and is derived from the device certificate.
             #[tedge_config(example = "Raspberrypi-4d18303a-6d3a-11eb-b1a6-175f6bb72665")]
             #[tedge_config(note = "This setting is derived from the device certificate and is therefore read only.")]
-            #[tedge_config(default(from_key = "device.id"))]
+            // #[tedge_config(default(from_key = "device.id"))]
             // #[tedge_config(default(function = "default_az_device_id"))]
             #[tedge_config(reader(private))]
             id: String,
@@ -743,7 +743,7 @@ define_tedge_config! {
             /// unique and is derived from the device certificate.
             #[tedge_config(example = "Raspberrypi-4d18303a-6d3a-11eb-b1a6-175f6bb72665")]
             #[tedge_config(note = "This setting is derived from the device certificate and is therefore read only.")]
-            #[tedge_config(default(from_key = "device.id"))]
+            // #[tedge_config(default(from_key = "device.id"))]
             // #[tedge_config(default(function = "default_aws_device_id"))]
             #[tedge_config(reader(private))]
             id: String,
@@ -1335,15 +1335,18 @@ fn default_http_bind_address(dto: &TEdgeConfigDto) -> IpAddr {
         .unwrap_or(Ipv4Addr::LOCALHOST.into())
 }
 
-fn default_device_id(dto:&TEdgeConfigDto, location: &TEdgeConfigLocation) -> String {
-    match &dto.device.id {
-        None => {
-            let cert_path = default_device_cert(location);
-            device_id_from_cert(&cert_path).unwrap_or("Set device certificate path or set the value explicitly for basic auth".to_string())
-        }
-        Some(device_id) => device_id.to_string(),
-    }
-}
+// fn default_device_id(dto: &TEdgeConfigDto, location: &TEdgeConfigLocation) -> String {
+//     match &dto.device.id {
+//         None => {
+//             let cert_path = default_device_cert(location);
+//             device_id_from_cert(&cert_path).unwrap_or(
+//                 "Set device certificate path or set the value explicitly for basic auth"
+//                     .to_string(),
+//             )
+//         }
+//         Some(device_id) => device_id.to_string(),
+//     }
+// }
 
 // fn default_c8y_device_id(dto:&TEdgeConfigDto, location: &TEdgeConfigLocation) -> String {
 //     match &dto.c8y.{
@@ -1383,6 +1386,7 @@ impl TEdgeConfigReaderDevice {
 
 impl TEdgeConfigReaderC8yDevice {
     pub fn id(&self) -> Result<String, ReadError> {
+        dbg!("called");
         device_id_from_cert(&self.cert_path)
     }
 }
