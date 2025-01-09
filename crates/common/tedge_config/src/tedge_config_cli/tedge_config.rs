@@ -1380,26 +1380,38 @@ fn default_http_bind_address(dto: &TEdgeConfigDto) -> IpAddr {
 
 impl TEdgeConfigReaderDevice {
     pub fn id(&self) -> Result<String, ReadError> {
-        device_id_from_cert(&self.cert_path)
+        dbg!("is called");
+        match self.id.or_none() {
+            Some(id) => Ok(id.to_string()),
+            None => device_id_from_cert(&self.cert_path),
+        }
     }
 }
 
 impl TEdgeConfigReaderC8yDevice {
     pub fn id(&self) -> Result<String, ReadError> {
-        dbg!("called");
-        device_id_from_cert(&self.cert_path)
+        match self.id.or_none() {
+            Some(id) => Ok(id.to_string()),
+            None => device_id_from_cert(&self.cert_path),
+        }
     }
 }
 
 impl TEdgeConfigReaderAzDevice {
     pub fn id(&self) -> Result<String, ReadError> {
-        device_id_from_cert(&self.cert_path)
+        match self.id.or_none() {
+            Some(id) => Ok(id.to_string()),
+            None => device_id_from_cert(&self.cert_path),
+        }
     }
 }
 
 impl TEdgeConfigReaderAwsDevice {
     pub fn id(&self) -> Result<String, ReadError> {
-        device_id_from_cert(&self.cert_path)
+        match self.id.or_none() {
+            Some(id) => Ok(id.to_string()),
+            None => device_id_from_cert(&self.cert_path),
+        }
     }
 }
 
