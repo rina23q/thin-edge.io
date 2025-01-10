@@ -341,8 +341,6 @@ fn validate_config(config: &TEdgeConfig, cloud: &MaybeBorrowedCloud<'_>) -> anyh
 fn validate_device_matches_cert_cn(id: &str, cert: &Utf8Path) -> anyhow::Result<()> {
     let pem = PemCertificate::from_pem_file(cert)?;
     let cn = pem.subject_common_name()?;
-    dbg!(&id);
-    dbg!(&cn);
     if id == cn {
         Ok(())
     } else {
@@ -1592,13 +1590,12 @@ Each cloud profile requires either a unique URL or unique device ID, so it corre
             validate_config(&config, &cloud).unwrap();
         }
 
-        #[ignore = "profile = None case is currently unsupported. Requires config macro update"]
-        #[test_case(Cloud::c8y(None), "c8y", "")]
-        #[test_case(Cloud::c8y(Some("foo".parse().unwrap())), "c8y.profiles.foo", "c8y.profiles.foo.")]
-        #[test_case(Cloud::az(None), "az", "")]
-        #[test_case(Cloud::az(Some("foo".parse().unwrap())), "az.profiles.foo", "az.profiles.foo.")]
-        #[test_case(Cloud::aws(None), "aws", "")]
-        #[test_case(Cloud::aws(Some("foo".parse().unwrap())), "aws.profiles.foo", "aws.profiles.foo.")]
+        #[test_case(Cloud::c8y(None), "c8y.", "")]
+        #[test_case(Cloud::c8y(Some("foo".parse().unwrap())), "c8y.profiles.foo.", "c8y.profiles.foo.")]
+        #[test_case(Cloud::az(None), "az.", "")]
+        #[test_case(Cloud::az(Some("foo".parse().unwrap())), "az.profiles.foo.", "az.profiles.foo.")]
+        #[test_case(Cloud::aws(None), "aws.", "")]
+        #[test_case(Cloud::aws(Some("foo".parse().unwrap())), "aws.profiles.foo.", "aws.profiles.foo.")]
         fn rejects_device_id_mismatches_cert_cn(
             cloud: Cloud,
             url_prefix: &str,
@@ -1615,7 +1612,7 @@ Each cloud profile requires either a unique URL or unique device ID, so it corre
             let loc = TEdgeConfigLocation::from_custom_root(ttd.path());
             loc.update_toml(&|dto, _| {
                 dto.try_update_str(
-                    &format!("{url_prefix}.url").parse().unwrap(),
+                    &format!("{url_prefix}url").parse().unwrap(),
                     "latest.example.com",
                 )
                 .unwrap();
