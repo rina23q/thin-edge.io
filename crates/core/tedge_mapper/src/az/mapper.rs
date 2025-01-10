@@ -44,7 +44,7 @@ impl TEdgeComponent for AzureMapper {
             let device_topic_id = EntityTopicId::from_str(&tedge_config.mqtt.device_topic_id)?;
 
             let remote_clientid = az_config.device.id()?;
-            let rules = built_in_bridge_rules(&remote_clientid, prefix)?;
+            let rules = built_in_bridge_rules(remote_clientid, prefix)?;
 
             let mut cloud_config = tedge_mqtt_bridge::MqttOptions::new(
                 remote_clientid,

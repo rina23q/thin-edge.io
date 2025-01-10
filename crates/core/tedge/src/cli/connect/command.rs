@@ -453,7 +453,7 @@ pub fn bridge_config(
     match cloud {
         MaybeBorrowedCloud::Azure(profile) => {
             let az_config = config.az.try_get(profile.as_deref())?;
-            validate_device_matches_cert_cn(&az_config.device.id()?, az_config.device_cert_path())?;
+            validate_device_matches_cert_cn(az_config.device.id()?, az_config.device_cert_path())?;
 
             let params = BridgeConfigAzureParams {
                 mqtt_host: HostPort::<MQTT_TLS_PORT>::try_from(
@@ -476,7 +476,7 @@ pub fn bridge_config(
         MaybeBorrowedCloud::Aws(profile) => {
             let aws_config = config.aws.try_get(profile.as_deref())?;
             validate_device_matches_cert_cn(
-                &aws_config.device.id()?,
+                aws_config.device.id()?,
                 aws_config.device_cert_path(),
             )?;
 
@@ -505,7 +505,7 @@ pub fn bridge_config(
                 match c8y_config.auth_method.to_type(&c8y_config.credentials_path) {
                     AuthType::Certificate => {
                         validate_device_matches_cert_cn(
-                            &c8y_config.device.id()?,
+                            c8y_config.device.id()?,
                             c8y_config.device_cert_path(),
                         )?;
                         (None, None)
