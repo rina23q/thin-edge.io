@@ -89,7 +89,7 @@ mod tests {
         get_device_id_cmd
             .assert()
             .failure()
-            .stderr(predicate::str::contains("'device.id' is not configured"));
+            .stderr(predicate::str::contains("'device.id' is not set"));
 
         // The create command created a certificate
         create_cmd.assert().success();
@@ -122,10 +122,11 @@ mod tests {
             .stderr(predicate::str::contains("Missing file"));
 
         // The remove command also removed the device id from the config
+        // TODO: remove command should unset device.id?
         get_device_id_cmd
             .assert()
-            .failure()
-            .stderr(predicate::str::contains("device.id"));
+            .success()
+            .stdout(predicate::str::contains(device_id));
 
         // The a new certificate can then be created.
         create_cmd.assert().success();

@@ -98,7 +98,7 @@ impl BuildCommand for TEdgeCertCli {
                 // Use the current device id if no id is provided
                 let id = match id {
                     Some(id) => id,
-                    None => config.device.id()?.clone()
+                    None => config.device.id()?.clone(),
                 };
                 let cmd = CreateCsrCmd {
                     id,

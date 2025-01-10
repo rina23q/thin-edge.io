@@ -1348,6 +1348,11 @@ Each cloud profile requires either a unique URL or unique device ID, so it corre
                 dto.try_update_str(&"c8y.profiles.new.url".parse().unwrap(), "example.com")
                     .unwrap();
                 dto.try_update_str(
+                    &"c8y.profiles.new.device.id".parse().unwrap(),
+                    "test-device",
+                )
+                .unwrap();
+                dto.try_update_str(
                     &"c8y.profiles.new.device.cert_path".parse().unwrap(),
                     &cert_path.display().to_string(),
                 )
@@ -1389,6 +1394,11 @@ Each cloud profile requires either a unique URL or unique device ID, so it corre
                     .unwrap();
                 dto.try_update_str(&"c8y.profiles.diff_id.url".parse().unwrap(), "example.com")
                     .unwrap();
+                dto.try_update_str(
+                    &"c8y.profiles.diff_id.device.id".parse().unwrap(),
+                    "test-device-second",
+                )
+                .unwrap();
                 dto.try_update_str(
                     &"c8y.profiles.diff_id.device.cert_path".parse().unwrap(),
                     &cert_path.display().to_string(),
