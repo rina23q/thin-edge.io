@@ -1,4 +1,5 @@
 use super::error::CertError;
+use crate::cli::common::Cloud;
 use crate::command::Command;
 use crate::log::MaybeFancy;
 use camino::Utf8PathBuf;
@@ -10,6 +11,8 @@ use std::fs::File;
 use std::fs::OpenOptions;
 use std::io::prelude::*;
 use std::path::Path;
+use tedge_config::TEdgeConfigLocation;
+use tedge_config::WritableKey;
 use tedge_utils::paths::set_permission;
 use tedge_utils::paths::validate_parent_dir_exists;
 
@@ -27,6 +30,10 @@ pub struct CreateCertCmd {
     /// The owner of the private key
     pub user: String,
     pub group: String,
+
+    /// The configs required to update the tedge.toml file
+    pub config_location: TEdgeConfigLocation,
+    pub cloud: Option<Cloud>,
 }
 
 impl Command for CreateCertCmd {
@@ -38,6 +45,8 @@ impl Command for CreateCertCmd {
         let config = NewCertificateConfig::default();
         self.create_test_certificate(&config)?;
         eprintln!("Certificate was successfully created");
+        let key = self.set_device_id()?;
+        eprintln!("'{key}' is set to {}", self.id);
         Ok(())
     }
 }
@@ -64,6 +73,30 @@ impl CreateCertCmd {
         )
         .map_err(|err| err.key_context(key_path.clone()))?;
         Ok(())
+    }
+
+    fn set_device_id(&self) -> Result<WritableKey, anyhow::Error> {
+        let profiled_key = match &self.cloud {
+            None => WritableKey::DeviceId,
+            Some(cloud) => {
+                let key = match cloud {
+                    Cloud::C8y(_) => WritableKey::C8yDeviceId(None),
+                    Cloud::Azure(_) => WritableKey::AzDeviceId(None),
+                    Cloud::Aws(_) => WritableKey::AwsDeviceId(None),
+                };
+                let profile = cloud.profile_name().cloned();
+                crate::try_with_profile!(key, profile)
+            }
+        };
+
+        self.config_location
+            .update_toml(&|dto, _reader| {
+                dto.try_update_str(&profiled_key, &self.id)
+                    .map_err(|e| e.into())
+            })
+            .map_err(anyhow::Error::new)?;
+
+        Ok(profiled_key)
     }
 }
 
