@@ -53,7 +53,7 @@ Run tedge cert create with cloud profile
     ...    openssl x509 -noout -subject -in /etc/tedge/device-certs/tedge-certificate@second.pem
     Should Match Regexp    ${subject}    pattern=^subject=CN = ${SECOND_DEVICE_SN},.+$
 
-    # device.id is set by tedge cert create
+    # c8y.profiles.second.device.id is set by tedge cert create
     ${config_output}=    Execute Command
     ...    tedge config get c8y.device.id --profile second
     ...    strip=${True}
@@ -61,7 +61,7 @@ Run tedge cert create with cloud profile
     ${toml_output}=    Execute Command    cmd=grep -B 1 ${SECOND_DEVICE_SN} /etc/tedge/tedge.toml    strip=${True}
     Should Be Equal    ${toml_output}    second=[c8y.profiles.second.device]\nid = "${SECOND_DEVICE_SN}"
 
-    # Using another cloud profile with predefined device.id
+    # Using another cloud profile. c8y.profiles.third.device.id is set by tedge config set
     Execute Command    tedge config set c8y.device.id --profile third ${THIRD_DEVICE_SN}
     Execute Command
     ...    tedge config set c8y.device.cert_path --profile third /etc/tedge/device-certs/tedge-certificate@third.pem
@@ -76,22 +76,22 @@ Run tedge cert create with cloud profile
     ...    openssl x509 -noout -subject -in /etc/tedge/device-certs/tedge-certificate@third.pem
     Should Match Regexp    ${subject}    pattern=^subject=CN = ${THIRD_DEVICE_SN},.+$
 
-tedge cert create returns an error when device id from CLI does not match the one in tedge config
-    Execute Command    tedge config set device.id ${DEVICE_SN}
-    ${error}=    Execute Command    tedge cert create --device-id ${DEVICE_SN}-second
-    ...    exp_exit_code=1
-    ...    stdout=${False}
-    ...    stderr=${True}
-
-    Should Contain    ${error}    Run `tedge config unset device.id` first to unset the device ID.
-
-    # cert and key should not be created
+tedge cert create overwrites device id
     File Should Not Exist    /etc/tedge/device-certs/tedge-certificate.pem
     File Should Not Exist    /etc/tedge/device-certs/tedge-private-key.pem
 
-    # device.id should not be overwritten
+    Execute Command    tedge config set device.id ${DEVICE_SN}
     ${device_id}=    Execute Command    tedge config get device.id    strip=${True}
     Should Be Equal    ${device_id}    ${DEVICE_SN}
+
+    Execute Command    tedge cert create --device-id ${DEVICE_SN}-second
+
+    File Should Exist    /etc/tedge/device-certs/tedge-certificate.pem
+    File Should Exist    /etc/tedge/device-certs/tedge-private-key.pem
+
+    # device.id is overwritten
+    ${new_device_id}=    Execute Command    tedge config get device.id    strip=${True}
+    Should Be Equal    ${new_device_id}    ${DEVICE_SN}-second
 
 
 *** Keywords ***

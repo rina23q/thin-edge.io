@@ -89,17 +89,6 @@ Generate CSR using the device-id from an existing certificate and private key of
     Should Be Equal    ${hash_before_cert}    ${hash_after_cert}
     Should Be Equal    ${hash_before_private_key}    ${hash_after_private_key}
 
-tedge cert create-csr returns an error when device id from CLI does not match the one in tedge config
-    [Setup]    Setup Without Certificate
-    Execute Command    tedge config set device.id abc123
-    ${error}=    Execute Command    tedge cert create --device-id test123
-    ...    exp_exit_code=1
-    ...    stdout=${False}
-    ...    stderr=${True}
-
-    Should Contain    ${error}    Run `tedge config unset device.id` first to unset the device ID.
-    File Should Not Exist    /etc/tedge/device-certs/tedge.csr
-
 
 *** Keywords ***
 Setup With Self-Signed Certificate
