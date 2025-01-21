@@ -1,5 +1,6 @@
 use super::create::cn_of_self_signed_certificate;
 use super::error::CertError;
+use crate::cli::set_device_id;
 use crate::command::Command;
 use crate::log::MaybeFancy;
 use crate::override_public_key;
@@ -7,6 +8,8 @@ use crate::reuse_private_key;
 use camino::Utf8PathBuf;
 use certificate::KeyCertPair;
 use certificate::NewCertificateConfig;
+use tedge_config::TEdgeConfigLocation;
+use tedge_config::WritableKey;
 
 /// Renew the self-signed device certificate
 pub struct RenewCertCmd {
@@ -15,6 +18,10 @@ pub struct RenewCertCmd {
 
     /// The path of the private key to re-use
     pub key_path: Utf8PathBuf,
+
+    /// The configs required to update the tedge.toml file
+    pub config_location: TEdgeConfigLocation,
+    pub writable_key: WritableKey,
 }
 
 impl Command for RenewCertCmd {
@@ -26,6 +33,9 @@ impl Command for RenewCertCmd {
         let config = NewCertificateConfig::default();
         self.renew_test_certificate(&config)?;
         eprintln!("Certificate was successfully renewed, for un-interrupted service, the certificate has to be uploaded to the cloud");
+        let id = cn_of_self_signed_certificate(&self.cert_path)?;
+        set_device_id(&self.config_location, &self.writable_key, &id)?;
+        eprintln!("'{}' is set to '{}'", self.writable_key, id);
         Ok(())
     }
 }
@@ -69,13 +79,14 @@ mod tests {
         let cert_path = temp_file_path(&dir, "my-device-cert.pem");
         let key_path = temp_file_path(&dir, "my-device-key.pem");
         let id = "my-device-id";
+        let config_location = TEdgeConfigLocation::from_custom_root(dir.path());
         let cmd = CreateCertCmd {
             id: String::from(id),
             cert_path: cert_path.clone(),
             key_path: key_path.clone(),
             user: "mosquitto".to_string(),
             group: "mosquitto".to_string(),
-            config_location: TEdgeConfigLocation::from_custom_root(dir.path()),
+            config_location: config_location.clone(),
             writable_key: WritableKey::DeviceId,
         };
 
@@ -95,6 +106,8 @@ mod tests {
         let cmd = RenewCertCmd {
             cert_path: cert_path.clone(),
             key_path: key_path.clone(),
+            config_location,
+            writable_key: WritableKey::DeviceId,
         };
         cmd.renew_test_certificate(&NewCertificateConfig::default())
             .unwrap();
@@ -129,6 +142,8 @@ mod tests {
         let cmd = RenewCertCmd {
             cert_path,
             key_path,
+            config_location: TEdgeConfigLocation::from_custom_root(dir.path()),
+            writable_key: WritableKey::DeviceId,
         };
 
         let cert_error = cmd

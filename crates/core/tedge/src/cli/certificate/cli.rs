@@ -152,6 +152,8 @@ impl BuildCommand for TEdgeCertCli {
                 let cmd = RenewCertCmd {
                     cert_path: config.device_cert_path(cloud.as_ref())?.to_owned(),
                     key_path: config.device_key_path(cloud.as_ref())?.to_owned(),
+                    config_location: context.config_location,
+                    writable_key: get_writable_key(&cloud)?,
                 };
                 cmd.into_boxed()
             }
