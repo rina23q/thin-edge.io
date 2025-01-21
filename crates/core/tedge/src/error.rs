@@ -1,5 +1,4 @@
 use tedge_config::MultiError;
-use tedge_config::WritableKey;
 
 #[derive(thiserror::Error, Debug)]
 #[allow(clippy::enum_variant_names)]
@@ -45,14 +44,4 @@ pub enum TEdgeError {
 
     #[error(transparent)]
     FromC8yEndPointConfigError(#[from] c8y_api::http_proxy::C8yEndPointConfigError),
-
-    #[error(
-        r#"The given device ID '{input_id}' doesn't match the one in the config '{config_id}'.
-    Run `tedge config unset {writable_key}` first to unset the device ID."#
-    )]
-    MismatchedDeviceId {
-        input_id: String,
-        config_id: String,
-        writable_key: WritableKey,
-    },
 }

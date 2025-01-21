@@ -6,13 +6,11 @@ use super::show::ShowCertCmd;
 use super::upload::*;
 
 use anyhow::anyhow;
-use anyhow::Context;
 use camino::Utf8PathBuf;
 use clap::ValueHint;
 use tedge_config::OptionalConfigError;
 use tedge_config::ProfileName;
 use tedge_config::TEdgeConfig;
-use tedge_config::TEdgeConfigLocation;
 use tedge_config::WritableKey;
 
 use crate::cli::common::Cloud;
@@ -20,8 +18,6 @@ use crate::cli::common::CloudArg;
 use crate::command::BuildCommand;
 use crate::command::BuildContext;
 use crate::command::Command;
-use crate::error::TEdgeError;
-use crate::error::TEdgeError::MismatchedDeviceId;
 use crate::ConfigError;
 
 #[derive(clap::Subcommand, Debug)]
@@ -87,7 +83,7 @@ impl BuildCommand for TEdgeCertCli {
                 let cloud: Option<Cloud> = cloud.map(<_>::try_into).transpose()?;
 
                 let cmd = CreateCertCmd {
-                    id: get_device_id(id, &config, &context.config_location, &cloud)?,
+                    id: get_device_id(id, &config, &cloud)?,
                     cert_path: config.device_cert_path(cloud.as_ref())?.to_owned(),
                     key_path: config.device_key_path(cloud.as_ref())?.to_owned(),
                     user: user.to_owned(),
@@ -106,7 +102,7 @@ impl BuildCommand for TEdgeCertCli {
                 let cloud: Option<Cloud> = cloud.map(<_>::try_into).transpose()?;
 
                 let cmd = CreateCsrCmd {
-                    id: get_device_id(id, &config, &context.config_location, &cloud)?,
+                    id: get_device_id(id, &config, &cloud)?,
                     key_path: config.device_key_path(cloud.as_ref())?.to_owned(),
                     // Use output file instead of csr_path from tedge config if provided
                     csr_path: output_path.unwrap_or_else(|| config.device.csr_path.clone()),
@@ -197,72 +193,17 @@ pub enum UploadCertCli {
 }
 
 /// Returns the device ID from the config if no ID is provided by CLI
-/// If the provided device ID mismatches the one from the config, it returns an error
 fn get_device_id(
     id: Option<String>,
     config: &TEdgeConfig,
-    config_location: &TEdgeConfigLocation,
     cloud: &Option<Cloud>,
-) -> Result<String, TEdgeError> {
-    let config_id = config.device_id(cloud.as_ref()).ok();
-    let writable_key = get_writable_key(cloud)?;
-    let dto = config_location
-        .load_dto_from_toml_and_env()
-        .context("failed to read tedge.toml file")?;
-
-    match id {
-        None => match config_id {
-            None => Err(anyhow!("No device ID is provided. Use `--device-id <name>` option to specify the device ID.").into()),
-            Some(config_id) => Ok(config_id.into()),
-        }
-        Some(input_id) if config_id.is_none() => Ok(input_id),
-        Some(input_id) if input_id == config_id.unwrap() => Ok(input_id),
-        Some(input_id) => match cloud.as_ref().map(<_>::into) {
-            None => Err(MismatchedDeviceId {
-                input_id,
-                config_id: config_id.unwrap().into(),
-                writable_key,
-            }),
-            Some(tedge_config::Cloud::C8y(profile)) => {
-                let key = profile.map(|name| name.to_string());
-                let c8y_dto = dto.c8y.try_get(key.as_deref(), "c8y")?;
-                if c8y_dto.device.id.is_some() {
-                    Err(MismatchedDeviceId {
-                        input_id,
-                        config_id: config_id.unwrap().into(),
-                        writable_key,
-                    })
-                } else {
-                    Ok(input_id)
-                }
-            }
-            Some(tedge_config::Cloud::Az(profile)) => {
-                let key = profile.map(|name| name.to_string());
-                let az_dto = dto.az.try_get(key.as_deref(), "az")?;
-                if az_dto.device.id.is_some() {
-                    Err(MismatchedDeviceId {
-                        input_id,
-                        config_id: config_id.unwrap().into(),
-                        writable_key,
-                    })
-                } else {
-                    Ok(input_id)
-                }
-            }
-            Some(tedge_config::Cloud::Aws(profile)) => {
-                let key = profile.map(|name| name.to_string());
-                let aws_dto = dto.c8y.try_get(key.as_deref(), "aws")?;
-                if aws_dto.device.id.is_some() {
-                    Err(MismatchedDeviceId {
-                        input_id,
-                        config_id: config_id.unwrap().into(),
-                        writable_key,
-                    })
-                } else {
-                    Ok(input_id)
-                }
-            }
-        },
+) -> Result<String, anyhow::Error> {
+    match (id, config.device_id(cloud.as_ref()).ok()) {
+        (None, None) => Err(anyhow!(
+            "No device ID is provided. Use `--device-id <name>` option to specify the device ID."
+        )),
+        (None, Some(config_id)) => Ok(config_id.into()),
+        (Some(input_id), _) => Ok(input_id),
     }
 }
 
@@ -285,46 +226,62 @@ pub(crate) fn get_writable_key(cloud: &Option<Cloud>) -> Result<WritableKey, any
 #[cfg(test)]
 mod tests {
     use super::*;
+    use tedge_config::TEdgeConfigLocation;
     use tedge_test_utils::fs::TempTedgeDir;
     use test_case::test_case;
 
-    #[test_case("test", None, None, toml::toml!{
-    [device]
-        id = "test"
-    })]
-    #[test_case("test", Some("test"), None, toml::toml!{
-    [device]
-    })]
-    #[test_case("c8y-test", None, Some(CloudArg::C8y{ profile: None }), toml::toml!{
-    [c8y.device]
-        id = "c8y-test"
-    })]
-    #[test_case("c8y-test", Some("c8y-test"), Some(CloudArg::C8y{ profile: None }), toml::toml!{
-    [c8y.device]
-    })]
-    #[test_case("c8y-test", Some("c8y-test"), Some(CloudArg::C8y{ profile: None }), toml::toml!{
-    [device]
-        id = "test"
-    })]
-    #[test_case("c8y-foo-test", Some("c8y-foo-test"), Some(CloudArg::C8y{ profile: Some("foo".parse().unwrap()) }), toml::toml!{
-    [device]
-        id = "test"
-    [c8y.device]
-        id = "c8y-test"
-    })]
-    #[test_case("c8y-foo-test", None, Some(CloudArg::C8y{ profile: Some("foo".parse().unwrap()) }), toml::toml!{
-    [device]
-        id = "test"
-    [c8y.device]
-        id = "c8y-test"
-    [c8y.profiles.foo.device]
-        id = "c8y-foo-test"
-    })]
+    #[test_case(
+        None,
+        None,
+        toml::toml!{
+            [device]
+            id = "test"
+        },
+        "test"
+    )]
+    #[test_case(
+        None,
+        Some(CloudArg::C8y{ profile: None }),
+        toml::toml!{
+            [c8y.device]
+            id = "c8y-test"
+        },
+        "c8y-test"
+    )]
+    #[test_case(
+        Some("input"),
+        None,
+        toml::toml!{
+            [device]
+            id = "test"
+        },
+        "input"
+    )]
+    #[test_case(
+        Some("input"),
+        Some(CloudArg::C8y{ profile: None }),
+        toml::toml!{
+            [device]
+            id = "test"
+        },
+        "input"
+    )]
+    #[test_case(
+        Some("input"),
+        Some(CloudArg::C8y{ profile: Some("foo".parse().unwrap()) }),
+        toml::toml!{
+            [device]
+            id = "test"
+            [c8y.device]
+            id = "c8y-test"
+        },
+        "input"
+    )]
     fn validate_get_device_id_returns_ok(
-        expected: &str,
         input_id: Option<&str>,
         cloud_arg: Option<CloudArg>,
         toml: toml::Table,
+        expected: &str,
     ) {
         let cloud: Option<Cloud> = cloud_arg.map(<_>::try_into).transpose().unwrap();
         let ttd = TempTedgeDir::new();
@@ -332,38 +289,18 @@ mod tests {
         let location = TEdgeConfigLocation::from_custom_root(ttd.path());
         let reader = location.load().unwrap();
         let id = input_id.map(|s| s.to_string());
-        let result = get_device_id(id, &reader, &location, &cloud);
+        let result = get_device_id(id, &reader, &cloud);
         assert_eq!(result.unwrap().as_str(), expected);
     }
 
-    #[test_case(None, None, toml::toml!{
-    [device]
-    })]
-    #[test_case(Some("input"), None, toml::toml!{
-    [device]
-        id = "test"
-    })]
-    #[test_case(Some("input"), Some(CloudArg::C8y{ profile: None }), toml::toml!{
-    [c8y.device]
-        id = "c8y-test"
-    })]
-    #[test_case(Some("input"), Some(CloudArg::C8y{ profile: Some("foo".parse().unwrap()) }), toml::toml!{
-    [c8y.profiles.foo.device]
-        id = "c8y-foo-test"
-    })]
-    fn validate_get_device_id_returns_err(
-        input_id: Option<&str>,
-        cloud_arg: Option<CloudArg>,
-        toml: toml::Table,
-    ) {
-        let cloud: Option<Cloud> = cloud_arg.map(<_>::try_into).transpose().unwrap();
+    #[test]
+    fn validate_get_device_id_returns_err() {
         let ttd = TempTedgeDir::new();
-        ttd.file("tedge.toml").with_toml_content(toml);
+        ttd.file("tedge.toml")
+            .with_toml_content(toml::toml! {[device]});
         let location = TEdgeConfigLocation::from_custom_root(ttd.path());
         let reader = location.load().unwrap();
-        let id = input_id.map(|s| s.to_string());
-        let result = get_device_id(id, &reader, &location, &cloud);
-        dbg!(&result);
+        let result = get_device_id(None, &reader, &None);
         assert!(result.is_err());
     }
 
