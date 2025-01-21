@@ -42,7 +42,7 @@ impl Command for CreateCsrCmd {
         self.create_certificate_signing_request(&config)?;
         eprintln!("Certificate Signing Request was successfully created.");
         set_device_id(&self.config_location, &self.writable_key, &self.id)?;
-        eprintln!("'{}' is set to {}", self.writable_key, self.id);
+        eprintln!("'{}' is set to '{}'", self.writable_key, self.id);
         Ok(())
     }
 }

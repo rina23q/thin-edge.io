@@ -45,7 +45,7 @@ impl Command for CreateCertCmd {
         self.create_test_certificate(&config)?;
         eprintln!("Certificate was successfully created");
         set_device_id(&self.config_location, &self.writable_key, &self.id)?;
-        eprintln!("'{}' is set to {}", self.writable_key, self.id);
+        eprintln!("'{}' is set to '{}'", self.writable_key, self.id);
         Ok(())
     }
 }
