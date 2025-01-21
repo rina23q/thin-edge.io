@@ -430,7 +430,6 @@ define_tedge_config! {
         /// unique and is derived from the device certificate.
         #[tedge_config(reader(function = "device_id", private))]
         #[tedge_config(example = "Raspberrypi-4d18303a-6d3a-11eb-b1a6-175f6bb72665")]
-        #[tedge_config(note = "This setting is derived from the device certificate and is therefore read only.")]
         #[doku(as = "String")]
         id: Result<String, ReadError>,
 
@@ -677,7 +676,6 @@ define_tedge_config! {
             #[tedge_config(reader(function = "az_device_id"))]
             #[tedge_config(default(from_optional_key = "device.id"))]
             #[tedge_config(example = "Raspberrypi-4d18303a-6d3a-11eb-b1a6-175f6bb72665")]
-            #[tedge_config(note = "This setting is derived from the device certificate and is therefore read only.")]
             #[doku(as = "String")]
             id: Result<String, ReadError>,
 
@@ -743,7 +741,6 @@ define_tedge_config! {
             #[tedge_config(reader(function = "aws_device_id"))]
             #[tedge_config(default(from_optional_key = "device.id"))]
             #[tedge_config(example = "Raspberrypi-4d18303a-6d3a-11eb-b1a6-175f6bb72665")]
-            #[tedge_config(note = "This setting is derived from the device certificate and is therefore read only.")]
             #[doku(as = "String")]
             id: Result<String, ReadError>,
 
