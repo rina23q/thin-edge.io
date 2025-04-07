@@ -25,7 +25,7 @@ on:
   # When in doubt, do not approve the test run.
   # Reference: https://dev.to/petrsvihlik/using-environment-protection-rules-to-secure-secrets-when-building-external-forks-with-pullrequesttarget-hci
   pull_request_target:
-    branches: [ main ]
+    branches: [ main, test ]
 
 env:
   CARGO_TERM_COLOR: always
