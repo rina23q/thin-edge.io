@@ -24,7 +24,7 @@ jobs:
   changes:
     name: Filter changes
     runs-on: ubuntu-22.04
-    if: ${{ github.event_name != 'merge_group' }}
+    if: ${{ github.event_name != 'pull_request' }}
     # Set job outputs to values from filter step
     outputs:
       rust: ${{ steps.filter.outputs.rust || 'true' }}
