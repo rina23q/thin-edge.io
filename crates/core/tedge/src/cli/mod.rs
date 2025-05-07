@@ -21,6 +21,7 @@ mod common;
 mod completions;
 pub mod config;
 mod connect;
+mod diag;
 mod disconnect;
 mod http;
 mod init;
@@ -134,6 +135,10 @@ pub enum TEdgeOpt {
     #[clap(subcommand)]
     Http(http::TEdgeHttpCli),
 
+    /// Helper to diagnose problems
+    #[clap(subcommand)]
+    Diag(diag::TEdgeDiagCli),
+
     /// Run thin-edge services and plugins
     Run(ComponentOpt),
 
@@ -219,6 +224,7 @@ impl BuildCommand for TEdgeOpt {
                 // This method has to be kept in sync with tedge::redirect_if_multicall()
                 panic!("tedge mapper|agent|write commands are launched as multicall")
             }
+            TEdgeOpt::Diag(opt) => opt.build_command(config, config_location),
             TEdgeOpt::Completions { shell } => shell.build_command(config, config_location),
         }
     }
