@@ -54,6 +54,7 @@ tedge_api = { workspace = true }
 tedge_config = { workspace = true }
 tedge_utils = { workspace = true }
 thiserror = { workspace = true }
+time = { workspace = true }
 tokio = { workspace = true, features = ["macros"] }
 toml = { workspace = true }
 tracing = { workspace = true }
