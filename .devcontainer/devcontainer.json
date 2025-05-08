@@ -1,7 +1,7 @@
 // For format details, see https://aka.ms/vscode-remote/devcontainer.json or this file's README at:
 // https://github.com/microsoft/vscode-dev-containers/tree/v0.195.0/containers/rust
 {
-	"name": "thin-edge.io",
+	"name": "thin-edge-io",
 	// Must be set to false, otherwise the cmd (or entrypoint) will not be PID 1 which is required by systemd
 	"overrideCommand": false,
 
