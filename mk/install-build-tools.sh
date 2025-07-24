@@ -78,7 +78,6 @@ aarch64-unknown-linux-gnu)
   # Clang is needed for code coverage.
   use_clang=1
   install_packages \
-    gcc-multilib \
     qemu-user \
     gcc-aarch64-linux-gnu \
     libc6-dev-arm64-cross
@@ -86,7 +85,6 @@ aarch64-unknown-linux-gnu)
 aarch64-unknown-linux-musl|armv7-unknown-linux-musleabihf)
   use_clang=1
   install_packages \
-    gcc-multilib \
     qemu-user
   ;;
 armv5te-unknown-linux-gnueabi)
@@ -131,7 +129,6 @@ arm-unknown-linux-gnueabihf|armv7-unknown-linux-gnueabihf)
 i686-unknown-linux-gnu)
   use_clang=1
   install_packages \
-    gcc-multilib \
     libc6-dev-i386
   ;;
 i686-unknown-linux-musl|x86_64-unknown-linux-musl)
