@@ -6,6 +6,7 @@ Test Teardown       Get Logs
 
 Test Tags           theme:tedge_flows
 
+
 *** Test Cases ***
 Add missing timestamps
     ${transformed_msg}    Execute Command    tedge flows test te/device/main///m/ '{}'
@@ -45,8 +46,8 @@ Units are configured using topic metadata
     ...    cat /etc/tedge/flows/measurements.samples | awk '{ if ($2) print $2 }' FS\='OUTPUT: '
     ...    strip=True
     Should Be Equal
-        ...    ${transformed_msg}
-        ...    ${expected_msg}
+    ...    ${transformed_msg}
+    ...    ${expected_msg}
 
 Computing average over a time window
     ${transformed_msg}    Execute Command
@@ -56,8 +57,8 @@ Computing average over a time window
     ...    cat /etc/tedge/flows/average.samples | awk '{ if ($2) print $2 }' FS\='OUTPUT: '
     ...    strip=True
     Should Be Equal
-        ...    ${transformed_msg}
-        ...    ${expected_msg}
+    ...    ${transformed_msg}
+    ...    ${expected_msg}
 
 Each instance of a script must have its own static state
     ${transformed_msg}    Execute Command
@@ -67,17 +68,16 @@ Each instance of a script must have its own static state
     ...    cat /etc/tedge/flows/count-messages.samples | awk '{ if ($2) print $2 }' FS\='OUTPUT: ' | sort
     ...    strip=True
     Should Be Equal
-        ...    ${transformed_msg}
-        ...    ${expected_msg}
+    ...    ${transformed_msg}
+    ...    ${expected_msg}
 
 
 *** Keywords ***
 Custom Setup
-    ${DEVICE_SN}=    Setup    connect=${False}
+    ${DEVICE_SN}    Setup    connect=${False}
     Set Suite Variable    $DEVICE_SN
     Copy Configuration Files
 
 Copy Configuration Files
     Execute Command    mkdir /etc/tedge/flows/
     ThinEdgeIO.Transfer To Device    ${CURDIR}/flows/*    /etc/tedge/flows/
-
