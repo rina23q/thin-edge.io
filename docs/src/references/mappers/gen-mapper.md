@@ -55,20 +55,20 @@ which rule how to consume, transform and produce MQTT messages.
 
 A transformation *scripts* is a JavaScript or TypeScript module that exports:
 
-- at least a function `onMessage(message,config)`, aimed to transform one input message into zero, one or more output messages,
-- possibly a function `onInterval(timestamp,config)`, called at regular intervals to produce aggregated messages,
-- possibly a function `onConfigUpdate(message,config)`, used to update the step config.
+- at least a function `onMessage()`, aimed to transform one input message into zero, one or more output messages,
+- possibly a function `onInterval()`, called at regular intervals to produce aggregated messages,
+- possibly a function `onConfigUpdate()`, used to update the step config.
 
 ```ts
 interface FlowStep {
     // transform one input message into zero, one or more output messages
-    onMessage: (message: Message, config: any) => null | Message | Message[],
+    onMessage(message: Message, config: object): null | Message | Message[],
   
     // called at regular intervals to produce aggregated messages
-    onInterval: (timestamp: Message) => null | Message | Message[],
+    onInterval(timestamp: Message, config: object): null | Message | Message[],
   
     // update the step config given a config update message
-    onConfigUpdate: (message: Message, config: any) => any
+    onConfigUpdate(message: Message, config: object): object
 }
 ```
 
