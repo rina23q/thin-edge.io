@@ -4,7 +4,7 @@ use crate::log::MaybeFancy;
 use anyhow::Error;
 use std::path::PathBuf;
 use tedge_config::TEdgeConfig;
-use tedge_gen_mapper::flow::Flow;
+use tedge_flows::flow::Flow;
 
 pub struct ListCommand {
     pub flows_dir: PathBuf,
