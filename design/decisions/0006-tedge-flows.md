@@ -132,7 +132,7 @@ function process(message, config) {
   though `mosquitto_sub -t '#' -F "%J"` does this.
 
 
-**Option 2: Add timetamp at the end**
+**Option 2: Add timestamp at the end**
 
 ```
 function process(message, {
