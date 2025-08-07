@@ -34,7 +34,7 @@ which rule how to consume, transform and produce MQTT messages.
 - A *flow* applies a chain of transformation *steps* to input messages producing fully processed output messages.
   - The *flows* put things in motion, actually interacting with the system, consuming and producing messages.
   - Messages received on a flow are passed to the first step; and the transformed messages, if any,
-    are pushed to the subsequent steps upto the output connector.
+    are pushed to the subsequent steps up to the output connector.
 - A flow can combine builtin and user-provided steps.
   - Builtin steps provide generic building blocks such as %%te%% JSON translation into Cumulocity JSON.
   - Users can implement specific steps using JavaScript or TypeScript to refine transformations to their use cases. 
