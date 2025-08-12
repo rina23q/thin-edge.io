@@ -69,7 +69,7 @@ jobs:
         run: df -BM
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
@@ -197,7 +197,7 @@ jobs:
         run: |
           sudo apt-get update -y
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.sha || '' }}
           fetch-depth: 0
@@ -271,7 +271,7 @@ jobs:
     steps:
       # Checkout either the PR or the branch
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.sha || '' }}
           fetch-depth: 0
@@ -363,7 +363,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       # Setup python required by cloudsmith cli
       - uses: actions/setup-python@v5
@@ -406,7 +406,7 @@ jobs:
       packages: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - uses: taiki-e/install-action@just
@@ -474,7 +474,7 @@ jobs:
     needs: [publish]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
       # Setup python required by cloudsmith cli
@@ -509,7 +509,7 @@ jobs:
       needs.publish-containers.result == 'success'
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
           persist-credentials: false
