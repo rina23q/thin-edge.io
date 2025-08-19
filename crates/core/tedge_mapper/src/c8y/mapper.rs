@@ -34,7 +34,6 @@ use yansi::Paint;
 
 pub struct CumulocityMapper {
     pub profile: Option<ProfileName>,
-    pub no_cache: bool,
 }
 
 #[async_trait]
@@ -52,7 +51,7 @@ impl TEdgeComponent for CumulocityMapper {
             start_basic_actors(&c8y_mapper_name, &tedge_config).await?;
 
         let c8y_mapper_config =
-            C8yMapperConfig::from_tedge_config(cfg_dir, &tedge_config, c8y_profile, self.no_cache)?;
+            C8yMapperConfig::from_tedge_config(cfg_dir, &tedge_config, c8y_profile)?;
         if tedge_config.mqtt.bridge.built_in {
             let smartrest_1_topics = c8y_config
                 .smartrest1

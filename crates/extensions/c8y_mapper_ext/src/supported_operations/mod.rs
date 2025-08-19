@@ -539,10 +539,7 @@ mod tests {
             operations_by_xid: HashMap::new(),
         };
 
-        let mut children = supported_operations.get_child_xids();
-        assert_eq!(
-            children.sort(),
-            vec!["test::device::child01", "test::device::child02"].sort()
-        );
+        let children = supported_operations.get_child_xids();
+        assert_eq!(children, ["test::device::child01", "test::device::child02"]);
     }
 }

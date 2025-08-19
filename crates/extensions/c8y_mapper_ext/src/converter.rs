@@ -1404,7 +1404,8 @@ impl CumulocityConverter {
             pending_operations_message,
         ]);
 
-        if self.config.no_cache {
+        let need_sync = false;
+        if need_sync {
             // supported operations for child devices
             let mut child_supported_operations_messages: Vec<MqttMessage> = Vec::new();
             for child_xid in self.supported_operations.get_child_xids() {
@@ -3293,7 +3294,6 @@ pub(crate) mod tests {
             false,
             false,
             16184,
-            false,
         )
     }
 
