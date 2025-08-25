@@ -179,6 +179,8 @@ impl MqttSchema {
             ChannelFilter::Command(operation) => format!("/cmd/{operation}/+"),
             ChannelFilter::AnyCommandMetadata => "/cmd/+".to_string(),
             ChannelFilter::CommandMetadata(operation) => format!("/cmd/{operation}"),
+            ChannelFilter::AnySignal => "/sig/+/+".to_string(),
+            ChannelFilter::Signal(signal_type) => format!("/sig/{signal_type}/+"),
             ChannelFilter::Health => "/status/health".to_string(),
         };
 
@@ -602,6 +604,9 @@ pub enum Channel {
         operation: OperationType,
         cmd_id: String,
     },
+    Signal {
+        signal_type: SignalType,
+    },
     MeasurementMetadata {
         measurement_type: String,
     },
@@ -654,6 +659,9 @@ impl FromStr for Channel {
                 operation: operation.parse().unwrap(), // Infallible
                 cmd_id: cmd_id.to_string(),
             }),
+            ["sig", signal_type, "check"] => Ok(Channel::Signal {
+                signal_type: signal_type.parse().unwrap(), // Infallible
+            }),
             ["status", "health"] => Ok(Channel::Health),
 
             _ => Err(ChannelError::InvalidCategory(channel.to_string())),
@@ -681,6 +689,7 @@ impl Display for Channel {
             Channel::Command { operation, cmd_id } => write!(f, "cmd/{operation}/{cmd_id}"),
             Channel::CommandMetadata { operation } => write!(f, "cmd/{operation}"),
             Channel::Health => write!(f, "status/health"),
+            Channel::Signal { signal_type } => write!(f, "sig/{signal_type}/check"),
         }
     }
 }
@@ -780,6 +789,73 @@ impl OperationType {
     }
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub enum SignalType {
+    Operations,
+    ConfigType,
+    LogType,
+    Health,
+    Custom(String),
+}
+
+// Using a custom Serialize/Deserialize implementations to read "foo" as Custom("foo")
+impl<'de> Deserialize<'de> for SignalType {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let str = String::deserialize(deserializer)?;
+        Ok(str.as_str().into())
+    }
+}
+
+impl Serialize for SignalType {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        self.to_string().serialize(serializer)
+    }
+}
+
+impl FromStr for SignalType {
+    type Err = Infallible;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(s.into())
+    }
+}
+
+impl<'a> From<&'a str> for SignalType {
+    fn from(s: &'a str) -> SignalType {
+        match s {
+            "operations" => SignalType::Operations,
+            "config_type" => SignalType::ConfigType,
+            "log_type" => SignalType::LogType,
+            "health" => SignalType::Health,
+            custom => SignalType::Custom(custom.to_string()),
+        }
+    }
+}
+
+impl Display for SignalType {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            SignalType::Operations => write!(f, "operations"),
+            SignalType::ConfigType => write!(f, "config_type"),
+            SignalType::LogType => write!(f, "log_type"),
+            SignalType::Health => write!(f, "health"),
+            SignalType::Custom(custom) => write!(f, "{custom}"),
+        }
+    }
+}
+
+impl SignalType {
+    pub fn name(&self) -> String {
+        format!("{self}")
+    }
+}
+
 #[derive(Debug, thiserror::Error, PartialEq, Eq, Clone)]
 pub enum ChannelError {
     #[error("Channel needs to have at least 2 segments")]
@@ -803,6 +879,8 @@ pub enum ChannelFilter {
     Alarm,
     AnyCommand,
     Command(OperationType),
+    AnySignal,
+    Signal(SignalType),
     MeasurementMetadata,
     EventMetadata,
     AlarmMetadata,
@@ -825,6 +903,7 @@ impl From<&Channel> for ChannelFilter {
                 operation,
                 cmd_id: _,
             } => ChannelFilter::Command(operation.clone()),
+            Channel::Signal { signal_type } => ChannelFilter::Signal(signal_type.clone()),
             Channel::MeasurementMetadata {
                 measurement_type: _,
             } => ChannelFilter::MeasurementMetadata,
@@ -1083,6 +1162,15 @@ mod tests {
                 }
             ),
             mqtt_channel::Topic::new_unchecked("te/device/main///cmd/log_upload")
+        );
+        assert_eq!(
+            mqtt_schema.topic_for(
+                &device,
+                &Channel::Signal {
+                    signal_type: SignalType::Operations,
+                }
+            ),
+            mqtt_channel::Topic::new_unchecked("te/device/main///sig/operations/check")
         );
         assert_eq!(
             mqtt_schema.topic_for(&device, &Channel::Health),

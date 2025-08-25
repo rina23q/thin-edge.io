@@ -76,6 +76,7 @@ use tedge_api::mqtt_topics::EntityTopicId;
 use tedge_api::mqtt_topics::IdGenerator;
 use tedge_api::mqtt_topics::MqttSchema;
 use tedge_api::mqtt_topics::OperationType;
+use tedge_api::mqtt_topics::SignalType;
 use tedge_api::script::ShellScript;
 use tedge_api::workflow::GenericCommandState;
 use tedge_api::CommandLog;
@@ -1319,6 +1320,11 @@ impl CumulocityConverter {
                 Ok(vec![])
             }
 
+            Channel::Signal { signal_type } => match signal_type {
+                SignalType::Operations => self.send_child_supported_operation_messages(),
+                _ => todo!(),
+            },
+
             Channel::Health => self.process_health_status_message(&source, message).await,
 
             _ => Ok(vec![]),
@@ -1403,17 +1409,20 @@ impl CumulocityConverter {
             supported_operations_message,
             pending_operations_message,
         ]);
+        Ok(messages)
+    }
 
-        let need_sync = false;
-        if need_sync {
-            // supported operations for child devices
-            let mut child_supported_operations_messages: Vec<MqttMessage> = Vec::new();
-            for child_xid in self.supported_operations.get_child_xids() {
-                let message = self.load_and_create_supported_operations_messages(&child_xid)?;
-                child_supported_operations_messages.push(message);
-            }
-            messages.append(&mut child_supported_operations_messages);
+    fn send_child_supported_operation_messages(
+        &mut self,
+    ) -> Result<Vec<MqttMessage>, ConversionError> {
+        let mut messages = Vec::new();
+
+        let mut child_supported_operations_messages: Vec<MqttMessage> = Vec::new();
+        for child_xid in self.supported_operations.get_child_xids() {
+            let message = self.load_and_create_supported_operations_messages(&child_xid)?;
+            child_supported_operations_messages.push(message);
         }
+        messages.append(&mut child_supported_operations_messages);
 
         Ok(messages)
     }
