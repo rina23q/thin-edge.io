@@ -689,9 +689,9 @@ The following table details some example signal types which are supported by %%t
 | Command Type | Example Topic                           |
 |--------------|-----------------------------------------|
 | operations   | `te/<identifier>/sig/operations/check`  |
-| config_type  | `te/<identifier>/cmd/config_type/check` |
-| log_type     | `te/<identifier>/cmd/log_type/check`    |
-| health       | `te/<identifier>/cmd/health/check`      |
+| config_type  | `te/<identifier>/sig/config_type/check` |
+| log_type     | `te/<identifier>/sig/log_type/check`    |
+| health       | `te/<identifier>/sig/health/check`      |
 
 The signal would be interpreted differently based on the target entity.
 
@@ -702,7 +702,7 @@ The signal would be interpreted differently based on the target entity.
 Command to request the supported operations of a service:
 
 ```sh te2mqtt formats=v1
-tedge mqtt pub -r 'te/device/main/service/tedge-mapper-c8y/sig/operations/check' '{}'
+tedge mqtt pub te/device/main/service/tedge-mapper-c8y/sig/operations/check '{}'
 ```
 
 ## Health check
