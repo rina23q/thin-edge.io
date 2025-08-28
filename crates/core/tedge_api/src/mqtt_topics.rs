@@ -792,9 +792,6 @@ impl OperationType {
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum SignalType {
     Operations,
-    ConfigType,
-    LogType,
-    Health,
     Custom(String),
 }
 
@@ -830,9 +827,6 @@ impl<'a> From<&'a str> for SignalType {
     fn from(s: &'a str) -> SignalType {
         match s {
             "operations" => SignalType::Operations,
-            "config_type" => SignalType::ConfigType,
-            "log_type" => SignalType::LogType,
-            "health" => SignalType::Health,
             custom => SignalType::Custom(custom.to_string()),
         }
     }
@@ -842,9 +836,6 @@ impl Display for SignalType {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
             SignalType::Operations => write!(f, "operations"),
-            SignalType::ConfigType => write!(f, "config_type"),
-            SignalType::LogType => write!(f, "log_type"),
-            SignalType::Health => write!(f, "health"),
             SignalType::Custom(custom) => write!(f, "{custom}"),
         }
     }

@@ -1,33 +1,29 @@
 use crate::converter::CumulocityConverter;
 use crate::error::ConversionError;
+use tedge_api::mqtt_topics::EntityTopicId;
 use tedge_api::mqtt_topics::SignalType;
 use tedge_mqtt_ext::MqttMessage;
 
 impl CumulocityConverter {
     pub fn process_signal_message(
         &mut self,
+        source: &EntityTopicId,
         signal_type: &SignalType,
     ) -> Result<Vec<MqttMessage>, ConversionError> {
         let mut messages = Vec::new();
 
+        if source.default_service_name() != Some("tedge-mapper-c8y") {
+            return Ok(messages);
+        }
+
         match signal_type {
             SignalType::Operations => {
-                // Doing the following actions upon `cmd/operations/check` isn't enough?
                 let main_message = self.load_and_create_supported_operations_messages(
                     &self.config.device_id.clone(),
                 )?;
                 let mut child_messages = self.send_child_supported_operation_messages()?;
                 messages.append(&mut vec![main_message]);
                 messages.append(&mut child_messages);
-            }
-            SignalType::ConfigType => {
-                // Maybe it's useless for config and log types
-                // as re-publishing metadata for config and log will trigger republishing 118/119.
-                // Also, we don't keep any cache for log/config types where mapper can access.
-            }
-            SignalType::LogType => {}
-            SignalType::Health => {
-                // Do the same as `cmd/health/check`
             }
             SignalType::Custom(_) => {}
         }

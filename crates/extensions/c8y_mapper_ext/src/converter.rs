@@ -1319,7 +1319,7 @@ impl CumulocityConverter {
                 Ok(vec![])
             }
 
-            Channel::Signal { signal_type } => self.process_signal_message(signal_type),
+            Channel::Signal { signal_type } => self.process_signal_message(&source, signal_type),
 
             Channel::Health => self.process_health_status_message(&source, message).await,
 
