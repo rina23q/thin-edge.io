@@ -667,7 +667,7 @@ graph LR
 
   subgraph command
     direction LR
-    cmd --/--- signal_type["&lt;signal_type&gt;"] --/--- action["&lt;action&gt;"]
+    sig --/--- signal_type["&lt;signal_type&gt;"] --/--- action["&lt;action&gt;"]
   end
 
 ```
@@ -686,14 +686,16 @@ Where the signal segments are describe as follows:
 
 The following table details some example signal types which are supported by %%te%%.
 
-| Command Type | Example Topic                           |
+| Signal Type | Example Topic                           |
 |--------------|-----------------------------------------|
 | operations   | `te/<identifier>/sig/operations/check`  |
-| config_type  | `te/<identifier>/sig/config_type/check` |
-| log_type     | `te/<identifier>/sig/log_type/check`    |
-| health       | `te/<identifier>/sig/health/check`      |
 
 The signal would be interpreted differently based on the target entity.
+
+:::note
+The signal channel is currently in development.
+We plan to add support for more signal types in the future, such as `software_list`, `config_type`, `log_type`, and `health`.
+:::
 
 ### Examples: With default device/service topic semantics
 
@@ -720,13 +722,13 @@ tedge mqtt pub -r te/device/main/service/tedge-agent/status/health '{
 Services are responsible for updating their own health status by publishing to the above topic on any status changes. However, other clients can request the service to update its status by sending a health check command as shown below:
 
 ```sh te2mqtt formats=v1
-tedge mqtt pub te/device/main/service/tedge-agent/sig/health/check '{}'
+tedge mqtt pub te/device/main/service/tedge-agent/cmd/health/check '{}'
 ```
 
 Services are also expected to react to device-wide health check commands as well (where service and `<service_id>` segments are left blank):
 
 ```sh te2mqtt formats=v1
-tedge mqtt pub te/device/main///sig/health/check '{}'
+tedge mqtt pub te/device/main///cmd/health/check '{}'
 ```
 
 On receipt of the above command, all services on that device should respond with their health status.
