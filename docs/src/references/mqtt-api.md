@@ -656,7 +656,7 @@ The topic scheme for signals can be visualized using the diagram below.
 
 ```mermaid
 graph LR
-  te --/--- identifier --/--- cmd
+  te --/--- identifier --/--- signal
   subgraph root
     te
   end
@@ -665,11 +665,10 @@ graph LR
     identifier2["&lt;identifier&gt;"]
   end
 
-  subgraph command
+  subgraph signal
     direction LR
-    sig --/--- signal_type["&lt;signal_type&gt;"] --/--- action["&lt;action&gt;"]
+    signal_node["signal"] --/--- signal_type["&lt;signal_type&gt;"]
   end
-
 ```
 
 </p>
@@ -680,31 +679,30 @@ Where the signal segments are describe as follows:
 |---------------------|----------------------------------------------------------------------------------------------------------------------------------|
 | &lt;identifier&gt;  | The [identifier](#group-identifier) (e.g. device/service) associated with the signal.                                            |
 | &lt;signal_type&gt; | Signal type. Each signal can define its own payload schema to allow signals to have parameters related to the signal's function. |
-| &lt;action&gt;      | Action for the signal type. e.g. `check`                                                                                         |
 
 ### Signal examples
 
 The following table details some example signal types which are supported by %%te%%.
 
-| Signal Type | Example Topic                           |
-|--------------|-----------------------------------------|
-| operations   | `te/<identifier>/sig/operations/check`  |
+| Signal Type      | Example Topic                            |
+|------------------|------------------------------------------|
+| sync_operations  | `te/<identifier>/signal/sync_operations` |
 
 The signal would be interpreted differently based on the target entity.
 
 :::note
 The signal channel is currently in development.
-We plan to add support for more signal types in the future, such as `software_list`, `config_type`, `log_type`, and `health`.
+We plan to add support for more signal types in the future.
 :::
 
 ### Examples: With default device/service topic semantics
 
 #### Signal to a service
 
-Command to request the supported operations of a service:
+Signal to request the supported operations of the `tedge-mapper-c8y` service:
 
 ```sh te2mqtt formats=v1
-tedge mqtt pub te/device/main/service/tedge-mapper-c8y/sig/operations/check '{}'
+tedge mqtt pub te/device/main/service/tedge-mapper-c8y/signal/sync_operations '{}'
 ```
 
 ## Health check
