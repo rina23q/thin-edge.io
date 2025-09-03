@@ -33,6 +33,8 @@ use tedge_actors::NoMessage;
 use tedge_actors::Sender;
 use tedge_actors::SimpleMessageBox;
 use tedge_actors::SimpleMessageBoxBuilder;
+use tedge_api::mqtt_topics::ChannelFilter::AnySignal;
+use tedge_api::mqtt_topics::EntityFilter::AnyEntity;
 use tedge_api::mqtt_topics::EntityTopicId;
 use tedge_api::mqtt_topics::MqttSchema;
 use tedge_config::models::AutoLogUpload;
@@ -83,35 +85,6 @@ async fn mapper_publishes_init_messages_on_startup() {
             ),
             ("c8y/s/us", "114"),
             ("c8y/s/us", "500"),
-        ],
-    )
-    .await;
-}
-
-#[ignore = "fix later"]
-#[tokio::test]
-async fn mapper_publishes_child_supported_operations_on_startup_with_flag() {
-    let ttd = TempTedgeDir::new();
-    ttd.dir("operations")
-        .dir("c8y")
-        .dir("test::device::child01")
-        .file("c8y_Restart");
-    ttd.dir("operations")
-        .dir("c8y")
-        .dir("test::device::child02")
-        .file("c8y_Restart");
-
-    let test_handle = spawn_c8y_mapper_actor(&ttd, true).await;
-    let TestHandle { mqtt, .. } = test_handle;
-
-    let mut mqtt = mqtt.with_timeout(TEST_TIMEOUT_MS);
-
-    skip_init_messages(&mut mqtt).await;
-    assert_received_contains_str(
-        &mut mqtt,
-        [
-            ("c8y/s/us/test::device::child01", "114,c8y_Restart"),
-            ("c8y/s/us/test::device::child02", "114,c8y_Restart"),
         ],
     )
     .await;
@@ -3142,6 +3115,52 @@ async fn mapper_converts_config_cmd_to_supported_op_and_types_for_child_device()
     .await;
 }
 
+#[tokio::test]
+async fn mapper_publishes_all_supported_operations_on_signal() {
+    let ttd = TempTedgeDir::new();
+    ttd.dir("operations").dir("c8y").file("c8y_Restart");
+    ttd.dir("operations")
+        .dir("c8y")
+        .dir("test::device::child01")
+        .file("c8y_Restart");
+    ttd.dir("operations")
+        .dir("c8y")
+        .dir("test::device::child02")
+        .file("c8y_Restart");
+
+    let test_handle = spawn_c8y_mapper_actor(&ttd, true).await;
+    let TestHandle { mqtt, .. } = test_handle;
+    let mut mqtt = mqtt.with_timeout(TEST_TIMEOUT_MS);
+
+    skip_init_messages(&mut mqtt).await;
+
+    // Register the tedge-mapper-c8y service upfront
+    mqtt.send(MqttMessage::new(
+        &Topic::new_unchecked("te/device/main/service/tedge-mapper-c8y"),
+        r#"{"@parent":"device/main//","@type":"service","name":"tedge-mapper-c8y","type":"service"}"#,
+    ))
+    .await
+    .expect("Send failed");
+    mqtt.skip(1).await; // Skip 102 message
+
+    mqtt.send(MqttMessage::new(
+        &Topic::new_unchecked("te/device/main/service/tedge-mapper-c8y/signal/sync_operations"),
+        "{}",
+    ))
+    .await
+    .expect("Send failed");
+
+    assert_received_contains_str(
+        &mut mqtt,
+        [
+            ("c8y/s/us", "114,c8y_Restart"),
+            ("c8y/s/us/test::device::child01", "114,c8y_Restart"),
+            ("c8y/s/us/test::device::child02", "114,c8y_Restart"),
+        ],
+    )
+    .await;
+}
+
 fn assert_command_exec_log_content(cfg_dir: TempTedgeDir, expected_contents: &str) {
     let paths = fs::read_dir(cfg_dir.to_path_buf().join("agent")).unwrap();
     for path in paths {
@@ -3312,6 +3331,7 @@ pub(crate) fn test_mapper_config(tmp_dir: &TempTedgeDir) -> C8yMapperConfig {
     topics.add_all(operation_topics);
 
     topics.add_all(C8yMapperConfig::default_external_topic_filter());
+    topics.add_all(mqtt_schema.topics(AnyEntity, AnySignal));
 
     topics.remove_overlapping_patterns();
 

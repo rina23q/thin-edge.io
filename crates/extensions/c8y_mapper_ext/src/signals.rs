@@ -17,7 +17,7 @@ impl CumulocityConverter {
         }
 
         match signal_type {
-            SignalType::Operations => {
+            SignalType::SyncOperations => {
                 let main_message = self.load_and_create_supported_operations_messages(
                     &self.config.device_id.clone(),
                 )?;

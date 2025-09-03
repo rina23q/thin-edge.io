@@ -179,8 +179,8 @@ impl MqttSchema {
             ChannelFilter::Command(operation) => format!("/cmd/{operation}/+"),
             ChannelFilter::AnyCommandMetadata => "/cmd/+".to_string(),
             ChannelFilter::CommandMetadata(operation) => format!("/cmd/{operation}"),
-            ChannelFilter::AnySignal => "/sig/+/+".to_string(),
-            ChannelFilter::Signal(signal_type) => format!("/sig/{signal_type}/+"),
+            ChannelFilter::AnySignal => "/signal/+".to_string(),
+            ChannelFilter::Signal(signal_type) => format!("/signal/{signal_type}"),
             ChannelFilter::Health => "/status/health".to_string(),
         };
 
@@ -659,7 +659,7 @@ impl FromStr for Channel {
                 operation: operation.parse().unwrap(), // Infallible
                 cmd_id: cmd_id.to_string(),
             }),
-            ["sig", signal_type, "check"] => Ok(Channel::Signal {
+            ["signal", signal_type] => Ok(Channel::Signal {
                 signal_type: signal_type.parse().unwrap(), // Infallible
             }),
             ["status", "health"] => Ok(Channel::Health),
@@ -689,7 +689,7 @@ impl Display for Channel {
             Channel::Command { operation, cmd_id } => write!(f, "cmd/{operation}/{cmd_id}"),
             Channel::CommandMetadata { operation } => write!(f, "cmd/{operation}"),
             Channel::Health => write!(f, "status/health"),
-            Channel::Signal { signal_type } => write!(f, "sig/{signal_type}/check"),
+            Channel::Signal { signal_type } => write!(f, "signal/{signal_type}"),
         }
     }
 }
@@ -791,7 +791,7 @@ impl OperationType {
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum SignalType {
-    Operations,
+    SyncOperations,
     Custom(String),
 }
 
@@ -826,7 +826,7 @@ impl FromStr for SignalType {
 impl<'a> From<&'a str> for SignalType {
     fn from(s: &'a str) -> SignalType {
         match s {
-            "operations" => SignalType::Operations,
+            "sync_operations" => SignalType::SyncOperations,
             custom => SignalType::Custom(custom.to_string()),
         }
     }
@@ -835,7 +835,7 @@ impl<'a> From<&'a str> for SignalType {
 impl Display for SignalType {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
-            SignalType::Operations => write!(f, "operations"),
+            SignalType::SyncOperations => write!(f, "sync_operations"),
             SignalType::Custom(custom) => write!(f, "{custom}"),
         }
     }
@@ -1158,10 +1158,10 @@ mod tests {
             mqtt_schema.topic_for(
                 &device,
                 &Channel::Signal {
-                    signal_type: SignalType::Operations,
+                    signal_type: SignalType::SyncOperations,
                 }
             ),
-            mqtt_channel::Topic::new_unchecked("te/device/main///sig/operations/check")
+            mqtt_channel::Topic::new_unchecked("te/device/main///signal/sync_operations")
         );
         assert_eq!(
             mqtt_schema.topic_for(&device, &Channel::Health),
