@@ -481,14 +481,18 @@ Available only in the template operation file definition:
 * `workflow.input` - The JSON object input that can be used in the workflow.
 * `workflow.output` - The JSON object that is converted to the additional parameters of the SmartREST successful status update messages (`503`/`506`)
 
-## Resending supported operations
+## Sending capabilities to Cumulocity
 
 ### Declaring supported operations
 
-To resend `c8y_SupportedOperations` fragment from %%te%% to your Cumulocity tenant, publish the following message:
+To send or resend `c8y_SupportedOperations` fragment from %%te%% to your Cumulocity tenant, publish the following message:
 
 ```sh te2mqtt formats=v1
 tedge mqtt pub te/device/main/service/tedge-mapper-c8y/signal/sync_operations '{}'
 ```
 
 This action republishes the supported operations for the main device and all its child devices.
+
+:::note
+This action is required when migrating from one Cumulocity tenant to another.
+:::
