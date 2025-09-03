@@ -18,30 +18,16 @@ impl CumulocityConverter {
 
         match signal_type {
             SignalType::SyncOperations => {
-                let main_message = self.load_and_create_supported_operations_messages(
-                    &self.config.device_id.clone(),
-                )?;
-                let mut child_messages = self.send_child_supported_operation_messages()?;
-                messages.append(&mut vec![main_message]);
-                messages.append(&mut child_messages);
+                for external_id in self.entity_cache.get_all_external_ids() {
+                    if let Ok(message) =
+                        self.load_and_create_supported_operations_messages(external_id.as_ref())
+                    {
+                        messages.push(message);
+                    }
+                }
             }
             SignalType::Custom(_) => {}
         }
-
-        Ok(messages)
-    }
-
-    fn send_child_supported_operation_messages(
-        &mut self,
-    ) -> Result<Vec<MqttMessage>, ConversionError> {
-        let mut messages = Vec::new();
-
-        let mut child_supported_operations_messages: Vec<MqttMessage> = Vec::new();
-        for child_xid in self.supported_operations.get_child_xids() {
-            let message = self.load_and_create_supported_operations_messages(&child_xid)?;
-            child_supported_operations_messages.push(message);
-        }
-        messages.append(&mut child_supported_operations_messages);
 
         Ok(messages)
     }

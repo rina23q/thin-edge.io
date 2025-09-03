@@ -3121,11 +3121,18 @@ async fn mapper_publishes_all_supported_operations_on_signal() {
     ttd.dir("operations").dir("c8y").file("c8y_Restart");
     ttd.dir("operations")
         .dir("c8y")
-        .dir("test::device::child01")
+        .dir("test-device:device:child01");
+    ttd.dir("operations")
+        .dir("c8y")
+        .dir("test-device:device:child02")
         .file("c8y_Restart");
     ttd.dir("operations")
         .dir("c8y")
-        .dir("test::device::child02")
+        .dir("test-device:device:child02")
+        .file("c8y_UploadConfigFile");
+    ttd.dir("operations")
+        .dir("c8y")
+        .dir("test-device:device:main:service:collectd")
         .file("c8y_Restart");
 
     let test_handle = spawn_c8y_mapper_actor(&ttd, true).await;
@@ -3143,6 +3150,27 @@ async fn mapper_publishes_all_supported_operations_on_signal() {
     .expect("Send failed");
     mqtt.skip(1).await; // Skip 102 message
 
+    // Also register other entities
+    mqtt.send(MqttMessage::new(
+        &Topic::new_unchecked("te/device/child01//"),
+        r#"{"@parent":"device/main//","@type":"child-device"}"#,
+    ))
+    .await
+    .expect("Send failed");
+    mqtt.send(MqttMessage::new(
+        &Topic::new_unchecked("te/device/child02//"),
+        r#"{"@parent":"device/main//","@type":"child-device"}"#,
+    ))
+    .await
+    .expect("Send failed");
+    mqtt.send(MqttMessage::new(
+        &Topic::new_unchecked("te/device/main/service/collectd"),
+        r#"{"@parent":"device/main//","@type":"service"}"#,
+    ))
+    .await
+    .expect("Send failed");
+    mqtt.skip(3).await; // Skip registration messages
+
     mqtt.send(MqttMessage::new(
         &Topic::new_unchecked("te/device/main/service/tedge-mapper-c8y/signal/sync_operations"),
         "{}",
@@ -3154,8 +3182,15 @@ async fn mapper_publishes_all_supported_operations_on_signal() {
         &mut mqtt,
         [
             ("c8y/s/us", "114,c8y_Restart"),
-            ("c8y/s/us/test::device::child01", "114,c8y_Restart"),
-            ("c8y/s/us/test::device::child02", "114,c8y_Restart"),
+            ("c8y/s/us/test-device:device:child01", "114"),
+            (
+                "c8y/s/us/test-device:device:child02",
+                "114,c8y_Restart,c8y_UploadConfigFile",
+            ),
+            (
+                "c8y/s/us/test-device:device:main:service:collectd",
+                "114,c8y_Restart",
+            ),
         ],
     )
     .await;

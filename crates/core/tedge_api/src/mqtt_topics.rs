@@ -660,7 +660,7 @@ impl FromStr for Channel {
                 cmd_id: cmd_id.to_string(),
             }),
             ["signal", signal_type] => Ok(Channel::Signal {
-                signal_type: signal_type.parse().unwrap(), // Infallible
+                signal_type: signal_type.into(),
             }),
             ["status", "health"] => Ok(Channel::Health),
 
