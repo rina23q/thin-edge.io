@@ -290,7 +290,7 @@ jobs:
     if: ${{ needs.changes.outputs.docs == 'true' }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           # use tedge-docs nodejs version for guidance, though it is not mandatory
           # https://github.com/thin-edge/tedge-docs
