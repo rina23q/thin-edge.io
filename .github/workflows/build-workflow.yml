@@ -219,7 +219,7 @@ jobs:
 
       - name: Upload packages as zip
         # https://github.com/marketplace/actions/upload-a-build-artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
             name: packages-${{ matrix.target }}
             path: target/${{ matrix.target }}/packages/*.*
@@ -329,7 +329,7 @@ jobs:
             --outputdir output
 
       - name: Upload test results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: always()
         with:
           name: report-${{ matrix.job.target }}
