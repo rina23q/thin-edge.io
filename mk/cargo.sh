@@ -80,7 +80,7 @@ case $target in
     MUSL_SYSROOT_DIR="$HOME/.musl-cross/aarch64-unknown-linux-musl/aarch64-unknown-linux-musl/sysroot"
     export CFLAGS_aarch64_unknown_linux_musl="--sysroot=$MUSL_SYSROOT_DIR"
     # export BINDGEN_EXTRA_CLANG_ARGS_aarch64_unknown_linux_musl="-I${MUSL_SYSROOT_DIR}/usr/include --target=aarch64-unknown-linux-musl"
-    export BINDGEN_EXTRA_CLANG_ARGS_aarch64_unknown_linux_musl="--sysroot=$MUSL_SYSROOT_DIR --target=aarch64-unknown-linux-musl"
+    export BINDGEN_EXTRA_CLANG_ARGS_aarch64_unknown_linux_musl="-I${MUSL_SYSROOT_DIR}/usr/include"
     ;;
   arm-unknown-linux-gnueabi)
     export CC_arm_unknown_linux_gnueabi=arm-linux-gnueabi-gcc
