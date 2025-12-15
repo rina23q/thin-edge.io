@@ -79,7 +79,7 @@ case $target in
     export CARGO_TARGET_AARCH64_UNKNOWN_LINUX_MUSL_RUNNER="$qemu_aarch64"
     MUSL_SYSROOT_DIR="$HOME/.musl-cross/aarch64-unknown-linux-musl/aarch64-unknown-linux-musl/sysroot"
     export CFLAGS_aarch64_unknown_linux_musl="--sysroot=$MUSL_SYSROOT_DIR"
-    export BINDGEN_EXTRA_CLANG_ARGS="--sysroot=$MUSL_SYSROOT_DIR"
+    export BINDGEN_EXTRA_CLANG_ARGS="--sysroot=$MUSL_SYSROOT_DIR -I ${MUSL_SYSROOT_DIR}/usr/include --target=aarch64-unknown-linux-musl"
     ;;
   arm-unknown-linux-gnueabi)
     export CC_arm_unknown_linux_gnueabi=arm-linux-gnueabi-gcc
@@ -120,7 +120,7 @@ case $target in
     # TODO: target does not support atomics so it is disabled however the code needs to be checked if this will causes problems
     # as it will no longer be thread safe
     MUSL_SYSROOT_DIR="$HOME/.musl-cross/arm-unknown-linux-musleabihf/arm-unknown-linux-musleabihf/sysroot"
-    export BINDGEN_EXTRA_CLANG_ARGS="--sysroot=$MUSL_SYSROOT_DIR -D__STDC_NO_ATOMICS__=1"
+    export BINDGEN_EXTRA_CLANG_ARGS="--sysroot=$MUSL_SYSROOT_DIR -D__STDC_NO_ATOMICS__=1 --target=arm-unknown-linux-musleabihf"
     export CFLAGS_arm_unknown_linux_musleabihf="--sysroot=$MUSL_SYSROOT_DIR -D__STDC_NO_ATOMICS__=1"
     ;;
   arm-unknown-linux-gnueabihf)
