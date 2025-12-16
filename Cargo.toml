@@ -173,6 +173,12 @@ rasn = "0.26"
 rasn-cms = "0.26"
 rcgen = { version = "0.14", features = ["pem", "zeroize"] }
 regex = "1.4"
+rquickjs = { git = "https://github.com/thin-edge/rquickjs", rev = "4ed04ac9af3de453dd41ff09fdd1837c7ceb1f1c", default-features = false, features = [
+    "bindgen",
+    "futures",
+    "macro",
+    "parallel",
+] }
 reqwest = { version = "0.12", default-features = false }
 ron = "0.12"
 rpassword = "7.4"
