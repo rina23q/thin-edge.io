@@ -14,10 +14,7 @@ async-trait = { workspace = true }
 camino = { workspace = true, features = ["serde1"] }
 futures = { workspace = true }
 humantime = { workspace = true }
-rquickjs = { git = "https://github.com/thin-edge/rquickjs", rev = "4ed04ac9af3de453dd41ff09fdd1837c7ceb1f1c", default-features = false, features = [
-    # disable bindgen and rely on pre-generated bindings due to problems
-    # generating the bindings at build time with clang
-    #"bindgen",
+rquickjs = { git = "https://github.com/rina23q/rquickjs", rev = "7508f0c3c134352f8cd64a4c33cc0c063f3e2ab0", default-features = false, features = [
     "futures",
     "macro",
     "parallel",
