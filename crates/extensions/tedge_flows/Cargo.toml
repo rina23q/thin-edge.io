@@ -14,7 +14,7 @@ async-trait = { workspace = true }
 camino = { workspace = true, features = ["serde1"] }
 futures = { workspace = true }
 humantime = { workspace = true }
-rquickjs = { version = "0.10", default-features = false, features = [
+rquickjs = { git = "https://github.com/rina23q/rquickjs", rev = "7508f0c3c134352f8cd64a4c33cc0c063f3e2ab0", default-features = false, features = [
     "futures",
     "macro",
     "parallel",
@@ -30,11 +30,6 @@ time = { workspace = true }
 tokio = { workspace = true, features = ["fs", "macros", "time", "sync"] }
 toml = { workspace = true, features = ["parse"] }
 tracing = { workspace = true }
-
-[build-dependencies]
-rquickjs = { version = "0.10", default-features = false, features = [
-    "bindgen",
-] }
 
 [dev-dependencies]
 tedge_mqtt_ext = { workspace = true, features = ["test-helpers"] }
