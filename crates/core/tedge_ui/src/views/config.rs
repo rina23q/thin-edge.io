@@ -13,22 +13,22 @@ enum ValueFilterMode {
 
 #[component]
 pub fn Configurations() -> Element {
-    // Handle resource for configuration data
+    // Resource to fetch tedge config from the server
     let mut config_resource = use_resource(get_tedge_config_list);
-
-    // UI state management signals
+    
+    // UI state for managing interaction
     let mut opened_sections = use_signal(HashSet::<String>::new);
     let mut search_query = use_signal(String::new);
     let mut filter_mode = use_signal(|| ValueFilterMode::ShowAll);
 
-    // Form editing and feedback signals
+    // States for editing mode and operational feedback
     let mut is_editing = use_signal(|| false);
     let mut edit_draft = use_signal(BTreeMap::<String, String>::new);
     let mut error_message = use_signal(|| None::<String>);
     let mut success_message = use_signal(|| None::<String>);
     let mut failed_key = use_signal(|| None::<String>);
 
-    // Handle resource lifetime by cloning data out of the guard
+    // Safely extract data while managing borrow lifecycles
     let map = {
         let resource_guard = config_resource.read();
         let Some(result) = resource_guard.as_ref() else {
@@ -40,32 +40,24 @@ pub fn Configurations() -> Element {
         }
     };
 
-    let current_data = if is_editing() {
-        edit_draft.read().clone()
-    } else {
-        map.clone()
-    };
+    let current_data = if is_editing() { edit_draft.read().clone() } else { map.clone() };
     let mut grouped_configs: BTreeMap<String, Vec<(String, String)>> = BTreeMap::new();
     let query = search_query.read().to_lowercase();
     let current_filter = *filter_mode.read();
 
     for (full_key, value) in current_data {
-        let matches_query =
-            full_key.to_lowercase().contains(&query) || value.to_lowercase().contains(&query);
+        let matches_query = full_key.to_lowercase().contains(&query) || value.to_lowercase().contains(&query);
         let is_visible = match current_filter {
             ValueFilterMode::ShowAll => true,
             ValueFilterMode::HideEmpty => !value.trim().is_empty(),
         };
         if matches_query && is_visible {
             let prefix = full_key.split('.').next().unwrap_or("other").to_string();
-            grouped_configs
-                .entry(prefix)
-                .or_default()
-                .push((full_key.clone(), value.clone()));
+            grouped_configs.entry(prefix).or_default().push((full_key.clone(), value.clone()));
         }
     }
 
-    // Ownership management for closures
+    // Ownership transfer preparation for closures
     let map_for_edit = map.clone();
     let map_for_save = map.clone();
     let map_for_view = map.clone();
@@ -74,87 +66,55 @@ pub fn Configurations() -> Element {
         document::Link { rel: "stylesheet", href: CONFIG_CSS }
 
         div { class: "config-dashboard",
-            // Floating Notifications
+            // Toast notifications for Success/Error
             if let Some(msg) = error_message.read().clone() {
                 div { class: "toast error-toast animate-fade-in",
                     span { "{msg}" }
                     button { class: "close-btn", onclick: move |_| { error_message.set(None); failed_key.set(None); }, "×" }
                 }
             }
-
             if let Some(msg) = success_message.read().clone() {
                 div { class: "toast success-toast animate-fade-in",
                     span { "{msg}" }
-                    button {
-                        id: "success-close-btn", // Target for JavaScript timer
-                        class: "close-btn",
-                        onclick: move |_| success_message.set(None),
-                        "×"
-                    }
+                    button { id: "success-close-btn", class: "close-btn", onclick: move |_| success_message.set(None), "×" }
                 }
             }
 
             div { class: "header-container",
-                h1 {
-                    span { class: "title-brand", "thin-edge.io" }
-                    "Configuration"
-                }
-
+                h1 { span { class: "title-brand", "thin-edge.io" } "Configuration" }
                 div { class: "action-group",
                     if !is_editing() {
-                        button {
-                            class: "btn-primary",
+                        button { 
+                            class: "btn-primary", 
                             onclick: move |_| {
-                                error_message.set(None);
-                                success_message.set(None);
-                                failed_key.set(None);
-                                edit_draft.set(map_for_edit.clone());
-                                is_editing.set(true);
+                                error_message.set(None); success_message.set(None); failed_key.set(None);
+                                edit_draft.set(map_for_edit.clone()); is_editing.set(true);
                             },
                             "✎ Edit Mode"
                         }
                     } else {
                         div { class: "edit-actions",
-                            button {
-                                class: "btn-success",
+                            button { 
+                                class: "btn-success", 
                                 onclick: move |_| {
                                     let mut updates = BTreeMap::new();
                                     let draft = edit_draft.read();
                                     for (key, val) in draft.iter() {
-                                        if map_for_save.get(key) != Some(val) {
-                                            updates.insert(key.clone(), val.clone());
-                                        }
+                                        if map_for_save.get(key) != Some(val) { updates.insert(key.clone(), val.clone()); }
                                     }
-
-                                    if updates.is_empty() {
-                                        is_editing.set(false);
-                                        return;
-                                    }
-
-                                    // Spawn async task for applying changes
+                                    if updates.is_empty() { is_editing.set(false); return; }
                                     spawn(async move {
                                         match set_tedge_configs(updates).await {
                                             Ok(_) => {
-                                                is_editing.set(false);
-                                                error_message.set(None);
-                                                failed_key.set(None);
-                                                success_message.set(Some("✓ Changes saved successfully!".to_string()));
+                                                is_editing.set(false); error_message.set(None); failed_key.set(None);
+                                                success_message.set(Some("✓ Saved successfully!".to_string()));
                                                 config_resource.restart();
-
-                                                // Using native JS timer via bridge to avoid tokio/gloo in UI
-                                                document::eval(r#"
-                                                    setTimeout(() => {
-                                                        const btn = document.getElementById('success-close-btn');
-                                                        if (btn) btn.click();
-                                                    }, 3000);
-                                                "#);
+                                                document::eval("setTimeout(() => { document.getElementById('success-close-btn')?.click(); }, 3000);");
                                             }
                                             Err(e) => {
                                                 let raw = format!("{}", e);
                                                 let msg = raw.split("server function:").last().unwrap_or(&raw).trim().to_string();
-                                                if let Some((k, _)) = msg.split_once(':') {
-                                                    failed_key.set(Some(k.trim().to_string()));
-                                                }
+                                                if let Some((k, _)) = msg.split_once(':') { failed_key.set(Some(k.trim().to_string())); }
                                                 error_message.set(Some(msg));
                                             }
                                         }
@@ -162,50 +122,31 @@ pub fn Configurations() -> Element {
                                 },
                                 "💾 Save Changes"
                             }
-                            button {
-                                class: "btn-ghost",
-                                onclick: move |_| {
-                                    is_editing.set(false);
-                                    error_message.set(None);
-                                    failed_key.set(None);
-                                },
-                                "Cancel"
-                            }
+                            button { class: "btn-ghost", onclick: move |_| { is_editing.set(false); error_message.set(None); failed_key.set(None); }, "Cancel" }
                         }
                     }
                 }
             }
 
-            // Toolbar Area
             div { class: "toolbar",
-                div { class: "search-box",
-                    span { class: "search-icon", "🔍" }
-                    input {
-                        class: "search-input",
-                        placeholder: "Search keys or values...",
-                        value: "{search_query}",
-                        oninput: move |evt| search_query.set(evt.value())
-                    }
+                div { class: "search-box", span { class: "search-icon", "🔍" }
+                    input { class: "search-input", placeholder: "Search keys...", value: "{search_query}", oninput: move |evt| search_query.set(evt.value()) }
                 }
-                div { class: "filter-box",
-                    label { class: "filter-label", "Filter:" }
-                    select {
-                        class: "filter-select",
-                        onchange: move |evt| {
-                            match evt.value().as_str() {
-                                "non-empty" => filter_mode.set(ValueFilterMode::HideEmpty),
-                                _ => filter_mode.set(ValueFilterMode::ShowAll),
-                            }
-                        },
+                div { class: "filter-box", label { class: "filter-label", "Filter:" }
+                    select { class: "filter-select", onchange: move |evt| {
+                        match evt.value().as_str() {
+                            "non-empty" => filter_mode.set(ValueFilterMode::HideEmpty),
+                            _ => filter_mode.set(ValueFilterMode::ShowAll),
+                        }
+                    },
                         option { value: "all", "All Items" }
                         option { value: "non-empty", "Non-empty only" }
                     }
                 }
             }
 
-            // List of grouped configurations
             if grouped_configs.is_empty() {
-                div { class: "empty-state", "No results found." }
+                div { class: "empty-state", "No configurations match your search." }
             } else {
                 for (prefix, items) in grouped_configs {
                     {
@@ -213,8 +154,7 @@ pub fn Configurations() -> Element {
                         let prefix_clone = prefix.clone();
                         rsx! {
                             section { class: "config-section", key: "{prefix}",
-                                div {
-                                    class: "section-header clickable",
+                                div { class: "section-header clickable", 
                                     onclick: move |_| {
                                         let mut opened = opened_sections.write();
                                         if opened.contains(&prefix_clone) { opened.remove(&prefix_clone); }
@@ -226,7 +166,6 @@ pub fn Configurations() -> Element {
                                     span { class: "spacer" }
                                     span { class: "arrow", if is_open { "⏶" } else { "⏷" } }
                                 }
-
                                 if is_open {
                                     div { class: "config-table animate-fade-in",
                                         for (key, value) in items {
@@ -235,20 +174,13 @@ pub fn Configurations() -> Element {
                                                 let current_value = value.clone();
                                                 let is_modified = is_editing() && map_for_view.get(&current_key) != Some(&current_value);
                                                 let is_error = failed_key.read().as_ref() == Some(&current_key);
-
                                                 rsx! {
-                                                    div {
-                                                        class: "config-row",
-                                                        class: if is_modified { "modified-row" },
-                                                        class: if is_error { "error-row" },
-                                                        key: "{key}",
+                                                    div { class: "config-row", class: if is_modified { "modified-row" }, class: if is_error { "error-row" }, key: "{key}",
                                                         div { class: "cell-key", "{key}" }
                                                         div { class: "cell-value-container",
                                                             if is_editing() {
                                                                 input {
-                                                                    class: "value-input",
-                                                                    class: if is_modified { "modified-input" },
-                                                                    class: if is_error { "error-input" },
+                                                                    class: "value-input", class: if is_modified { "modified-input" }, class: if is_error { "error-input" },
                                                                     value: "{value}",
                                                                     oninput: move |evt| {
                                                                         edit_draft.write().insert(current_key.clone(), evt.value());
@@ -257,23 +189,30 @@ pub fn Configurations() -> Element {
                                                                 }
                                                             } else {
                                                                 span { class: "value-text", "{value}" }
-                                                                button {
-                                                                    class: "copy-btn",
-                                                                    onclick: move |_| {
-                                                                        let escaped = current_value.replace('\\', "\\\\").replace('"', "\\\"");
-                                                                        let js = format!(
-                                                                            r##"
-                                                                            navigator.clipboard.writeText("{}");
-                                                                            const btn = event.target;
-                                                                            btn.innerText = "Copied!";
-                                                                            btn.style.color = "#10b981";
-                                                                            setTimeout(() => {{ btn.innerText = "📋"; btn.style.color = ""; }}, 2000);
-                                                                            "##, 
-                                                                            escaped
-                                                                        );
-                                                                        document::eval(&js);
-                                                                    },
-                                                                    "📋"
+                                                                div { class: "row-actions",
+                                                                    button { class: "action-btn reset-btn", title: "Unset to default",
+                                                                        onclick: move |_| {
+                                                                            let key_to_unset = current_key.clone();
+                                                                            spawn(async move {
+                                                                                if unset_tedge_config(key_to_unset.clone()).await.is_ok() {
+                                                                                    success_message.set(Some(format!("✓ Unset: {}", key_to_unset)));
+                                                                                    config_resource.restart();
+                                                                                    document::eval("setTimeout(() => { document.getElementById('success-close-btn')?.click(); }, 3000);");
+                                                                                }
+                                                                            });
+                                                                        }, "↺"
+                                                                    }
+                                                                    button { class: "action-btn copy-btn", title: "Copy to dashboard",
+                                                                        onclick: move |_| {
+                                                                            let escaped = current_value.replace('\\', "\\\\").replace('"', "\\\"");
+                                                                            document::eval(&format!(
+                                                                                r##"navigator.clipboard.writeText("{}");
+                                                                                event.target.innerText = "Copied!";
+                                                                                setTimeout(() => {{ event.target.innerText = "📋"; }}, 2000);"##, 
+                                                                                escaped
+                                                                            ));
+                                                                        }, "📋"
+                                                                    }
                                                                 }
                                                             }
                                                         }
@@ -349,6 +288,21 @@ pub async fn set_tedge_configs(updates: BTreeMap<String, String>) -> Result<(), 
 
             return Err(ServerFnError::new(format!("{}: {}", key, final_reason)));
         }
+    }
+    Ok(())
+}
+
+#[server]
+pub async fn unset_tedge_config(key: String) -> Result<(), ServerFnError> {
+    let output = tokio::process::Command::new("tedge")
+        .args(["config", "unset", &key])
+        .output()
+        .await
+        .map_err(|e| ServerFnError::new(format!("System error: {}", e)))?;
+    
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr).trim().to_string();
+        return Err(ServerFnError::new(format!("Unset failed: {}", stderr)));
     }
     Ok(())
 }
