@@ -18,10 +18,18 @@ enum ValueFilterMode {
     HideEmpty,
 }
 
+// Identify which action is waiting for sudo password
+#[derive(Clone, PartialEq)]
+enum PendingAction {
+    None,
+    SaveAll,
+    Unset(String),
+}
+
 #[component]
 pub fn Configurations() -> Element {
     // Resource to fetch tedge config from the server
-    let mut config_resource = use_resource(get_tedge_config_list);
+    let config_resource = use_resource(get_tedge_config_list);
 
     // UI state for managing interaction
     let mut opened_sections = use_signal(HashSet::<String>::new);
@@ -34,17 +42,25 @@ pub fn Configurations() -> Element {
     let mut error_message = use_signal(|| None::<String>);
     let mut success_message = use_signal(|| None::<String>);
     let mut failed_key = use_signal(|| None::<String>);
+
+    // Modal and Sudo state
+    let mut show_sudo_modal = use_signal(|| false);
     let mut sudo_password = use_signal(String::new);
+    let mut pending_action = use_signal(|| PendingAction::None);
 
     // Safely extract data while managing borrow lifecycles
     let map = {
         let resource_guard = config_resource.read();
         let Some(result) = resource_guard.as_ref() else {
-            return rsx! { div { class: "loading-spinner", "Loading configurations..." } };
+            return rsx! {
+                div { class: "loading-spinner", "Loading configurations..." }
+            };
         };
         match result {
             Ok(m) => m.clone(),
-            Err(e) => return rsx! { div { class: "error-message", "Error: {e}" } },
+            Err(e) => return rsx! {
+                div { class: "error-message", "Error: {e}" }
+            },
         }
     };
 
@@ -76,6 +92,7 @@ pub fn Configurations() -> Element {
     // Ownership transfer preparation for closures
     let map_for_edit = map.clone();
     let map_for_save = map.clone();
+    let map_for_save_cloned = map.clone();
     let map_for_view = map.clone();
 
     rsx! {
@@ -84,13 +101,27 @@ pub fn Configurations() -> Element {
         div { class: "config-dashboard",
             // Toast notifications for Success/Error
             if let Some(msg) = error_message.read().clone() {
-                div { class: "toast error-toast animate-fade-in", span { "{msg}" }
-                    button { class: "close-btn", onclick: move |_| { error_message.set(None); failed_key.set(None); }, "×" }
+                div { class: "toast error-toast animate-fade-in",
+                    span { "{msg}" }
+                    button {
+                        class: "close-btn",
+                        onclick: move |_| {
+                            error_message.set(None);
+                            failed_key.set(None);
+                        },
+                        "×"
+                    }
                 }
             }
             if let Some(msg) = success_message.read().clone() {
-                div { class: "toast success-toast animate-fade-in", span { "{msg}" }
-                    button { id: "success-close-btn", class: "close-btn", onclick: move |_| success_message.set(None), "×" }
+                div { class: "toast success-toast animate-fade-in",
+                    span { "{msg}" }
+                    button {
+                        id: "success-close-btn",
+                        class: "close-btn",
+                        onclick: move |_| success_message.set(None),
+                        "×"
+                    }
                 }
             }
 
@@ -102,123 +133,143 @@ pub fn Configurations() -> Element {
                 }
 
                 div { class: "action-group",
-                    input {
-                        type: "password", class: "sudo-input", placeholder: "Sudo password",
-                        value: "{sudo_password}", oninput: move |evt| sudo_password.set(evt.value())
-                    }
-
                     if !is_editing() {
-                        button { class: "btn-primary",
+                        button {
+                            class: "btn-primary",
                             onclick: move |_| {
-                                error_message.set(None); success_message.set(None);
-                                edit_draft.set(map_for_edit.clone()); is_editing.set(true);
+                                error_message.set(None);
+                                success_message.set(None);
+                                edit_draft.set(map_for_edit.clone());
+                                is_editing.set(true);
                             },
                             "✎ Edit Mode"
                         }
                     } else {
                         div { class: "edit-actions",
-                            button { class: "btn-success",
+                            button {
+                                class: "btn-success",
                                 onclick: move |_| {
-                                    let mut updates = BTreeMap::new();
-                                    let draft = edit_draft.read();
-                                    for (k, v) in draft.iter() {
-                                        if map_for_save.get(k) != Some(v) { updates.insert(k.clone(), v.clone()); }
-                                    }
-                                    if updates.is_empty() { is_editing.set(false); return; }
-                                    let pwd = if sudo_password.read().is_empty() { None } else { Some(sudo_password.read().clone()) };
-                                    spawn(async move {
-                                        match set_tedge_configs(updates, pwd).await {
-                                            Ok(_) => {
-                                                is_editing.set(false);  error_message.set(None); failed_key.set(None);
-                                                success_message.set(Some("✓ Saved successfully!".to_string()));
-                                                config_resource.restart();
-                                                document::eval("setTimeout(() => { document.getElementById('success-close-btn')?.click(); }, 3000);");
-                                            }
-                                            Err(e) => {
-                                                let raw = format!("{}", e);
-                                                let msg = raw.split("server function:").last().unwrap_or(&raw).trim().to_string();
-                                                if let Some((k, _)) = msg.split_once(':') { failed_key.set(Some(k.trim().to_string())); }
-                                                error_message.set(Some(msg));
-                                            }
-                                        }
-                                    });
+                                    // Trigger Modal instead of immediate save
+                                    pending_action.set(PendingAction::SaveAll);
+                                    show_sudo_modal.set(true);
                                 },
                                 "💾 Save Changes"
                             }
-                            button { class: "btn-ghost", onclick: move |_| { is_editing.set(false); error_message.set(None); failed_key.set(None); }, "Cancel" }
+                            button {
+                                class: "btn-ghost",
+                                onclick: move |_| is_editing.set(false),
+                                "Cancel"
+                            }
                         }
                     }
                 }
             }
 
-            // --- TOOLBAR: Search and Filter ---
+            // --- 🔍 TOOLBAR: Search and Filter ---
             div { class: "toolbar",
-                div { class: "search-box", span { class: "search-icon", "🔍" }
-                    input { class: "search-input", placeholder: "Search keys or values...",
-                        value: "{search_query}", oninput: move |evt| search_query.set(evt.value()) }
+                div { class: "search-box",
+                    span { class: "search-icon", "🔍" }
+                    input {
+                        class: "search-input",
+                        placeholder: "Search keys or values...",
+                        value: "{search_query}",
+                        oninput: move |evt| search_query.set(evt.value()),
+                    }
                 }
-                div { class: "filter-box", label { class: "filter-label", "Filter:" }
-                    select { class: "filter-select", onchange: move |evt| {
-                        match evt.value().as_str() {
-                            "non-empty" => filter_mode.set(ValueFilterMode::HideEmpty),
-                            _ => filter_mode.set(ValueFilterMode::ShowAll),
-                        }
-                    },
+                div { class: "filter-box",
+                    label { class: "filter-label", "Filter:" }
+                    select {
+                        class: "filter-select",
+                        onchange: move |evt| {
+                            match evt.value().as_str() {
+                                "non-empty" => filter_mode.set(ValueFilterMode::HideEmpty),
+                                _ => filter_mode.set(ValueFilterMode::ShowAll),
+                            }
+                        },
                         option { value: "all", "All Items" }
                         option { value: "non-empty", "Non-empty only" }
                     }
                 }
             }
 
-            // --- LIST: 3-Column Grid + Right-Aligned Arrows ---
+            // --- LIST  ---
             if grouped_configs.is_empty() {
                 div { class: "empty-state", "No configurations match your search." }
             } else {
-                for (prefix, items) in grouped_configs {
+                for (prefix , items) in grouped_configs {
                     {
                         let is_open = opened_sections.read().contains(&prefix);
                         let prefix_clone = prefix.clone();
                         rsx! {
                             section { class: "config-section", key: "{prefix}",
-                                div { class: "section-header clickable", onclick: move |_| {
-                                    let mut opened = opened_sections.write();
-                                    if opened.contains(&prefix_clone) { opened.remove(&prefix_clone); }
-                                    else { opened.insert(prefix_clone.clone()); }
-                                },
-                                    span { class: "icon", if is_open { "📂" } else { "📁" } }
+                                div {
+
+                                    // let k_for_input = current_key.clone();
+                                    // let v_for_copy = current_value.clone();
+
+                                    // Trigger Modal for individual reset
+                                    class: "section-header clickable",
+                                    onclick: move |_| {
+                                        let mut opened = opened_sections.write();
+                                        if opened.contains(&prefix_clone) {
+                                            opened.remove(&prefix_clone);
+                                        } else {
+                                            opened.insert(prefix_clone.clone());
+                                        }
+                                    },
+                                    span { class: "icon",
+                                        if is_open {
+                                            "📂"
+                                        } else {
+                                            "📁"
+                                        }
+                                    }
                                     span { class: "prefix-title", "{prefix}" }
                                     span { class: "item-count", "{items.len()}" }
                                     span { class: "spacer" }
-                                    span { class: "arrow", if is_open { "⏶" } else { "⏷" } }
+                                    span { class: "arrow",
+                                        if is_open {
+                                            "⏶"
+                                        } else {
+                                            "⏷"
+                                        }
+                                    }
                                 }
                                 if is_open {
                                     div { class: "config-table animate-fade-in",
-                                        for (key, value) in items {
+                                        for (key , value) in items {
                                             {
                                                 let current_key = key.clone();
-                                                let key_to_unset = key.clone();
                                                 let current_value = value.clone();
-
-                                                // Individual clones for each closure to fix E0382
-                                                // let k_for_input = current_key.clone();
-                                                // let k_for_reset = current_key.clone();
-                                                // let k_for_copy = current_key.clone();
-                                                // let v_for_copy = current_value.clone();
-
-                                                let is_modified = is_editing() && map_for_view.get(&current_key) != Some(&current_value);
+        
+                                                let k_for_reset = current_key.clone();
+                                                let k_for_copy = current_key.clone();
+        
+                                                let btn_id = format!("copy-btn-{}", k_for_copy.replace('.', "-"));
+        
+                                                let is_modified = is_editing()
+        
+                                                    && map_for_view.get(&current_key) != Some(&current_value);
                                                 let is_error = failed_key.read().as_ref() == Some(&current_key);
-
                                                 rsx! {
-                                                    div { class: "config-row", class: if is_modified { "modified-row" }, class: if is_error { "error-row" }, key: "{key}",
+                                                    div {
+                                                        class: "config-row",
+                                                        class: if is_modified { "modified-row" },
+                                                        class: if is_error { "error-row" },
+                                                        key: "{key}",
                                                         div { class: "cell-key", "{current_key}" }
                                                         div { class: "cell-value",
                                                             if is_editing() {
-                                                                input { class: "value-input", class: if is_error { "error-input" },
+                                                                input {
+                                                                    class: "value-input",
+                                                                    class: if is_error { "error-input" },
                                                                     value: "{current_value}",
                                                                     oninput: move |evt| {
                                                                         edit_draft.write().insert(current_key.clone(), evt.value());
-                                                                        if failed_key.read().as_ref() == Some(&current_key) { failed_key.set(None); }
-                                                                    }
+                                                                        if failed_key.read().as_ref() == Some(&current_key) {
+                                                                            failed_key.set(None);
+                                                                        }
+                                                                    },
                                                                 }
                                                             } else {
                                                                 span { class: "value-text", "{current_value}" }
@@ -226,41 +277,38 @@ pub fn Configurations() -> Element {
                                                         }
                                                         div { class: "cell-actions",
                                                             if !is_editing() {
-                                                                button { class: "action-btn reset-btn", title: "Unset to Default",
+                                                                button {
+                                                                    class: "action-btn reset-btn",
+                                                                    title: "Unset to Default",
                                                                     onclick: move |_| {
-                                                                        let key_to_unset = key_to_unset.clone();
-                                                                        let pwd = if sudo_password.read().is_empty() { None } else { Some(sudo_password.read().clone()) };
-                                                                        spawn(async move {
-                                                                            if unset_tedge_config(key_to_unset.clone(), pwd).await.is_ok() {
-                                                                                success_message.set(Some(format!("✓ Unset: {}", key_to_unset)));
-                                                                                config_resource.restart();
-                                                                                document::eval("setTimeout(() => { document.getElementById('success-close-btn')?.click(); }, 3000);");
-                                                                            }
-                                                                        });
-                                                                    }, "↺"
+                                                                        pending_action.set(PendingAction::Unset(k_for_reset.clone()));
+                                                                        show_sudo_modal.set(true);
+                                                                    },
+                                                                    "↺"
                                                                 }
-                                                                button { class: "action-btn copy-btn", title: "Copy to Dashboard",
+                                                                button {
+                                                                    id: "{btn_id}",
+                                                                    class: "action-btn copy-btn",
+                                                                    title: "Copy to Dashboard",
                                                                     onclick: move |_| {
                                                                         let escaped = current_value.replace('\\', "\\\\").replace('"', "\\\"");
                                                                         let js = format!(
                                                                             r##"
-                                                                            navigator.clipboard.writeText("{}");
-                                                                            // Robust target detection (handles click on icon)
-                                                                            const btn = event.target.closest('button');
-                                                                            if (btn) {{
-                                                                                const oldText = btn.innerText;
-                                                                                btn.innerText = "Copied!";
-                                                                                btn.classList.add('copy-success');
-                                                                                setTimeout(() => {{ 
-                                                                                    btn.innerText = oldText; 
-                                                                                    btn.classList.remove('copy-success'); 
-                                                                                }}, 2000);
-                                                                            }}
-                                                                            "##, 
-                                                                            escaped
+                                                                                navigator.clipboard.writeText("{}");
+                                                                                const btn = document.getElementById("{}");
+                                                                                if (btn) {{
+                                                                                    const oldHTML = btn.innerHTML;
+                                                                                    btn.innerText = "Copied!";
+                                                                                    btn.classList.add('copy-success');
+                                                                                    setTimeout(() => {{ btn.innerHTML = oldHTML; btn.classList.remove('copy-success'); }}, 2000);
+                                                                                }}
+                                                                                "##,
+                                                                            escaped,
+                                                                            btn_id,
                                                                         );
                                                                         document::eval(&js);
-                                                                    }, "📋"
+                                                                    },
+                                                                    "📋"
                                                                 }
                                                             }
                                                         }
@@ -274,8 +322,167 @@ pub fn Configurations() -> Element {
                         }
                     }
                 }
+            }
+
+            // --- SUDO PASSWORD MODAL ---
+            if show_sudo_modal() {
+                div { class: "modal-overlay",
+                    div { class: "modal-content animate-fade-in",
+                        h2 { "Permission Required" }
+                        p {
+                            match pending_action.read().clone() {
+                                PendingAction::SaveAll => rsx! { "Enter sudo password to save all changes. If sudo is not required, leave it empty and press 'Confirm'." },
+                                PendingAction::Unset(k) => rsx! {
+                                    "Enter sudo password to reset "
+                                    b { "{k}" }
+                                    ". If sudo is not required, leave it empty and press 'Confirm'."
+                                },
+                                _ => rsx! { "Enter sudo password to continue." },
+                            }
+                        }
+                        input {
+                            r#type: "password",
+                            class: "modal-input",
+                            placeholder: "Password",
+                            autofocus: true,
+                            value: "{sudo_password}",
+                            oninput: move |evt| sudo_password.set(evt.value()),
+                            onkeydown: move |evt| {
+                                if evt.key() == Key::Enter {
+                                    handle_sudo_execution(
+                                        pending_action.read().clone(),
+                                        if sudo_password.read().is_empty() {
+                                            None
+                                        } else {
+                                            Some(sudo_password.read().clone())
+                                        },
+                                        is_editing,
+                                        success_message,
+                                        error_message,
+                                        failed_key,
+                                        config_resource,
+                                        edit_draft,
+                                        map_for_save.clone(),
+                                    );
+                                    show_sudo_modal.set(false);
+                                    sudo_password.set(String::new());
+                                    pending_action.set(PendingAction::None);
+                                }
+                            },
+                        }
+                        div { class: "modal-actions",
+                            button {
+                                class: "btn-ghost",
+                                onclick: move |_| {
+                                    show_sudo_modal.set(false);
+                                    sudo_password.set(String::new());
+                                    pending_action.set(PendingAction::None);
+                                },
+                                "Cancel"
+                            }
+                            button {
+                                class: "btn-primary",
+                                onclick: move |_| {
+                                    handle_sudo_execution(
+                                        pending_action.read().clone(),
+                                        if sudo_password.read().is_empty() {
+                                            None
+                                        } else {
+                                            Some(sudo_password.read().clone())
+                                        },
+                                        is_editing,
+                                        success_message,
+                                        error_message,
+                                        failed_key,
+                                        config_resource,
+                                        edit_draft,
+                                        map_for_save_cloned.clone(),
+                                    );
+                                    show_sudo_modal.set(false);
+                                    sudo_password.set(String::new());
+                                    pending_action.set(PendingAction::None);
+                                },
+                                "Confirm"
+                            }
+                        }
+                    }
+                }
+            }
+        
         }
+    }
+}
+
+#[allow(clippy::too_many_arguments)]
+fn handle_sudo_execution(
+    action: PendingAction,
+    pwd: Option<String>,
+    mut is_editing: Signal<bool>,
+    mut success_message: Signal<Option<String>>,
+    mut error_message: Signal<Option<String>>,
+    mut failed_key: Signal<Option<String>>,
+    mut config_resource: Resource<Result<BTreeMap<String, String>, ServerFnError>>,
+    edit_draft: Signal<BTreeMap<String, String>>,
+    map_for_save: BTreeMap<String, String>,
+) {
+    match action {
+        PendingAction::SaveAll => {
+            let mut updates = BTreeMap::new();
+            let draft = edit_draft.read();
+            for (k, v) in draft.iter() {
+                if map_for_save.get(k) != Some(v) {
+                    updates.insert(k.clone(), v.clone());
+                }
+            }
+            spawn(async move {
+                match set_tedge_configs(updates, pwd).await {
+                    Ok(_) => {
+                        is_editing.set(false);
+                        success_message.set(Some("✓ Saved!".to_string()));
+                        config_resource.restart();
+                        document::eval("setTimeout(() => { document.getElementById('success-close-btn')?.click(); }, 3000);");
+                    }
+                    Err(e) => {
+                        let raw = format!("{}", e);
+                        let msg = raw
+                            .split("server function:")
+                            .last()
+                            .unwrap_or(&raw)
+                            .trim()
+                            .to_string();
+
+                        if let Some((k, _)) = msg.split_once(':') {
+                            failed_key.set(Some(k.trim().to_string()));
+                        }
+                        error_message.set(Some(msg));
+                    }
+                }
+            });
         }
+        PendingAction::Unset(k) => {
+            let key_to_unset = k.clone();
+            spawn(async move {
+                match unset_tedge_config(key_to_unset.clone(), pwd).await {
+                    Ok(_) => {
+                        success_message.set(Some(format!("✓ Unset: {}", key_to_unset)));
+                        config_resource.restart();
+                        document::eval("setTimeout(() => { document.getElementById('success-close-btn')?.click(); }, 3000);");
+                    }
+                    Err(e) => {
+                        let raw = format!("{}", e);
+                        let msg = raw
+                            .split("server function:")
+                            .last()
+                            .unwrap_or(&raw)
+                            .trim()
+                            .to_string();
+                        failed_key.set(Some(key_to_unset));
+                        error_message.set(Some(msg));
+                    }
+                }
+            });
+        }
+        _ => {}
     }
 }
 
