@@ -1,0 +1,98 @@
+/* --- Global Dashboard Styling --- */
+.config-dashboard {
+    max-width: 1100px;
+    margin: 2rem auto;
+    padding: 20px;
+    background-color: #0f1115;
+    color: #e0e0e0;
+    font-family: 'Inter', sans-serif;
+}
+
+/* --- Header Section --- */
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.config-dashboard h1 {
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: #f8fafc;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.config-dashboard h1::before {
+    content: "";
+    width: 8px;
+    height: 1.5em;
+    background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
+    border-radius: 4px;
+}
+
+.title-brand { color: #60a5fa; }
+
+/* --- Buttons --- */
+.action-group .edit-actions { display: flex; gap: 10px; }
+.btn-primary, .btn-success, .btn-ghost {
+    padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s;
+}
+.btn-primary { background: #3b82f6; color: white; border: none; }
+.btn-success { background: #10b981; color: white; border: none; }
+.btn-ghost { background: transparent; border: 1px solid #334155; color: #94a3b8; }
+.btn-primary:hover { background: #2563eb; }
+.btn-success:hover { background: #059669; }
+.btn-ghost:hover { background: #1e293b; color: white; }
+
+/* --- Toolbar (Search & Filter) --- */
+.toolbar {
+    display: flex; background: #1a1d23; border: 1px solid #334155;
+    border-radius: 10px; margin-bottom: 2.5rem; overflow: hidden;
+}
+.search-box { flex-grow: 1; display: flex; align-items: center; padding: 0 16px; border-right: 1px solid #334155; }
+.search-icon { color: #64748b; margin-right: 12px; }
+.search-input { width: 100%; padding: 14px 0; background: transparent; border: none; color: #ffffff; outline: none; }
+.filter-box { display: flex; align-items: center; padding: 0 16px; background: #1e293b; min-width: 240px; }
+.filter-label { font-size: 0.85rem; color: #94a3b8; margin-right: 12px; }
+.filter-select { background: transparent; border: none; color: #f8fafc; cursor: pointer; padding: 14px 0; width: 100%; outline: none; }
+
+/* --- Toast Notifications --- */
+.toast {
+    position: fixed; top: 24px; left: 50%; transform: translateX(-50%);
+    width: 90%; max-width: 700px; padding: 16px 24px; border-radius: 12px;
+    z-index: 2000; display: flex; justify-content: space-between; align-items: center;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); font-weight: 500;
+}
+.error-toast { background: #450a0a; color: #fecaca; border: 1px solid #991b1b; }
+.success-toast { background: #064e3b; color: #d1fae5; border: 1px solid #065f46; }
+.close-btn { background: rgba(255, 255, 255, 0.1); border: none; color: inherit; border-radius: 50%; cursor: pointer; width: 26px; height: 26px; font-size: 1.1rem; line-height: 1; }
+.close-btn:hover { background: rgba(255, 255, 255, 0.2); }
+
+/* --- Accordion & Rows --- */
+.config-section { background: #1a1d23; border: 1px solid #2d3139; border-radius: 8px; margin-bottom: 12px; overflow: hidden; }
+.section-header { display: flex; align-items: center; padding: 14px 20px; cursor: pointer; }
+.prefix-title { margin: 0 12px; font-weight: 600; color: #60a5fa; }
+.item-count { font-size: 0.75rem; color: #9ca3af; background: #2d333b; padding: 2px 8px; border-radius: 12px; }
+.spacer { flex-grow: 1; }
+.config-table { border-top: 1px solid #2d3139; background: #14161b; }
+.config-row { display: grid; grid-template-columns: 1fr 2fr; gap: 30px; padding: 12px 20px; border-bottom: 1px solid #21252b; align-items: start; }
+.cell-key { font-family: monospace; font-size: 0.85rem; color: #9ca3af; word-break: break-all; }
+
+/* --- Inputs & Editing Highlights --- */
+.cell-value-container { display: flex; justify-content: space-between; gap: 12px; }
+.value-text { font-family: monospace; font-size: 0.9rem; color: #d1d5db; word-break: break-all; background: rgba(255, 255, 255, 0.03); padding: 2px 6px; border-radius: 4px; }
+.value-input { width: 100%; background: #0f172a; border: 1px solid #334155; border-radius: 6px; color: #f1f5f9; padding: 8px 12px; outline: none; transition: 0.2s; }
+.modified-row { background: rgba(59, 130, 246, 0.05); }
+.modified-input { border-color: #3b82f6 !important; background: #1e293b !important; }
+.error-row { background: rgba(220, 38, 38, 0.15) !important; border-left: 5px solid #ef4444 !important; }
+.error-input { border-color: #ef4444 !important; background: #2d1616 !important; box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.3) !important; animation: shake 0.4s; }
+
+/* --- Animations & Helpers --- */
+.copy-btn { background: transparent; border: none; color: #4b5563; cursor: pointer; font-size: 1.1rem; }
+.empty-state { padding: 40px; text-align: center; color: #64748b; font-style: italic; }
+.animate-fade-in { animation: fadeIn 0.2s ease-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
