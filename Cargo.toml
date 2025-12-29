@@ -9,6 +9,7 @@ members = [
     "plugins/tedge_apt_plugin",
     "plugins/tedge_file_config_plugin",
     "plugins/tedge_file_log_plugin",
+    "crates/core/tedge_ui",
 ]
 resolver = "2"
 

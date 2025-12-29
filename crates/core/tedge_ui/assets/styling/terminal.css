@@ -1,0 +1,50 @@
+/* ターミナル全体のコンテナ */
+.terminal-container {
+    display: flex;
+    flex-direction: column;
+    height: 24rem;
+    /* 384px */
+    width: 100%;
+    background-color: #000000;
+    color: #4ade80;
+    /* green-400 */
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+}
+
+/* ログ表示エリア */
+.terminal-history {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 0.5rem;
+}
+
+.terminal-line {
+    margin-bottom: 0.25rem;
+    line-height: 1.2;
+}
+
+/* 入力エリア */
+.terminal-input-wrapper {
+    display: flex;
+    border-top: 1px solid #064e3b;
+    /* green-900 */
+    padding-top: 0.5rem;
+}
+
+.terminal-prompt {
+    margin-right: 0.5rem;
+    user-select: none;
+}
+
+.terminal-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #4ade80;
+    width: 100%;
+}
