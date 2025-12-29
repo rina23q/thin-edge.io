@@ -1,4 +1,4 @@
-/* --- Global Dashboard Styling --- */
+/* --- Global Theme --- */
 .config-dashboard {
     max-width: 1200px;
     margin: 2rem auto;
@@ -8,161 +8,74 @@
     font-family: 'Inter', system-ui, sans-serif;
 }
 
-/* --- Header Section --- */
-.header-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-}
+/* --- Header & Restored Bar Design --- */
+.header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
 
 .config-dashboard h1 {
-    font-size: 2.25rem;
-    font-weight: 800;
-    color: #f8fafc;
-    display: flex;
-    align-items: center;
-    gap: 12px;
+    font-size: 2.25rem; font-weight: 800; color: #f8fafc;
+    display: flex; align-items: center; gap: 12px; margin: 0;
 }
 
 .config-dashboard h1::before {
-    content: "";
-    width: 8px;
-    height: 1.5em;
+    content: ""; width: 8px; height: 1.5em;
     background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
     border-radius: 4px;
 }
+.title-brand { color: #60a5fa; margin-right: 8px; }
 
-.title-brand { color: #60a5fa; }
+.sudo-input { background: #020617; border: 1px solid #334155; border-radius: 8px; color: #f1f5f9; padding: 10px 14px; width: 220px; outline: none; }
+.action-group { display: flex; align-items: center; gap: 16px; }
 
-/* --- Buttons --- */
-.btn-primary, .btn-success, .btn-ghost {
-    padding: 10px 22px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s;
-}
 .btn-primary { background: #3b82f6; color: white; border: none; }
 .btn-success { background: #10b981; color: white; border: none; }
-.btn-ghost { background: transparent; border: 1px solid #334155; color: #94a3b8; }
-.btn-primary:hover { background: #2563eb; }
-.btn-success:hover { background: #059669; }
+.btn-primary, .btn-success, .btn-ghost { padding: 10px 22px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; }
 
-/* --- Toolbar --- */
-.toolbar {
-    display: flex; background: #1a1d23; border: 1px solid #334155;
-    border-radius: 12px; margin-bottom: 2.5rem; overflow: hidden;
-}
+/* --- Toolbar (Search & Filter) --- */
+.toolbar { display: flex; background: #1a1d23; border: 1px solid #334155; border-radius: 12px; margin-bottom: 2.5rem; overflow: hidden; }
 .search-box { flex-grow: 1; display: flex; align-items: center; padding: 0 18px; border-right: 1px solid #334155; }
-.search-input { width: 100%; padding: 14px 0; background: transparent; border: none; color: #ffffff; outline: none; }
+.search-icon { color: #64748b; margin-right: 14px; font-size: 1.1rem; }
+.search-input { width: 100%; padding: 14px 0; background: transparent; border: none; color: white; outline: none; }
 .filter-box { display: flex; align-items: center; padding: 0 18px; background: #1e293b; min-width: 260px; }
-.filter-select { background: transparent; border: none; color: #f8fafc; padding: 14px 0; outline: none; }
+.filter-select { background: transparent; border: none; color: #f8fafc; padding: 14px 0; cursor: pointer; outline: none; width: 100%; }
 
-/* --- Toast Notifications --- */
-.toast {
-    position: fixed; top: 24px; left: 50%; transform: translateX(-50%);
-    width: 90%; max-width: 700px; padding: 16px 24px; border-radius: 12px;
-    z-index: 2000; display: flex; justify-content: space-between; align-items: center;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); font-weight: 500;
+/* --- Accordion Header (Arrow right-aligned) --- */
+.config-section { background: #1a1d23; border: 1px solid #2d3139; border-radius: 10px; margin-bottom: 14px; overflow: hidden; }
+.section-header { display: flex; align-items: center; padding: 16px 24px; cursor: pointer; transition: background 0.2s; }
+.prefix-title { margin: 0 14px; font-weight: 700; color: #60a5fa; font-size: 1.1rem; }
+.item-count { font-size: 0.8rem; color: #9ca3af; background: #2d333b; padding: 3px 12px; border-radius: 20px; }
+
+/* Pushes everything after this to the far right */
+.spacer { flex-grow: 1; }
+.arrow { color: #4b5563; font-size: 0.9rem; margin-left: 10px; }
+
+/* --- GRID SYSTEM: 3-Column Fix --- */
+.config-table { border-top: 1px solid #2d3139; background: #14161b; width: 100%; }
+.config-row {
+    display: grid; grid-template-columns: 320px 1fr 120px; /* Key, Value, Actions */
+    gap: 24px; padding: 14px 24px; border-bottom: 1px solid #21252b;
+    align-items: center; /* V-ALIGN FIX: Centers Key, Value, and Buttons vertically */
 }
+
+.cell-key { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: #94a3b8; word-break: break-all; }
+
+.cell-value { display: flex; align-items: center; min-width: 0; }
+.value-text { font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; background: rgba(30, 41, 59, 0.6); padding: 6px 12px; border-radius: 6px; word-break: break-all; min-height: 32px; display: inline-flex; align-items: center; }
+.value-input { width: 100%; background: #020617; border: 1px solid #334155; border-radius: 6px; color: white; padding: 10px 14px; outline: none; height: 40px; box-sizing: border-box; }
+
+.cell-actions { display: flex; justify-content: flex-end; gap: 12px; align-items: center; }
+.action-btn { background: #1e293b; border: 1px solid #334155; color: #94a3b8; width: 44px; height: 38px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; font-size: 1rem; }
+
+/* Feedback styles for Copy success */
+.copy-success { color: #10b981 !important; border-color: #10b981 !important; width: auto !important; padding: 0 10px; }
+
+.action-btn:hover { background: #334155; color: white; }
+.reset-btn:hover { color: #f87171; border-color: #ef4444; }
+
+/* --- Toasts & States --- */
+.error-row { background: rgba(239, 68, 68, 0.08) !important; border-left: 5px solid #ef4444 !important; }
+.toast { position: fixed; top: 24px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 700px; padding: 16px; border-radius: 12px; z-index: 2000; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); font-weight: 500; }
 .error-toast { background: #450a0a; color: #fecaca; border: 1px solid #991b1b; }
 .success-toast { background: #064e3b; color: #d1fae5; border: 1px solid #065f46; }
-.close-btn { background: rgba(255, 255, 255, 0.1); border: none; color: inherit; border-radius: 50%; cursor: pointer; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; }
 
-/* --- Grid System & Rows --- */
-.config-section { background: #1a1d23; border: 1px solid #2d3139; border-radius: 10px; margin-bottom: 14px; overflow: hidden; }
-.section-header { display: flex; align-items: center; padding: 16px 20px; cursor: pointer; }
-.prefix-title { margin: 0 14px; font-weight: 700; color: #60a5fa; }
-.item-count { font-size: 0.75rem; color: #9ca3af; background: #2d333b; padding: 3px 10px; border-radius: 20px; }
-.spacer { flex-grow: 1; }
-
-.config-table { border-top: 1px solid #2d3139; background: #14161b; width: 100%; }
-
-.config-row {
-    display: grid;
-    grid-template-columns: 320px 1fr; /* Fixed key width, flexible value area */
-    gap: 20px;
-    padding: 14px 24px;
-    border-bottom: 1px solid #21252b;
-    align-items: center; /* VERTICAL CENTER EVERYTHING IN THE ROW */
-}
-
-.cell-key {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.85rem;
-    color: #94a3b8;
-    word-break: break-all;
-    line-height: 1.4;
-    display: flex;
-    align-items: center;
-}
-
-/* Container for Value and Action Buttons */
-.cell-value-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center; /* VERTICAL CENTER THE VALUE AND BUTTONS */
-    gap: 16px;
-    width: 100%;
-    min-width: 0;
-}
-
-.value-text {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.9rem;
-    color: #f1f5f9;
-    background: rgba(30, 41, 59, 0.6);
-    padding: 6px 12px;
-    border-radius: 6px;
-    word-break: break-all;
-    flex-grow: 1;
-    display: flex;
-    align-items: center; /* Center text inside its box */
-    min-height: 32px;
-}
-
-.value-input {
-    flex-grow: 1;
-    background: #020617;
-    border: 1px solid #334155;
-    border-radius: 6px;
-    color: #f1f5f9;
-    padding: 10px 14px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.9rem;
-    outline: none;
-    height: 40px;
-    box-sizing: border-box;
-}
-
-/* Action Buttons */
-.row-actions {
-    display: flex;
-    gap: 12px;
-    flex-shrink: 0;
-    align-items: center;
-}
-
-.action-btn {
-    background: #1e293b;
-    border: 1px solid #334155;
-    color: #94a3b8;
-    width: 38px;
-    height: 38px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.1rem;
-}
-
-.action-btn:hover { background: #334155; color: #f1f5f9; }
-.reset-btn:hover { color: #f87171; border-color: #ef4444; }
-.copy-btn:hover { color: #60a5fa; border-color: #3b82f6; }
-
-/* States */
-.modified-row { background: rgba(59, 130, 246, 0.04); }
-.error-row { background: rgba(239, 68, 68, 0.1) !important; border-left: 5px solid #ef4444 !important; }
-
-/* --- Animations --- */
-.animate-fade-in { animation: fadeIn 0.2s ease-out; }
+.animate-fade-in { animation: fadeIn 0.25s ease-out; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
