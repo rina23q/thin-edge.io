@@ -17,7 +17,6 @@ pub fn Navbar() -> Element {
             Link { to: Route::Home {}, "Home" }
             Link { to: Route::Configurations {}, "Configurations" }
             Link { to: Route::Terminal {}, "Terminal" }
-            Link { to: Route::Blog { id: 1 }, "Blog" }
         }
 
         // The `Outlet` component is used to render the next component inside the layout. In this case, it will render either

@@ -1,4 +1,3 @@
-use crate::components::Echo;
 use crate::components::Hero;
 use dioxus::prelude::*;
 
@@ -7,6 +6,5 @@ use dioxus::prelude::*;
 pub fn Home() -> Element {
     rsx! {
         Hero {}
-        Echo {}
     }
 }
