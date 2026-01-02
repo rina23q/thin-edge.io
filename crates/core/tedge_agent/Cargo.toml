@@ -51,6 +51,7 @@ tokio-util = { workspace = true }
 toml = { workspace = true }
 tower-http = { workspace = true, features = ["set-header"] }
 tracing = { workspace = true }
+dioxus = { version = "0.7", features = ["fullstack"] }
 
 [dev-dependencies]
 assert-json-diff = { workspace = true }
@@ -68,3 +69,10 @@ tower = { workspace = true }
 
 [lints]
 workspace = true
+
+[features]
+default = ["web", "server"]
+# The feature that are only required for the web = ["dioxus/web"] build target should be optional and only enabled in the web = ["dioxus/web"] feature
+web = ["dioxus/web"]
+# The feature that are only required for the server = ["dioxus/server"] build target should be optional and only enabled in the server = ["dioxus/server"] feature
+server = ["dioxus/server"]

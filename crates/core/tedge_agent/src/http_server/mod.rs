@@ -4,3 +4,5 @@ pub mod error;
 mod file_transfer;
 mod request_files;
 pub mod server;
+mod hello_world;
+pub(crate) mod dioxus;

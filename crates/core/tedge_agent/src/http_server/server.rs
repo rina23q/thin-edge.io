@@ -3,7 +3,9 @@ use super::file_transfer::file_transfer_legacy_router;
 use super::file_transfer::file_transfer_router;
 use crate::entity_manager::server::EntityStoreRequest;
 use crate::entity_manager::server::EntityStoreResponse;
+use crate::http_server::dioxus::dioxus_router;
 use crate::http_server::error::HttpServerError;
+use crate::http_server::hello_world::ui_router;
 use axum::Router;
 use camino::Utf8PathBuf;
 use futures::future::FutureExt;
@@ -55,8 +57,12 @@ fn router(state: AgentState) -> Router {
     let file_transfer_legacy_router = file_transfer_legacy_router(state.file_transfer_dir.clone());
     let file_transfer_router = file_transfer_router(state.file_transfer_dir.clone());
     let entity_store_router = entity_store_router(state);
+    let ui_router = ui_router();
+    let dioxus_router = dioxus_router();
 
     Router::new()
         .nest("/te", entity_store_router.merge(file_transfer_router))
         .merge(file_transfer_legacy_router)
+        .merge(ui_router)
+        .merge(dioxus_router)
 }

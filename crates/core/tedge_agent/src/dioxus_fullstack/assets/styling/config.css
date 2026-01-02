@@ -1,0 +1,270 @@
+/* --- Global Theme --- */
+.config-dashboard {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 20px;
+    background-color: #0f1115;
+    color: #e2e8f0;
+    font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* --- Header & Restored Bar Design --- */
+.header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+
+.config-dashboard h1 {
+    font-size: 2.25rem; font-weight: 800; color: #f8fafc;
+    display: flex; align-items: center; gap: 12px; margin: 0;
+}
+
+.config-dashboard h1::before {
+    content: ""; width: 8px; height: 1.5em;
+    background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
+    border-radius: 4px;
+}
+.title-brand { color: #60a5fa; margin-right: 8px; }
+
+.sudo-input { background: #020617; border: 1px solid #334155; border-radius: 8px; color: #f1f5f9; padding: 10px 14px; width: 220px; outline: none; }
+.action-group { display: flex; align-items: center; gap: 16px; }
+
+.btn-primary { background: #3b82f6; color: white; border: none; }
+.btn-success { background: #10b981; color: white; border: none; }
+.btn-primary, .btn-success, .btn-ghost { padding: 10px 22px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+
+/* --- Toolbar (Search & Filter) --- */
+.toolbar { display: flex; background: #1a1d23; border: 1px solid #334155; border-radius: 12px; margin-bottom: 2.5rem; overflow: hidden; }
+.search-box { flex-grow: 1; display: flex; align-items: center; padding: 0 18px; border-right: 1px solid #334155; }
+.search-icon { color: #64748b; margin-right: 14px; font-size: 1.1rem; }
+.search-input { width: 100%; padding: 14px 0; background: transparent; border: none; color: white; outline: none; }
+.filter-box { display: flex; align-items: center; padding: 0 18px; background: #1e293b; min-width: 260px; }
+.filter-select { background: transparent; border: none; color: #f8fafc; padding: 14px 0; cursor: pointer; outline: none; width: 100%; }
+
+/* --- Accordion Header (Arrow right-aligned) --- */
+.config-section { background: #1a1d23; border: 1px solid #2d3139; border-radius: 10px; margin-bottom: 14px; overflow: visible; }
+.section-header { display: flex; align-items: center; padding: 16px 24px; cursor: pointer; transition: background 0.2s; }
+.prefix-title { margin: 0 14px; font-weight: 700; color: #60a5fa; font-size: 1.1rem; }
+.item-count { font-size: 0.8rem; color: #9ca3af; background: #2d333b; padding: 3px 12px; border-radius: 20px; }
+
+/* Pushes everything after this to the far right */
+.spacer { flex-grow: 1; }
+.arrow { color: #4b5563; font-size: 0.9rem; margin-left: 10px; }
+
+/* --- GRID SYSTEM: 3-Column Fix --- */
+.config-table { border-top: 1px solid #2d3139; background: #14161b; width: 100%; }
+.config-row {
+    display: grid; grid-template-columns: 320px 1fr 120px; /* Key, Value, Actions */
+    gap: 24px; padding: 14px 24px; border-bottom: 1px solid #21252b;
+    align-items: center; /* V-ALIGN FIX: Centers Key, Value, and Buttons vertically */
+}
+
+.cell-key { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: #94a3b8; word-break: break-all; }
+
+.cell-value { display: flex; align-items: center; min-width: 0; }
+.value-text { font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; background: rgba(30, 41, 59, 0.6); padding: 6px 12px; border-radius: 6px; word-break: break-all; min-height: 32px; display: inline-flex; align-items: center; }
+.value-input { width: 100%; background: #020617; border: 1px solid #334155; border-radius: 6px; color: white; padding: 10px 14px; outline: none; height: 40px; box-sizing: border-box; }
+
+.cell-actions { display: flex; justify-content: flex-end; gap: 12px; align-items: center; }
+.action-btn { background: #1e293b; border: 1px solid #334155; color: #94a3b8; width: 44px; height: 38px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; font-size: 1rem; }
+
+/* Feedback styles for Copy success */
+.copy-success { color: #10b981 !important; border-color: #10b981 !important; width: auto !important; padding: 0 10px; }
+
+.action-btn:hover { background: #334155; color: white; }
+.reset-btn:hover { color: #f87171; border-color: #ef4444; }
+
+/* --- Toasts & States --- */
+.error-row { background: rgba(239, 68, 68, 0.08) !important; border-left: 5px solid #ef4444 !important; }
+.toast { position: fixed; top: 24px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 700px; padding: 16px; border-radius: 12px; z-index: 2000; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); font-weight: 500; }
+.error-toast { background: #450a0a; color: #fecaca; border: 1px solid #991b1b; }
+.success-toast { background: #064e3b; color: #d1fae5; border: 1px solid #065f46; }
+
+.animate-fade-in { animation: fadeIn 0.25s ease-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+
+/* --- Modal Styles --- */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 3000;
+}
+
+.modal-content {
+    background: #1a1d23;
+    border: 1px solid #334155;
+    border-radius: 16px;
+    padding: 32px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    text-align: center;
+}
+
+.modal-content h2 {
+    margin: 0 0 12px 0;
+    color: #f8fafc;
+    font-size: 1.5rem;
+}
+
+.modal-content p {
+    color: #94a3b8;
+    margin-bottom: 24px;
+    line-height: 1.5;
+}
+
+.modal-input {
+    width: 100%;
+    background: #020617;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    color: white;
+    padding: 12px 16px;
+    font-size: 1rem;
+    outline: none;
+    margin-bottom: 24px;
+    box-sizing: border-box;
+}
+
+.modal-input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.modal-actions button {
+    flex: 1;
+}
+
+/* --- Info Icon & Tooltip (修正版) --- */
+.cell-key {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: relative; /* ツールチップの基準点を安定させるために追加 */
+}
+
+.info-icon-wrapper {
+    position: relative;
+    display: inline-flex;
+    cursor: help;
+    line-height: 1; /* アイコンの垂直位置を安定させる */
+}
+
+.info-icon {
+    color: #64748b;
+    font-size: 1rem; /* 少し大きくして押しやすく */
+    transition: color 0.2s;
+}
+
+.info-icon:hover {
+    color: #60a5fa;
+}
+
+/* --- Info Icon & Tooltip (Modified Version) --- */
+.cell-key {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: relative; 
+}
+
+.info-icon-wrapper {
+    position: relative;
+    display: inline-flex;
+    cursor: help;
+}
+
+.tooltip-content {
+    visibility: hidden;
+    position: absolute;
+    bottom: 140%; /* Position above the icon */
+    left: 50%;
+    transform: translate(-50%, 8px);
+    
+    width: max-content;
+    max-width: 260px; /* Slightly narrower to stay within typical screen bounds */
+    min-width: 180px;
+    
+    background-color: #1e293b;
+    color: #f1f5f9;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #334155;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6);
+    z-index: 2000; /* Ensure tooltip is on the very top layer */
+    opacity: 0;
+    transition: opacity 0.2s, transform 0.2s;
+    pointer-events: none;
+    
+    /* FIX: Force wrap long URLs or paths */
+    white-space: normal;
+    overflow-wrap: anywhere; 
+    word-break: break-word;
+}
+
+.info-icon-wrapper:hover .tooltip-content {
+    visibility: visible;
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
+
+/* Tooltip Arrow (Centered) */
+.tooltip-content::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -6px;
+    border-width: 6px;
+    border-style: solid;
+    border-color: #1e293b transparent transparent transparent;
+}
+
+.tooltip-desc {
+    font-size: 0.85rem;
+    line-height: 1.5;
+    margin-bottom: 8px;
+    color: #e2e8f0;
+}
+
+/* --- Note Styling --- */
+.tooltip-note {
+    font-size: 0.8rem;
+    color: #fbbf24; /* Amber/Yellow for notes */
+    background: rgba(251, 191, 36, 0.1);
+    padding: 8px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    border-left: 3px solid #fbbf24;
+}
+
+.note-label {
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    display: block;
+    margin-bottom: 2px;
+}
+
+/* Tooltip Example Box */
+.tooltip-example {
+    font-size: 0.8rem;
+    background: #0f172a;
+    padding: 8px;
+    border-radius: 4px;
+    border-left: 3px solid #60a5fa;
+    /* FIX: Ensure example text also wraps properly */
+    overflow-wrap: anywhere;
+}
+
+.example-label { color: #94a3b8; font-weight: bold; margin-bottom: 2px; display: block; }
+.example-value { color: #60a5fa; font-family: monospace; }
