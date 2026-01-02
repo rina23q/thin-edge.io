@@ -8,6 +8,8 @@ use std::process::Stdio;
 use tokio::io::AsyncWriteExt;
 #[cfg(feature = "server")]
 use tokio::process::Command;
+#[cfg(feature = "server")]
+use serde::{Deserialize, Serialize};
 
 const CONFIG_CSS: Asset = asset!("/assets/styling/config.css");
 
@@ -30,6 +32,7 @@ enum PendingAction {
 pub fn Configurations() -> Element {
     // Resource to fetch tedge config from the server
     let config_resource = use_resource(get_tedge_config_list);
+    let doc_resource = use_resource(get_tedge_config_docs);
 
     // UI state for managing interaction
     let mut opened_sections = use_signal(HashSet::<String>::new);
@@ -62,6 +65,12 @@ pub fn Configurations() -> Element {
                 div { class: "error-message", "Error: {e}" }
             },
         }
+    };
+
+    // Get document map
+    let doc_map = match doc_resource.read().as_ref() {
+        Some(Ok(d)) => d.clone(),
+        _ => BTreeMap::new(),
     };
 
     let current_data = if is_editing() {
@@ -201,13 +210,10 @@ pub fn Configurations() -> Element {
                         let is_open = opened_sections.read().contains(&prefix);
                         let prefix_clone = prefix.clone();
                         rsx! {
-                            section { class: "config-section", key: "{prefix}",
+                            section {
+                                class: if is_open { "config-section open" } else { "config-section" },
+                                key: "{prefix}",
                                 div {
-
-                                    // let k_for_input = current_key.clone();
-                                    // let v_for_copy = current_value.clone();
-
-                                    // Trigger Modal for individual reset
                                     class: "section-header clickable",
                                     onclick: move |_| {
                                         let mut opened = opened_sections.write();
@@ -241,23 +247,48 @@ pub fn Configurations() -> Element {
                                             {
                                                 let current_key = key.clone();
                                                 let current_value = value.clone();
+
         
+
                                                 let k_for_reset = current_key.clone();
                                                 let k_for_copy = current_key.clone();
         
                                                 let btn_id = format!("copy-btn-{}", k_for_copy.replace('.', "-"));
         
                                                 let is_modified = is_editing()
-        
                                                     && map_for_view.get(&current_key) != Some(&current_value);
                                                 let is_error = failed_key.read().as_ref() == Some(&current_key);
+                                                let doc_info = doc_map.get(&current_key);
+        
                                                 rsx! {
                                                     div {
                                                         class: "config-row",
                                                         class: if is_modified { "modified-row" },
                                                         class: if is_error { "error-row" },
                                                         key: "{key}",
-                                                        div { class: "cell-key", "{current_key}" }
+                                                        div { class: "cell-key",
+                                                            span { "{current_key}" }
+                                                            if let Some(ConfigDoc { description, note, example }) = doc_info {
+                                                                span { class: "info-icon-wrapper",
+                                                                    span { class: "info-icon", "ⓘ" }
+                                                                    div { class: "tooltip-content",
+                                                                        div { class: "tooltip-desc", "{description}" }
+                                                                        if !note.is_empty() {
+                                                                            div { class: "tooltip-note",
+                                                                                span { class: "note-label", "Note: " }
+                                                                                span { "{note}" }
+                                                                            }
+                                                                        }
+                                                                        if !example.is_empty() {
+                                                                            div { class: "tooltip-example",
+                                                                                span { class: "example-label", "Example: " }
+                                                                                span { class: "example-value", "{example}" }
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
                                                         div { class: "cell-value",
                                                             if is_editing() {
                                                                 input {
@@ -294,15 +325,15 @@ pub fn Configurations() -> Element {
                                                                         let escaped = current_value.replace('\\', "\\\\").replace('"', "\\\"");
                                                                         let js = format!(
                                                                             r##"
-                                                                                navigator.clipboard.writeText("{}");
-                                                                                const btn = document.getElementById("{}");
-                                                                                if (btn) {{
-                                                                                    const oldHTML = btn.innerHTML;
-                                                                                    btn.innerText = "Copied!";
-                                                                                    btn.classList.add('copy-success');
-                                                                                    setTimeout(() => {{ btn.innerHTML = oldHTML; btn.classList.remove('copy-success'); }}, 2000);
-                                                                                }}
-                                                                                "##,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                navigator.clipboard.writeText("{}");
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                const btn = document.getElementById("{}");
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                if (btn) {{
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    const oldHTML = btn.innerHTML;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    btn.innerText = "Copied!";
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    btn.classList.add('copy-success');
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    setTimeout(() => {{ btn.innerHTML = oldHTML; btn.classList.remove('copy-success'); }}, 2000);
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                }}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                "##,
                                                                             escaped,
                                                                             btn_id,
                                                                         );
@@ -408,7 +439,6 @@ pub fn Configurations() -> Element {
                     }
                 }
             }
-        
         }
     }
 }
@@ -523,7 +553,7 @@ pub async fn set_tedge_configs(
     password: Option<String>, // Optional sudo password
 ) -> Result<(), ServerFnError> {
     for (key, value) in updates {
-        let mut cmd = if let Some(ref pwd) = password {
+        let mut cmd = if let Some(ref _pwd) = password {
             // If password is provided, use 'sudo -S'
             let mut c = Command::new("sudo");
             c.args(["-S", "tedge", "config", "set", &key, &value]);
@@ -568,7 +598,7 @@ pub async fn unset_tedge_config(
     key: String,
     password: Option<String>,
 ) -> Result<(), ServerFnError> {
-    let mut cmd = if let Some(ref pwd) = password {
+    let mut cmd = if let Some(ref _pwd) = password {
         let mut c = Command::new("sudo");
         c.args(["-S", "tedge", "config", "unset", &key]);
         c.stdin(Stdio::piped());
@@ -602,4 +632,72 @@ pub async fn unset_tedge_config(
         ));
     }
     Ok(())
+}
+
+#[derive(Clone, serde::Serialize, serde::Deserialize, PartialEq)]
+pub struct ConfigDoc {
+    pub description: String,
+    pub note: String,
+    pub example: String,
+}
+
+#[server]
+pub async fn get_tedge_config_docs() -> Result<BTreeMap<String, ConfigDoc>, ServerFnError> {
+    let output = tokio::process::Command::new("tedge")
+        .args(["config", "list", "--doc", "--all"])
+        .output()
+        .await
+        .map_err(|e| ServerFnError::new(format!("Failed to run tedge: {e}")))?;
+
+    let mut docs = BTreeMap::new();
+
+    if !output.status.success() {
+        eprintln!("Command failed with status: {}", output.status);
+    } else {
+        let content = String::from_utf8(output.stdout)
+            .map_err(|e| ServerFnError::new(&format!("Output contains invalid UTF-8: {}", e)))?;
+
+        let lines: Vec<&str> = content.lines().collect();
+        let mut i = 0;
+while i < lines.len() {
+            let line = lines[i].trim();
+            if line.is_empty() { i += 1; continue; }
+
+            if let Some((key, desc)) = line.split_once(' ') {
+                let key = key.trim().to_string();
+                let description = desc.trim().to_string();
+                let mut note = String::new();
+                let mut example = String::new();
+
+                // Look ahead for Note: or Example:
+                let mut j = i + 1;
+                while j < lines.len() {
+                    let next_line = lines[j].trim();
+                    if next_line.is_empty() { break; }
+                    
+                    if next_line.starts_with("Note:") {
+                        note = next_line.replace("Note:", "").trim().to_string();
+                        j += 1;
+                    } else if next_line.starts_with("Example:") {
+                        example = next_line.replace("Example:", "").trim().to_string();
+                        j += 1;
+                    } else if next_line.starts_with("Examples:") {
+                        example = next_line.replace("Examples:", "").trim().to_string();
+                        j += 1;
+                    } 
+                    else if next_line.contains('.') { 
+                        // If it looks like a new key, stop searching
+                        break; 
+                    } else {
+                        j += 1;
+                    }
+                }
+                i = j - 1;
+                docs.insert(key, ConfigDoc { description, note, example });
+            }
+            i += 1;
+        }
+    }
+
+    Ok(docs)
 }
