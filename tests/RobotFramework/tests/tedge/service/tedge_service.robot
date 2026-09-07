@@ -37,10 +37,10 @@ Run tedge service for service plugin
 tedge service does not support name and is_available
     ${stderr}=    Execute Command
     ...    tedge service name sleeper    strip=True    exp_exit_code=2    stdout=False    stderr=True
-    Should Contain    ${stderr}    'name' is not a service action
+    Should Contain    ${stderr}    'name' is a reserved key in system.toml
     ${stderr}=    Execute Command
     ...    tedge service is_available sleeper    strip=True    exp_exit_code=2    stdout=False    stderr=True
-    Should Contain    ${stderr}    'is_available' is not a service action
+    Should Contain    ${stderr}    'is_available' is a reserved key in system.toml
 
 tedge service forwards stdout and stderr
     ${stdout}=    Execute Command    tedge service is_active sleeper    strip=True

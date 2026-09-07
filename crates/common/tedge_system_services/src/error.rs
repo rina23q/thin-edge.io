@@ -44,8 +44,7 @@ pub enum SystemServiceError {
     },
 
     #[error(
-        "'{action}' is not a service action: the [init] table uses that key to describe the init \
-    system.\n\
+        "'{action}' is a reserved key in system.toml that describes the init system itself, not a service action.\n\
     Defined actions: {defined}."
     )]
     NotAnAction { action: String, defined: String },

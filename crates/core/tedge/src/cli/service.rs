@@ -255,9 +255,9 @@ mod tests {
     #[tokio::test]
     async fn a_custom_type_runs_its_plugin() {
         let dir = TempTedgeDir::new();
-        let plugin_dir = dir.utf8_path();
+        let plugin_dir = dir.path();
         service_plugin(plugin_dir, "container");
-        let config = TEdgeConfig::load_toml_str_with_root_dir(dir.utf8_path(), "");
+        let config = TEdgeConfig::load_toml_str_with_root_dir(dir.path(), "");
 
         let mut cmd = command("restart", "nodered", "container");
         cmd.plugin_paths = vec![plugin_dir.to_path_buf()];
@@ -268,7 +268,7 @@ mod tests {
     #[tokio::test]
     async fn a_plugin_exiting_with_2_reports_the_action_as_not_supported() {
         let dir = TempTedgeDir::new();
-        let plugin_dir = dir.utf8_path();
+        let plugin_dir = dir.path();
         service_plugin(plugin_dir, "container");
 
         let mut cmd = command("reload", "nodered", "container");
@@ -286,7 +286,7 @@ mod tests {
     #[tokio::test]
     async fn a_failing_plugin_is_reported_with_its_exit_code() {
         let dir = TempTedgeDir::new();
-        let plugin_dir = dir.utf8_path();
+        let plugin_dir = dir.path();
         let plugin = service_plugin(plugin_dir, "container");
 
         let mut cmd = command("stop", "nodered", "container");
@@ -318,7 +318,7 @@ disable = ["/bin/true", "{}"]
 
         let cmd = command("is_active", "nginx", "service");
         let err = cmd
-            .run_init_system_action(config_dir.utf8_path())
+            .run_init_system_action(config_dir.path())
             .await
             .unwrap_err();
 
@@ -332,7 +332,7 @@ disable = ["/bin/true", "{}"]
     async fn the_default_type_runs_the_action_through_the_init_system() {
         let config_dir = TempTedgeDir::new();
         let done = init_system(&config_dir);
-        let config = TEdgeConfig::load_toml_str_with_root_dir(config_dir.utf8_path(), "");
+        let config = TEdgeConfig::load_toml_str_with_root_dir(config_dir.path(), "");
 
         let cmd = command("restart", "collectd", "service");
         cmd.run(&config).await.unwrap();
@@ -346,9 +346,7 @@ disable = ["/bin/true", "{}"]
         let done = init_system(&config_dir);
 
         let cmd = command("reload", "nginx", "service");
-        cmd.run_init_system_action(config_dir.utf8_path())
-            .await
-            .unwrap();
+        cmd.run_init_system_action(config_dir.path()).await.unwrap();
 
         assert!(Utf8PathBuf::from(format!("{done}.reload.nginx")).exists());
     }
@@ -360,7 +358,7 @@ disable = ["/bin/true", "{}"]
 
         let cmd = command("pause", "collectd", "service");
         let err = cmd
-            .run_init_system_action(config_dir.utf8_path())
+            .run_init_system_action(config_dir.path())
             .await
             .unwrap_err();
 
@@ -382,7 +380,7 @@ disable = ["/bin/true", "{}"]
 
         let cmd = command(key, "nginx", "service");
         let err = cmd
-            .run_init_system_action(config_dir.utf8_path())
+            .run_init_system_action(config_dir.path())
             .await
             .unwrap_err();
 
@@ -390,9 +388,9 @@ disable = ["/bin/true", "{}"]
         assert_eq!(
             err.to_string(),
             format!(
-                "'{key}' is not a service action: the [init] table uses that key to describe the \
-                init system.\nDefined actions: disable, enable, is_active, reload, restart, \
-                start, stop."
+                "'{key}' is a reserved key in system.toml that describes the init system \
+                itself, not a service action.\nDefined actions: disable, enable, is_active, \
+                reload, restart, start, stop."
             )
         );
     }
@@ -416,14 +414,11 @@ disable = ["/bin/true", "{}"]
         let dir = TempTedgeDir::new();
         let first = dir.dir("first");
         let second = dir.dir("second");
-        let plugin = service_plugin(first.utf8_path(), "container");
-        service_plugin(second.utf8_path(), "container");
+        let plugin = service_plugin(first.path(), "container");
+        service_plugin(second.path(), "container");
 
         let mut cmd = command("restart", "nodered", "container");
-        cmd.plugin_paths = vec![
-            first.utf8_path().to_path_buf(),
-            second.utf8_path().to_path_buf(),
-        ];
+        cmd.plugin_paths = vec![first.path().to_path_buf(), second.path().to_path_buf()];
 
         assert_eq!(cmd.find_plugin().await.unwrap(), plugin);
     }
@@ -473,7 +468,7 @@ esac
 
     fn init_system(config_dir: &TempTedgeDir) -> Utf8PathBuf {
         // Each action leaves a file named after the action and the service it was run on
-        let done = config_dir.utf8_path().join("done");
+        let done = config_dir.path().join("done");
         config_dir.file("system.toml").with_raw_content(&format!(
             r#"[init]
 name = "test"
