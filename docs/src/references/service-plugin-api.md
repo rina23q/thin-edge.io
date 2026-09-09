@@ -9,7 +9,7 @@ description: Service Plugin API reference
 
 A **service plugin** runs the actions of services with a type other than the default type `service`.
 The service type is the `type` field of the
-[service registration message](./mqtt-api#register-a-service-of-the-main-device).
+[service registration message](../mqtt-api#register-a-service-of-the-main-device).
 
 For example, given a service `my_service` is registered as below:
 ```sh te2mqtt formats=v1
@@ -33,7 +33,7 @@ The service type selects the backend that runs the action.
 
 | Service type          | Backend                                                                            |
 |-----------------------|--------------------------------------------------------------------------------------|
-| `service` (default)   | The init system, as configured in [`system.toml`](./init-system-configuration)  |
+| `service` (default)   | The init system, as configured in [`system.toml`](../init-system-configuration)  |
 | any other type `<t>`  | The service plugin `<plugin-dir>/<t>`                                              |
 
 The plugin directories are the `tedge config` value `service.plugin_paths`,
@@ -118,7 +118,7 @@ A rejected argument fails the command without any backend being invoked.
 * The plugin can print anything on stdout and stderr.
   When the caller is `tedge-agent`, both end up in the operation log of the command.
   The only exception is the `:::begin-tedge:::` and `:::end-tedge:::` markers, which
-  [update the state of a command](./agent/operation-workflow#next-step-determined-by-script-output):
+  [update the state of a command](../agent/operation-workflow#next-step-determined-by-script-output):
   the runner drops the lines holding them,
   so that the output of a plugin is never read as a state update.
 

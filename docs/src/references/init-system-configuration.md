@@ -60,7 +60,7 @@ will be interpreted as
 Every key is an **action** of this init system, except `name` and `is_available`,
 which describe the init system rather than a service.
 An action can be run with
-[`tedge service <action> <service-name>`](./cli/tedge-service).
+[`tedge service <action> <service-name>`](../cli/tedge-service).
 
 ## Custom actions
 
