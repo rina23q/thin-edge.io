@@ -5,7 +5,7 @@ use tedge_api::mqtt_topics::DeviceTopicId;
 use tedge_api::mqtt_topics::MqttSchema;
 use tedge_api::mqtt_topics::Service;
 use tedge_api::mqtt_topics::ServiceTopicId;
-use tedge_api::service_command::ServiceActions;
+use tedge_api::service_command::ActionCapabilities;
 use tedge_api::service_command::TEDGE_SERVICE_ACTIONS;
 use tedge_config::TEdgeConfig;
 use tedge_config_ext::ConfigPublisherBuilder;
@@ -46,7 +46,7 @@ pub async fn start_basic_actors(
         &mqtt_schema,
         &config.service,
     )
-    .with_service_actions(mapper_actions(supervisor_mode));
+    .with_action_capabilities(mapper_actions(supervisor_mode));
 
     let config_publisher = ConfigPublisherBuilder::new(
         mqtt_schema,
@@ -63,10 +63,10 @@ pub async fn start_basic_actors(
 }
 
 /// A mapper in a single process has no init unit of its own, so no actions using init system should be declared.
-fn mapper_actions(supervisor_mode: SupervisorMode) -> ServiceActions {
+fn mapper_actions(supervisor_mode: SupervisorMode) -> ActionCapabilities {
     match supervisor_mode {
-        SupervisorMode::Standalone => ServiceActions::declaring(TEDGE_SERVICE_ACTIONS),
-        SupervisorMode::MultiUnit => ServiceActions::withdrawing(TEDGE_SERVICE_ACTIONS),
+        SupervisorMode::Standalone => ActionCapabilities::declaring(TEDGE_SERVICE_ACTIONS),
+        SupervisorMode::MultiUnit => ActionCapabilities::clearing(TEDGE_SERVICE_ACTIONS),
     }
 }
 

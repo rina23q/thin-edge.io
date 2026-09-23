@@ -23,7 +23,7 @@ use tedge_api::mqtt_topics::MqttSchema;
 use tedge_api::mqtt_topics::OperationType;
 use tedge_api::mqtt_topics::Service;
 use tedge_api::mqtt_topics::ServiceTopicId;
-use tedge_api::service_command::ServiceActions;
+use tedge_api::service_command::ActionCapabilities;
 use tedge_config::tedge_toml::TEdgeConfigReaderService;
 use tedge_mqtt_ext::MqttConfig;
 use tedge_mqtt_ext::MqttMessage;
@@ -125,7 +125,7 @@ impl HealthMonitorBuilder {
         builder
     }
 
-    pub fn with_service_actions(mut self, actions: ServiceActions) -> Self {
+    pub fn with_action_capabilities(mut self, capabilities: ActionCapabilities) -> Self {
         let capability = |action: &&str, payload: &'static str| {
             let topic = self
                 .mqtt_schema
@@ -135,13 +135,13 @@ impl HealthMonitorBuilder {
                 .with_qos(QoS::AtLeastOnce)
         };
 
-        self.action_capabilities = actions
+        self.action_capabilities = capabilities
             .declared
             .iter()
             .map(|action| capability(action, "{}"))
             .chain(
-                actions
-                    .withdrawn
+                capabilities
+                    .cleared
                     .iter()
                     .map(|action| capability(action, "")),
             )

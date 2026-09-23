@@ -13,7 +13,7 @@ use tedge_actors::SimpleMessageBoxBuilder;
 use tedge_api::mqtt_topics::EntityTopicId;
 use tedge_api::mqtt_topics::MqttSchema;
 use tedge_api::mqtt_topics::Service;
-use tedge_api::service_command::ServiceActions;
+use tedge_api::service_command::ActionCapabilities;
 use tedge_config::TEdgeConfig;
 use tedge_mqtt_ext::MqttConfig;
 use tedge_mqtt_ext::MqttMessage;
@@ -28,7 +28,7 @@ async fn send_health_check_message_to_generic_topic() -> Result<(), anyhow::Erro
     let mut mqtt_message_box = spawn_a_health_check_actor(
         "health-check-service-1",
         &mut mqtt_config,
-        ServiceActions::NONE,
+        ActionCapabilities::NONE,
     )
     .await;
     // skip registration message
@@ -52,7 +52,7 @@ async fn send_health_check_message_to_service_specific_topic() -> Result<(), any
     let mut mqtt_message_box = spawn_a_health_check_actor(
         "health-check-service-2",
         &mut mqtt_config,
-        ServiceActions::NONE,
+        ActionCapabilities::NONE,
     )
     .await;
 
@@ -74,7 +74,7 @@ async fn send_health_check_message_to_service_specific_topic() -> Result<(), any
 async fn health_check_set_init_and_last_will_message() -> Result<(), anyhow::Error> {
     let mut mqtt_config = MqttConfig::default();
     let mut mqtt_box =
-        spawn_a_health_check_actor("test", &mut mqtt_config, ServiceActions::NONE).await;
+        spawn_a_health_check_actor("test", &mut mqtt_config, ActionCapabilities::NONE).await;
 
     let expected_last_will = MqttMessage::new(
         &Topic::new_unchecked("te/device/main/service/test/status/health"),
@@ -100,7 +100,7 @@ async fn a_service_declaring_actions_publishes_their_capability() -> Result<(), 
     let mut mqtt_box = spawn_a_health_check_actor(
         "test",
         &mut mqtt_config,
-        ServiceActions::declaring(&["restart", "enable"]),
+        ActionCapabilities::declaring(&["restart", "enable"]),
     )
     .await;
 
@@ -126,13 +126,13 @@ async fn a_service_declaring_actions_publishes_their_capability() -> Result<(), 
 }
 
 #[tokio::test]
-async fn a_service_withdrawing_actions_clears_their_capability() -> Result<(), anyhow::Error> {
+async fn a_service_clearing_actions_publishes_an_empty_capability() -> Result<(), anyhow::Error> {
     let mut mqtt_config = MqttConfig::default();
-    let actions = ServiceActions {
+    let capabilities = ActionCapabilities {
         declared: &["restart"],
-        withdrawn: &["start", "stop"],
+        cleared: &["start", "stop"],
     };
-    let mut mqtt_box = spawn_a_health_check_actor("test", &mut mqtt_config, actions).await;
+    let mut mqtt_box = spawn_a_health_check_actor("test", &mut mqtt_config, capabilities).await;
 
     // skip the registration message
     mqtt_box.skip(1).await;
@@ -163,7 +163,7 @@ async fn a_service_withdrawing_actions_clears_their_capability() -> Result<(), a
 async fn spawn_a_health_check_actor(
     service_to_be_monitored: &str,
     mqtt_config: &mut MqttConfig,
-    actions: ServiceActions,
+    capabilities: ActionCapabilities,
 ) -> SimpleMessageBox<MqttMessage, MqttMessage> {
     let mut health_mqtt_builder = MqttActorBuilder::new(mqtt_config);
 
@@ -182,7 +182,7 @@ async fn spawn_a_health_check_actor(
         &mqtt_schema,
         &config.service,
     )
-    .with_service_actions(actions);
+    .with_action_capabilities(capabilities);
 
     let actor = health_actor.build();
     tokio::spawn(async move { actor.run().await });

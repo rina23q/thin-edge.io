@@ -43,7 +43,7 @@ use tedge_api::mqtt_topics::OperationType;
 use tedge_api::mqtt_topics::Service;
 use tedge_api::mqtt_topics::ServiceTopicId;
 use tedge_api::path::DataDir;
-use tedge_api::service_command::ServiceActions;
+use tedge_api::service_command::ActionCapabilities;
 use tedge_api::service_command::TEDGE_SERVICE_ACTIONS;
 use tedge_api::EntityStore;
 use tedge_config::tedge_toml::TEdgeConfigReaderService;
@@ -356,7 +356,7 @@ impl Agent {
             &mqtt_schema,
             &self.config.service,
         )
-        .with_service_actions(ServiceActions::declaring(TEDGE_SERVICE_ACTIONS));
+        .with_action_capabilities(ActionCapabilities::declaring(TEDGE_SERVICE_ACTIONS));
 
         // Instantiate config manager actor if either config_snapshot or config_update operation is enabled
         let config_actor_builder: Option<ConfigManagerBuilder> =
