@@ -95,7 +95,7 @@ async fn health_check_set_init_and_last_will_message() -> Result<(), anyhow::Err
 }
 
 #[tokio::test]
-async fn a_service_declaring_actions_publishes_their_capability() -> Result<(), anyhow::Error> {
+async fn a_service_declaring_actions_publishes_their_capability() {
     let mut mqtt_config = MqttConfig::default();
     let mut mqtt_box = spawn_a_health_check_actor(
         "test",
@@ -121,12 +121,10 @@ async fn a_service_declaring_actions_publishes_their_capability() -> Result<(), 
             .with_retain(),
         ])
         .await;
-
-    Ok(())
 }
 
 #[tokio::test]
-async fn a_service_clearing_actions_publishes_an_empty_capability() -> Result<(), anyhow::Error> {
+async fn a_service_clearing_actions_publishes_an_empty_capability() {
     let mut mqtt_config = MqttConfig::default();
     let capabilities = ActionCapabilities {
         declared: &["restart"],
@@ -156,8 +154,6 @@ async fn a_service_clearing_actions_publishes_an_empty_capability() -> Result<()
             .with_retain(),
         ])
         .await;
-
-    Ok(())
 }
 
 async fn spawn_a_health_check_actor(
