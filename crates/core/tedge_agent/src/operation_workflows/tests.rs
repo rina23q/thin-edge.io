@@ -1082,7 +1082,7 @@ action = "cleanup"
 }
 
 #[tokio::test]
-async fn a_command_for_a_service_of_this_device_moves_to_executing() -> Result<(), DynError> {
+async fn an_init_command_for_a_registered_service_of_this_device_moves_to_executing() {
     let TestHandler {
         mut mqtt_box,
         mut actor_handle,
@@ -1100,14 +1100,16 @@ async fn a_command_for_a_service_of_this_device_moves_to_executing() -> Result<(
         )
         .with_parent("device/main//".parse().unwrap())]),
     )
-    .await?;
+    .await
+    .unwrap();
 
     mqtt_box
         .send(MqttMessage::new(
             &Topic::new_unchecked("te/device/main/service/collectd/cmd/restart/1"),
             r#"{"status":"init","serviceName":"collectd","serviceType":"service"}"#,
         ))
-        .await?;
+        .await
+        .unwrap();
 
     recv_command_state_with_status(
         &mut mqtt_box,
@@ -1116,8 +1118,6 @@ async fn a_command_for_a_service_of_this_device_moves_to_executing() -> Result<(
         "executing",
     )
     .await;
-
-    Ok(())
 }
 
 #[test_case(
@@ -1143,7 +1143,7 @@ async fn a_command_for_a_service_of_this_device_moves_to_executing() -> Result<(
 async fn a_command_is_ignored_if_its_target_is_not_registered_as_a_service_of_this_device(
     entity_store: FakeEntityStore,
     command_topic: &str,
-) -> Result<(), DynError> {
+) {
     let TestHandler {
         mut mqtt_box,
         mut actor_handle,
@@ -1157,7 +1157,8 @@ async fn a_command_is_ignored_if_its_target_is_not_registered_as_a_service_of_th
         )],
         entity_store,
     )
-    .await?;
+    .await
+    .unwrap();
 
     // Consume the builtin restart capability of the device, published on start
     assert_received_contains_str(&mut mqtt_box, [("te/device/main///cmd/restart", "{}")]).await;
@@ -1167,7 +1168,8 @@ async fn a_command_is_ignored_if_its_target_is_not_registered_as_a_service_of_th
             &Topic::new_unchecked(command_topic),
             r#"{"status":"init"}"#,
         ))
-        .await?;
+        .await
+        .unwrap();
 
     assert_no_message_or_actor_exit(
         &mut mqtt_box,
@@ -1175,12 +1177,10 @@ async fn a_command_is_ignored_if_its_target_is_not_registered_as_a_service_of_th
         "the command is not confirmed to be a service of this device",
     )
     .await;
-
-    Ok(())
 }
 
 #[tokio::test]
-async fn a_service_workflow_declares_no_capability_of_the_device() -> Result<(), DynError> {
+async fn a_service_workflow_declares_no_capability_of_the_device() {
     let TestHandler {
         mut mqtt_box,
         mut actor_handle,
@@ -1194,18 +1194,17 @@ async fn a_service_workflow_declares_no_capability_of_the_device() -> Result<(),
         )],
         FakeEntityStore::Entities(vec![]),
     )
-    .await?;
+    .await
+    .unwrap();
 
     // The builtin restart of the device is the only capability published on start
     assert_received_contains_str(&mut mqtt_box, [("te/device/main///cmd/restart", "{}")]).await;
     assert_no_message_or_actor_exit(&mut mqtt_box, &mut actor_handle, "the agent has started")
         .await;
-
-    Ok(())
 }
 
 #[tokio::test]
-async fn restarting_the_agent_restarts_the_process_once() -> Result<(), DynError> {
+async fn restarting_the_agent_restarts_the_process_once() {
     let TestHandler {
         tmp_dir,
         mut mqtt_box,
@@ -1224,7 +1223,8 @@ async fn restarting_the_agent_restarts_the_process_once() -> Result<(), DynError
         )
         .with_parent("device/main//".parse().unwrap())]),
     )
-    .await?;
+    .await
+    .unwrap();
 
     mqtt_box
         .send(MqttMessage::new(
@@ -1232,7 +1232,8 @@ async fn restarting_the_agent_restarts_the_process_once() -> Result<(), DynError
             json!({"status": "init", "serviceName": "tedge-agent", "serviceType": "service"})
                 .to_string(),
         ))
-        .await?;
+        .await
+        .unwrap();
 
     // The state awaiting the restart is persisted before the process stops
     recv_command_state_with_status(
@@ -1265,7 +1266,8 @@ async fn restarting_the_agent_restarts_the_process_once() -> Result<(), DynError
         )
         .with_parent("device/main//".parse().unwrap())]),
     )
-    .await?;
+    .await
+    .unwrap();
 
     recv_command_state_with_status(
         &mut mqtt_box,
@@ -1274,8 +1276,6 @@ async fn restarting_the_agent_restarts_the_process_once() -> Result<(), DynError
         "successful",
     )
     .await;
-
-    Ok(())
 }
 
 struct TestHandler {
