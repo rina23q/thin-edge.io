@@ -1,11 +1,15 @@
-//! A client of the entity store REST API
+//! A client of the entity store
 //!
-//! The store runs on the main device only, so a child device's agent reaches it over the network.
+//! The store runs on the main device only:
+//! the agent running there owns it, and the agent of a child device reaches it over the network.
 
+use crate::entity_manager::server::EntityStoreRequest;
+use crate::entity_manager::server::EntityStoreResponse;
 use hyper::StatusCode;
 use std::time::Duration;
 use tedge_actors::ChannelError;
 use tedge_actors::ClientMessageBox;
+use tedge_actors::Service;
 use tedge_api::entity::EntityMetadata;
 use tedge_api::file_transfer_url::EntityStoreUrls;
 use tedge_api::mqtt_topics::EntityTopicId;
@@ -29,45 +33,78 @@ pub enum EntityStoreClientError {
     #[error("Unexpected status {status} returned by the entity store for {url}")]
     UnexpectedStatus { url: String, status: StatusCode },
 
-    #[error("No response from the entity store for {url} within {timeout:?}")]
-    Timeout { url: String, timeout: Duration },
+    #[error("Unexpected response returned by the entity store for {topic_id}")]
+    UnexpectedResponse { topic_id: EntityTopicId },
+
+    #[error("No response from the entity store for {topic_id} within {timeout:?}")]
+    Timeout {
+        topic_id: EntityTopicId,
+        timeout: Duration,
+    },
 }
 
-pub struct EntityStoreClient {
-    urls: EntityStoreUrls,
-    http: ClientMessageBox<HttpRequest, HttpResult>,
+pub enum EntityStoreClient {
+    /// The store of the agent running this client
+    Local(ClientMessageBox<EntityStoreRequest, EntityStoreResponse>),
+
+    /// The store of the main device, reached over its REST API
+    Remote {
+        urls: EntityStoreUrls,
+        http: ClientMessageBox<HttpRequest, HttpResult>,
+    },
 }
 
 impl EntityStoreClient {
-    pub fn new(urls: EntityStoreUrls, http: ClientMessageBox<HttpRequest, HttpResult>) -> Self {
-        Self { urls, http }
+    pub fn local(store: &mut impl Service<EntityStoreRequest, EntityStoreResponse>) -> Self {
+        EntityStoreClient::Local(ClientMessageBox::new(store))
+    }
+
+    pub fn remote(urls: EntityStoreUrls, http: &mut impl Service<HttpRequest, HttpResult>) -> Self {
+        EntityStoreClient::Remote {
+            urls,
+            http: ClientMessageBox::new(http),
+        }
     }
 
     pub async fn get(
         &mut self,
         topic_id: &EntityTopicId,
     ) -> Result<Option<EntityMetadata>, EntityStoreClientError> {
-        let url = self.urls.for_entity(topic_id);
-        match tokio::time::timeout(LOOKUP_TIMEOUT, self.fetch(&url)).await {
+        match tokio::time::timeout(LOOKUP_TIMEOUT, self.fetch(topic_id)).await {
             Ok(entity) => entity,
             Err(_elapsed) => Err(EntityStoreClientError::Timeout {
-                url,
+                topic_id: topic_id.clone(),
                 timeout: LOOKUP_TIMEOUT,
             }),
         }
     }
 
-    async fn fetch(&mut self, url: &str) -> Result<Option<EntityMetadata>, EntityStoreClientError> {
-        let request = HttpRequestBuilder::get(url).build()?;
-        let response = self.http.await_response(request).await??;
+    async fn fetch(
+        &mut self,
+        topic_id: &EntityTopicId,
+    ) -> Result<Option<EntityMetadata>, EntityStoreClientError> {
+        match self {
+            EntityStoreClient::Local(store) => {
+                let request = EntityStoreRequest::Get(topic_id.clone());
+                match store.await_response(request).await? {
+                    EntityStoreResponse::Get(entity) => Ok(entity),
+                    _ => Err(EntityStoreClientError::UnexpectedResponse {
+                        topic_id: topic_id.clone(),
+                    }),
+                }
+            }
 
-        match response.status() {
-            StatusCode::NOT_FOUND => Ok(None),
-            status if status.is_success() => Ok(Some(response.json().await?)),
-            status => Err(EntityStoreClientError::UnexpectedStatus {
-                url: url.to_string(),
-                status,
-            }),
+            EntityStoreClient::Remote { urls, http } => {
+                let url = urls.for_entity(topic_id);
+                let request = HttpRequestBuilder::get(&url).build()?;
+                let response = http.await_response(request).await??;
+
+                match response.status() {
+                    StatusCode::NOT_FOUND => Ok(None),
+                    status if status.is_success() => Ok(Some(response.json().await?)),
+                    status => Err(EntityStoreClientError::UnexpectedStatus { url, status }),
+                }
+            }
         }
     }
 }
@@ -75,6 +112,7 @@ impl EntityStoreClient {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serde_json::json;
     use tedge_actors::test_helpers::FakeServerBox;
     use tedge_actors::Builder;
     use tedge_actors::MessageReceiver;
@@ -84,8 +122,8 @@ mod tests {
     use tedge_http_ext::test_helpers::HttpResponseBuilder;
 
     #[tokio::test]
-    async fn the_registration_data_is_returned_on_success() {
-        let (mut client, mut http) = spawn_client();
+    async fn a_remote_store_returns_the_registration_data() {
+        let (mut client, mut http) = spawn_remote_client();
         let topic_id: EntityTopicId = "device/main/service/collectd".parse().unwrap();
         let expected = EntityMetadata::new(topic_id.clone(), EntityType::Service)
             .with_parent(EntityTopicId::default_main_device());
@@ -106,8 +144,8 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn an_unknown_entity_is_returned_as_none() {
-        let (mut client, mut http) = spawn_client();
+    async fn a_remote_store_returns_none_for_an_unknown_entity() {
+        let (mut client, mut http) = spawn_remote_client();
         let topic_id: EntityTopicId = "device/main/service/unknown".parse().unwrap();
 
         let lookup = tokio::spawn(async move { client.get(&topic_id).await });
@@ -120,9 +158,77 @@ mod tests {
         assert_eq!(lookup.await.unwrap().unwrap(), None);
     }
 
+    #[tokio::test]
+    async fn any_other_status_of_a_remote_store_is_an_error() {
+        let (mut client, mut http) = spawn_remote_client();
+        let topic_id: EntityTopicId = "device/main/service/collectd".parse().unwrap();
+
+        let lookup = tokio::spawn(async move { client.get(&topic_id).await });
+
+        http.recv().await.unwrap();
+        http.send(HttpResponseBuilder::new().status(500).build())
+            .await
+            .unwrap();
+
+        assert!(lookup.await.unwrap().is_err());
+    }
+
+    #[tokio::test]
+    async fn a_local_store_returns_the_registration_data() {
+        let (mut client, mut store) = spawn_local_client();
+        let topic_id: EntityTopicId = "device/main/service/collectd".parse().unwrap();
+        let expected = EntityMetadata::new(topic_id.clone(), EntityType::Service)
+            .with_parent(EntityTopicId::default_main_device());
+
+        let lookup = tokio::spawn(async move { client.get(&topic_id).await });
+
+        store.recv().await.unwrap();
+        store
+            .send(EntityStoreResponse::Get(Some(expected.clone())))
+            .await
+            .unwrap();
+
+        assert_eq!(lookup.await.unwrap().unwrap(), Some(expected));
+    }
+
+    #[tokio::test]
+    async fn a_local_store_returns_none_for_an_unknown_entity() {
+        let (mut client, mut store) = spawn_local_client();
+        let topic_id: EntityTopicId = "device/main/service/unknown".parse().unwrap();
+
+        let lookup = tokio::spawn(async move { client.get(&topic_id).await });
+
+        store.recv().await.unwrap();
+        store.send(EntityStoreResponse::Get(None)).await.unwrap();
+
+        assert_eq!(lookup.await.unwrap().unwrap(), None);
+    }
+
+    #[tokio::test]
+    async fn a_local_store_returns_the_twin_data() {
+        let (mut client, mut store) = spawn_local_client();
+        let topic_id: EntityTopicId = "device/main/service/nodered".parse().unwrap();
+        let mut expected = EntityMetadata::new(topic_id.clone(), EntityType::Service)
+            .with_parent(EntityTopicId::default_main_device());
+        expected
+            .twin_data
+            .insert("type".to_string(), json!("systemd"));
+
+        let lookup = tokio::spawn(async move { client.get(&topic_id).await });
+
+        store.recv().await.unwrap();
+        store
+            .send(EntityStoreResponse::Get(Some(expected)))
+            .await
+            .unwrap();
+
+        let entity = lookup.await.unwrap().unwrap().unwrap();
+        assert_eq!(entity.twin_data.get("type").unwrap(), "systemd");
+    }
+
     #[tokio::test(start_paused = true)]
     async fn a_store_that_never_answers_times_out() {
-        let (mut client, mut http) = spawn_client();
+        let (mut client, mut http) = spawn_remote_client();
         let topic_id: EntityTopicId = "device/main/service/collectd".parse().unwrap();
 
         let lookup = tokio::spawn(async move { client.get(&topic_id).await });
@@ -136,27 +242,21 @@ mod tests {
         ));
     }
 
-    #[tokio::test]
-    async fn any_other_status_is_an_error() {
-        let (mut client, mut http) = spawn_client();
-        let topic_id: EntityTopicId = "device/main/service/collectd".parse().unwrap();
-
-        let lookup = tokio::spawn(async move { client.get(&topic_id).await });
-
-        http.recv().await.unwrap();
-        http.send(HttpResponseBuilder::new().status(500).build())
-            .await
-            .unwrap();
-
-        assert!(lookup.await.unwrap().is_err());
-    }
-
-    fn spawn_client() -> (EntityStoreClient, FakeServerBox<HttpRequest, HttpResult>) {
+    fn spawn_remote_client() -> (EntityStoreClient, FakeServerBox<HttpRequest, HttpResult>) {
         let mut http = FakeServerBox::builder();
-        let client = EntityStoreClient::new(
+        let client = EntityStoreClient::remote(
             EntityStoreUrls::new("127.0.0.1:8000".into(), Protocol::Http),
-            ClientMessageBox::new(&mut http),
+            &mut http,
         );
         (client, http.build())
+    }
+
+    fn spawn_local_client() -> (
+        EntityStoreClient,
+        FakeServerBox<EntityStoreRequest, EntityStoreResponse>,
+    ) {
+        let mut store = FakeServerBox::builder();
+        let client = EntityStoreClient::local(&mut store);
+        (client, store.build())
     }
 }

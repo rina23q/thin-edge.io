@@ -11,4 +11,5 @@ mod tests;
 
 pub use builder::WorkflowActorBuilder;
 pub use config::OperationConfig;
+pub use entity_store_client::EntityStoreClient;
 pub use shipped_workflows::install_service_workflows;

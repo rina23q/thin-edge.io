@@ -4,6 +4,7 @@ use crate::operation_workflows::builder::UploaderRequest;
 use crate::operation_workflows::builder::UploaderResult;
 use crate::operation_workflows::builder::WorkflowActorBuilder;
 use crate::operation_workflows::config::OperationConfig;
+use crate::operation_workflows::entity_store_client::EntityStoreClient;
 use crate::software_manager::actor::SoftwareCommand;
 use crate::Capabilities;
 use serde_json::json;
@@ -1402,8 +1403,11 @@ async fn spawn_workflow_actor(
         operations_dir: config_root.dir("operations").unwrap(),
         tmp_dir: TedgePaths::from_root_with_defaults(tmp_path.join(tmp_path), "", ""),
         capabilities: Capabilities::default(),
-        entity_store_urls: EntityStoreUrls::new("127.0.0.1:8000".into(), Protocol::Http),
     };
+    let entity_store_client = EntityStoreClient::remote(
+        EntityStoreUrls::new("127.0.0.1:8000".into(), Protocol::Http),
+        &mut http_builder,
+    );
     let mut workflow_actor_builder = WorkflowActorBuilder::new(
         config,
         &mut mqtt_builder,
@@ -1411,7 +1415,7 @@ async fn spawn_workflow_actor(
         &mut inotify_builder,
         &mut downloade_builder,
         &mut uploader_builder,
-        &mut http_builder,
+        entity_store_client,
     );
     workflow_actor_builder.register_builtin_operation(&mut restart_builder);
     workflow_actor_builder.register_builtin_operation(&mut software_builder);

@@ -43,8 +43,6 @@ use tedge_api::workflow::SyncOnCommand;
 use tedge_downloader_ext::DownloadRequest;
 use tedge_downloader_ext::DownloadResult;
 use tedge_file_system_ext::FsWatchEvent;
-use tedge_http_ext::HttpRequest;
-use tedge_http_ext::HttpResult;
 use tedge_mqtt_ext::MqttMessage;
 use tedge_mqtt_ext::TopicFilter;
 use tedge_script_ext::Execute;
@@ -83,7 +81,7 @@ impl WorkflowActorBuilder {
         fs_notify: &mut impl MessageSource<FsWatchEvent, PathBuf>,
         downloader: &mut impl Service<DownloaderRequest, DownloaderResult>,
         uploader: &mut impl Service<UploaderRequest, UploaderResult>,
-        http: &mut impl Service<HttpRequest, HttpResult>,
+        entity_store: EntityStoreClient,
     ) -> Self {
         let (input_sender, input_receiver) = mpsc::unbounded();
         let (signal_sender, signal_receiver) = mpsc::channel(10);
@@ -111,11 +109,6 @@ impl WorkflowActorBuilder {
 
         let downloader = ClientMessageBox::new(downloader);
         let uploader = ClientMessageBox::new(uploader);
-
-        let entity_store = EntityStoreClient::new(
-            config.entity_store_urls.clone(),
-            ClientMessageBox::new(http),
-        );
 
         fs_notify.connect_sink(config.operations_dir.path().into(), &input_sender);
 

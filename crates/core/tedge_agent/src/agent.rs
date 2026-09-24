@@ -6,6 +6,7 @@ use crate::entity_manager::server::EntityStoreServerConfig;
 use crate::http_server::actor::HttpServerBuilder;
 use crate::http_server::actor::HttpServerConfig;
 use crate::operation_workflows::install_service_workflows;
+use crate::operation_workflows::EntityStoreClient;
 use crate::operation_workflows::OperationConfig;
 use crate::operation_workflows::WorkflowActorBuilder;
 use crate::restart_manager::builder::RestartManagerBuilder;
@@ -35,6 +36,7 @@ use tedge_actors::Sequential;
 use tedge_actors::ServerActorBuilder;
 use tedge_actors::ServerConfig;
 use tedge_api::entity_store::EntityRegistrationMessage;
+use tedge_api::file_transfer_url::EntityStoreUrls;
 use tedge_api::file_transfer_url::FileTransferUrls;
 use tedge_api::mqtt_topics::DeviceTopicId;
 use tedge_api::mqtt_topics::EntityTopicId;
@@ -88,6 +90,7 @@ pub(crate) struct AgentConfig {
     pub service_topic_id: ServiceTopicId,
     pub mqtt_topic_root: Arc<str>,
     pub file_transfer_urls: FileTransferUrls,
+    pub entity_store_urls: EntityStoreUrls,
     pub http_client_tls_config: rustls::ClientConfig,
     pub service: TEdgeConfigReaderService,
     pub identity: Option<Identity>,
@@ -143,6 +146,7 @@ impl AgentConfig {
             .with_session_name(mqtt_session_name);
 
         let file_transfer_urls = tedge_config.http.file_transfer_urls();
+        let entity_store_urls = tedge_config.http.entity_store_urls();
         let http_client_tls_config = tedge_config.http.client_tls_config()?;
 
         // HTTP config
@@ -225,6 +229,7 @@ impl AgentConfig {
             mqtt_device_topic_id,
             service_topic_id,
             file_transfer_urls,
+            entity_store_urls,
             http_client_tls_config,
             identity,
             cloud_root_certs,
@@ -305,8 +310,65 @@ impl Agent {
         let mut uploader_actor_builder =
             UploaderActor::new(self.config.identity, self.config.cloud_root_certs).builder();
 
-        // HTTP client actor, used by the workflow actor to query the entity store
+        // HTTP client actor, used by a child device's agent to query the entity store of the main device
         let mut http_actor = HttpActor::new(self.config.http_client_tls_config).builder();
+
+        let device_topic_id = self.config.mqtt_device_topic_id.clone();
+        let mqtt_schema = MqttSchema::with_root(self.config.mqtt_topic_root.to_string());
+
+        // TODO: replace with a call to entity store when we stop assuming default MQTT schema
+        let is_main_device = device_topic_id == EntityTopicId::default_main_device();
+        let entity_store = if is_main_device {
+            info!("Running as a main device, starting File Transfer Service");
+
+            let state_dir = agent_state_dir(&self.config.state_dir, &self.config.config_dir);
+            let state_dir = state_dir.path();
+            let clean_start = self.config.entity_store_clean_start;
+            let telemetry_cache_size = 0; // Agent need not cache any data messages, the mapper would
+
+            let main_device = EntityRegistrationMessage::main_device(None);
+            let entity_store = EntityStore::with_main_device(
+                mqtt_schema.clone(),
+                main_device,
+                telemetry_cache_size,
+                state_dir,
+                clean_start,
+            )?;
+            let entity_store_server_config =
+                EntityStoreServerConfig::new(mqtt_schema.clone(), self.config.entity_auto_register);
+            let entity_store_server = EntityStoreServer::new(
+                entity_store_server_config,
+                entity_store,
+                &mut mqtt_actor_builder,
+            );
+            let mut entity_store_actor_builder =
+                ServerActorBuilder::new(entity_store_server, &ServerConfig::default(), Sequential);
+            mqtt_actor_builder.connect_mapped_sink(
+                entity_manager::server::subscriptions(&mqtt_schema),
+                &entity_store_actor_builder,
+                |message| {
+                    Some(RequestEnvelope {
+                        request: EntityStoreRequest::MqttMessage(message),
+                        reply_to: Box::new(NullSender),
+                    })
+                },
+            );
+
+            let entity_store = EntityStoreClient::local(&mut entity_store_actor_builder);
+
+            let file_transfer_server_builder = HttpServerBuilder::try_bind(
+                self.config.http_config,
+                &mut entity_store_actor_builder,
+            )
+            .await?;
+
+            runtime.spawn(file_transfer_server_builder).await?;
+            runtime.spawn(entity_store_actor_builder).await?;
+            entity_store
+        } else {
+            info!("Running as a child device: File Transfer Service disabled");
+            EntityStoreClient::remote(self.config.entity_store_urls, &mut http_actor)
+        };
 
         // Software update actor
         let mut software_update_builder = SoftwareManagerBuilder::new(self.config.sw_update_config);
@@ -319,20 +381,18 @@ impl Agent {
             &mut fs_watch_actor_builder,
             &mut downloader_actor_builder,
             &mut uploader_actor_builder,
-            &mut http_actor,
+            entity_store,
         );
         workflow_actor_builder.register_builtin_operation(&mut restart_actor_builder);
         workflow_actor_builder.register_builtin_operation(&mut software_update_builder);
 
         // Health actor
         // TODO: take a user-configurable service topic id
-        let device_topic_id = self.config.mqtt_device_topic_id.clone();
         let service_topic_id = self.config.service_topic_id.clone();
         let service = Service {
             service_topic_id: service_topic_id.clone(),
             device_topic_id: DeviceTopicId::new(device_topic_id.clone()),
         };
-        let mqtt_schema = MqttSchema::with_root(self.config.mqtt_topic_root.to_string());
 
         let twin_manager_config = TwinManagerConfig::new(
             self.config.config_dir.root().to_path_buf(),
@@ -425,56 +485,6 @@ impl Agent {
         } else {
             None
         };
-
-        // TODO: replace with a call to entity store when we stop assuming default MQTT schema
-        let is_main_device = device_topic_id == EntityTopicId::default_main_device();
-        if is_main_device {
-            info!("Running as a main device, starting File Transfer Service");
-
-            let state_dir = agent_state_dir(&self.config.state_dir, &self.config.config_dir);
-            let state_dir = state_dir.path();
-            let clean_start = self.config.entity_store_clean_start;
-            let telemetry_cache_size = 0; // Agent need not cache any data messages, the mapper would
-
-            let main_device = EntityRegistrationMessage::main_device(None);
-            let entity_store = EntityStore::with_main_device(
-                mqtt_schema.clone(),
-                main_device,
-                telemetry_cache_size,
-                state_dir,
-                clean_start,
-            )?;
-            let entity_store_server_config =
-                EntityStoreServerConfig::new(mqtt_schema.clone(), self.config.entity_auto_register);
-            let entity_store_server = EntityStoreServer::new(
-                entity_store_server_config,
-                entity_store,
-                &mut mqtt_actor_builder,
-            );
-            let mut entity_store_actor_builder =
-                ServerActorBuilder::new(entity_store_server, &ServerConfig::default(), Sequential);
-            mqtt_actor_builder.connect_mapped_sink(
-                entity_manager::server::subscriptions(&mqtt_schema),
-                &entity_store_actor_builder,
-                |message| {
-                    Some(RequestEnvelope {
-                        request: EntityStoreRequest::MqttMessage(message),
-                        reply_to: Box::new(NullSender),
-                    })
-                },
-            );
-
-            let file_transfer_server_builder = HttpServerBuilder::try_bind(
-                self.config.http_config,
-                &mut entity_store_actor_builder,
-            )
-            .await?;
-
-            runtime.spawn(file_transfer_server_builder).await?;
-            runtime.spawn(entity_store_actor_builder).await?;
-        } else {
-            info!("Running as a child device: File Transfer Service disabled");
-        }
 
         // Spawn all
         runtime.spawn(mqtt_actor_builder).await?;
