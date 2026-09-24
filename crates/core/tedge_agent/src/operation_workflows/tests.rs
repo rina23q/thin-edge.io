@@ -1205,6 +1205,45 @@ async fn a_service_workflow_declares_no_capability_of_the_device() {
 }
 
 #[tokio::test]
+async fn a_sub_command_of_a_service_command_is_addressed_to_the_same_service() {
+    let TestHandler {
+        mut mqtt_box,
+        mut actor_handle,
+        ..
+    } = spawn_workflow_actor(
+        Arc::new(TempTedgeDir::new()),
+        "device/main//",
+        vec![(
+            "service-restart.toml".to_string(),
+            SERVICE_RESTART_TRIGGERING_A_SUB_COMMAND.to_string(),
+        )],
+        FakeEntityStore::Entities(vec![EntityMetadata::new(
+            "device/main/service/collectd".parse().unwrap(),
+            EntityType::Service,
+        )
+        .with_parent("device/main//".parse().unwrap())]),
+    )
+    .await
+    .unwrap();
+
+    mqtt_box
+        .send(MqttMessage::new(
+            &Topic::new_unchecked("te/device/main/service/collectd/cmd/restart/1"),
+            r#"{"status":"init"}"#,
+        ))
+        .await
+        .unwrap();
+
+    recv_command_state_with_status(
+        &mut mqtt_box,
+        &mut actor_handle,
+        "te/device/main/service/collectd/cmd/software_update/sub:restart:1",
+        "init",
+    )
+    .await;
+}
+
+#[tokio::test]
 async fn restarting_the_agent_restarts_the_process_once() {
     let TestHandler {
         tmp_dir,
@@ -1681,4 +1720,22 @@ on_timeout = { status = "failed", reason = "tedge-agent did not restart in time"
 
 [successful]
 action = "cleanup"
+"#;
+
+const SERVICE_RESTART_TRIGGERING_A_SUB_COMMAND: &str = r#"
+operation = "restart"
+type = "service"
+
+[init]
+action = "proceed"
+on_success = "executing"
+
+[executing]
+operation = "software_update"
+on_exec = "awaiting_sub_command"
+
+[awaiting_sub_command]
+action = "await-operation-completion"
+on_success = "successful"
+on_error = "failed"
 "#;

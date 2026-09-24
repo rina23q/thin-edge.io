@@ -346,7 +346,8 @@ impl WorkflowActor {
         &mut self,
         state: GenericCommandState,
     ) -> Result<(), RuntimeError> {
-        let Ok((operation, cmd_id)) = self.extract_command_identifiers(&state.topic.name) else {
+        let Ok((target, operation, cmd_id)) = self.extract_command_identifiers(&state.topic.name)
+        else {
             error!("Unknown command channel: {}", state.topic.name);
             return Ok(());
         };
@@ -695,7 +696,7 @@ impl WorkflowActor {
                 let sub_cmd_input = input_excerpt.extract_value_from(&state);
                 let sub_cmd_init_state = GenericCommandState::sub_command_init_state(
                     &self.mqtt_schema,
-                    &self.device_topic_id,
+                    &target,
                     operation,
                     cmd_id,
                     sub_operation,
@@ -852,7 +853,7 @@ impl WorkflowActor {
             .and_then(|root_topic| self.extract_command_identifiers(root_topic).ok())
         {
             None => (None, None),
-            Some((op, id)) => (Some(op.to_string()), Some(id)),
+            Some((_, op, id)) => (Some(op.to_string()), Some(id)),
         };
 
         self.log_dir
@@ -941,10 +942,10 @@ impl WorkflowActor {
     fn extract_command_identifiers(
         &self,
         topic: impl AsRef<str>,
-    ) -> Result<(OperationType, CommandId), CommandTopicError> {
-        let (_, channel) = self.mqtt_schema.entity_channel_of(topic)?;
+    ) -> Result<(EntityTopicId, OperationType, CommandId), CommandTopicError> {
+        let (entity, channel) = self.mqtt_schema.entity_channel_of(topic)?;
         match channel {
-            Channel::Command { operation, cmd_id } => Ok((operation, cmd_id)),
+            Channel::Command { operation, cmd_id } => Ok((entity, operation, cmd_id)),
             _ => Err(CommandTopicError::InvalidCommandTopic),
         }
     }
