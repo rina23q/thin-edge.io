@@ -23,7 +23,7 @@ a `restart` service command restarts one service of that device.
 
 ## Actions
 
-The name of an action is the last segment of the topic it is declared on.
+An action is declared as a command type of the service, the `<cmd_type>` segment of its topic.
 The name is a single lowercase token, matching `[a-z][a-z0-9_-]*`:
 lowercase letters, digits, `_` and `-`, starting with a letter.
 
@@ -35,7 +35,7 @@ applied to a service topic identifier such as `device/main/service/nodered`.
 ### Declaring an action
 
 A service declares an action by publishing a retained empty JSON object `{}`
-on `te/<service-topic-id>/cmd/<action>`, one topic per action.
+on `te/<service-topic-id>/cmd/<cmd_type>`, one topic per action.
 
 ```sh te2mqtt formats=v1
 tedge mqtt pub --retain 'te/device/main/service/nodered/cmd/pause' '{}'
@@ -53,7 +53,7 @@ tedge mqtt pub --retain 'te/device/main/service/nodered/cmd/pause' ''
 
 ### Triggering an action
 
-A command is published on `te/<service-topic-id>/cmd/<action>/<command-id>`,
+A command is published on `te/<service-topic-id>/cmd/<cmd_type>/<cmd_id>`,
 starting in the `init` state and ending in `successful` or `failed`.
 
 ```sh te2mqtt formats=v1
