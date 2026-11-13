@@ -95,7 +95,7 @@ async fn twin_fragment_updates_published_to_mqtt() {
 #[case::service(
     "device/main/service/collectd",
     json!({"@type": "service"}),
-    json!({"type": "systemd"})
+    json!({"name": "collectd", "type": "systemd"})
 )]
 #[case::service_with_a_custom_topic_id(
     "custom/collectd//",
@@ -104,7 +104,7 @@ async fn twin_fragment_updates_published_to_mqtt() {
 )]
 #[case::child_device("device/child1//", json!({"@type": "child-device"}), json!({}))]
 #[tokio::test]
-async fn only_services_registered_without_type_get_the_default_type(
+async fn only_services_registered_without_name_and_type_get_default_twin_values(
     #[case] topic_id: &str,
     #[case] registration: Value,
     #[case] expected_twin: Value,
@@ -141,6 +141,7 @@ async fn only_services_registered_without_type_get_the_default_type(
 }
 
 #[rstest]
+#[case::service_name("name", json!("collectd"))]
 #[case::service_type("type", json!("systemd"))]
 #[tokio::test]
 async fn a_cleared_twin_value_of_a_service_falls_back_to_its_default_value(

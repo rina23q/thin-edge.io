@@ -494,6 +494,7 @@ mod tests {
     }
 
     #[rstest]
+    #[case::service_name("name", json!({"name": "service01"}))]
     #[case::service_type("type", json!({"serviceType": "systemd"}))]
     #[tokio::test]
     async fn clearing_the_twin_value_of_a_service_sends_its_default_value(

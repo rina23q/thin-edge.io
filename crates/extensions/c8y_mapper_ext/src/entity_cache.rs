@@ -84,15 +84,7 @@ impl CloudEntityMetadata {
 
     pub fn display_name<'a>(&'a self, twin_defaults: &'a TwinDefaultsConfig) -> &'a str {
         self.twin_str_with_default("name", twin_defaults)
-            .or_else(|| match self.metadata.r#type {
-                EntityType::Service => self.metadata.topic_id.default_service_name(),
-                EntityType::MainDevice | EntityType::ChildDevice => None,
-            })
             .unwrap_or(self.external_id.as_ref())
-    }
-
-    pub fn registered_name(&self) -> Option<&str> {
-        self.metadata.twin_data.get("name").and_then(|v| v.as_str())
     }
 
     pub fn display_type<'a>(&'a self, twin_defaults: &'a TwinDefaultsConfig) -> &'a str {
